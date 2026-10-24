@@ -13,8 +13,9 @@ These four repositories are one project. Consume them by release tag.
 
 ## Known gaps and planned order
 
-One gap found by the engine one-off-kind outcome-test burn-down (batch V, engine PR #366) are too large for a burn-down batch and are tracked as issues:
+Remaining tracked gaps after the one-off-kind burn-down and stale-text audit:
 
+- **Inazuma** second subroutine is still FFG "End the run" in cards IR; printed forbids jack out until after the next encounter begins: [cards #269](https://github.com/nhoople/netrunner-cards-data/issues/269) and [engine #383](https://github.com/nhoople/netrunner-engine/issues/383).
 - **Rebirth's** identity switch is a logging stub: [engine #369](https://github.com/nhoople/netrunner-engine/issues/369).
 
 Agreed order from here: one-off-kind burn-down complete except deferred Shiro/Rebirth (baseline 2); stale-text audit, Mandatory Seed Replacement, and Shiro done (engine `v1.147.41`, cards `v1.147.12`); next Inazuma, then Rebirth last.
