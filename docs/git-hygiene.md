@@ -2,7 +2,6 @@
 
 Repos: `nhoople/netrunner-engine`, `nhoople/netrunner-cards-data`, `nhoople/netrunner-comprehensive-rules-data`, `nhoople/netrunner-game`. The parent `Netrunner` folder is the checkout of the meta repo [nhoople/netrunner](https://github.com/nhoople/netrunner) (branch `main`): the pin table in `README.md`, plus `CLAUDE.md`, `docs/`, and `.claude/agents/`. It gitignores the four repo folders and `notes.md`.
 
-Last residual check: **2026-11-12T03:30Z** — Midori, Mitra Aman, and choice fallback fixes shipped: engine [#894](https://github.com/nhoople/netrunner-engine/pull/894) (`v1.147.250`) and [#895](https://github.com/nhoople/netrunner-engine/pull/895) (`v1.147.251`); game [#279](https://github.com/nhoople/netrunner-game/pull/279); meta pin table. Engine `v1.147.251` + cards `v1.147.22` + game/meta pins. Checkouts on master/main.
 
 
 ## Releases
@@ -27,6 +26,20 @@ Engine or cards PRs that change only tests, validators, coverage baselines, or d
 Set-complete milestones (or an explicit manual cut) share one semver on cards-data and engine. After a set-complete, leave cards and engine on that paired tag. CR-data uses its own scheme. When any release tag changes, update [nhoople/netrunner](https://github.com/nhoople/netrunner) in the same pass.
 
 **Today:** a maintenance floor, not a set-complete pair. The current tags are in the [pin table](../README.md); each release's notes are on its GitHub Releases page. Do not invent bumps from version numbers quoted in older docs.
+
+#### Set-complete checklist
+
+Run when a pack reaches **100% clear** (or explicit deferrals documented) and `pool.json` marks the wave **`supported`**. Do **not** run after every IR slice or semver tag.
+
+1. **Pool** — Set the wave to `supported` in `netrunner-cards-data` `data/pool.json`. Every listed card must have empty `unsupported` (or an explicit reason in `data/supported-unsupported-allowlist.json`); CI enforces this.
+2. **Pin pair** — Final cards annotated tag `vX.Y.0` and matching engine `data/cards-pin.json` bump + annotated engine tag on the pin merge commit (same semver on both repos at set-complete). An engine-only maintenance release may advance the engine tag alone when the card corpus does not change.
+3. **Milestone Releases** — Official GitHub Releases on **both** cards-data and engine at that set-complete tag (or an explicit manual release). Engine-only maintenance releases (patch tags when `src/` changes and consumers should pick them up) are separate — see [`git-hygiene.md`](git-hygiene.md).
+4. **README pairing** — Update Cards ↔ engine pairing sections in both repo READMEs.
+5. **Project docs** — Refresh [`roadmap.md`](roadmap.md) (baseline semver, the supported / not-in-corpus summary, wait/next kickoff).
+6. **Gate summary** — Record set-complete outcome (counts, smoke, deferrals) on the set-complete PR. An optional short note in the project store stays a receipt, not a second plan.
+7. **CR adherence pass** — Sample high-risk cards in the wave against [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) (timing, cannot/prevent, damage/tags/traces, install/rez, run structure). Fix **mismatch**-class findings or document explicit deferrals with CR cites on the set-complete PR.
+8. **Interaction smoke** — Sample cross-card pairs from [`interaction-smoke-samples.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/interaction-smoke-samples.md) (prevent×cost, blank×host, interrupt chains, etc.); record pass/fail/defer in the set-complete summary. Required at set-complete for each **new** pack. One-time Gateway→VP corpus pass already shipped via engine [#193](https://github.com/nhoople/netrunner-engine/pull/193) (`tests/confidence-*.test.ts`).
+9. **Context prune** — Delete mid-wave progress, pin/tag status, and handoff notes after set-complete; keep `internal/` small (`README`, optional in-flight wave only). Fix broken `docs/` links. Do **not** recreate `internal/archive/` bulk.
 
 ## End of session
 

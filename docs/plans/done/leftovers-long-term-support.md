@@ -98,4 +98,4 @@ Maps are init/clear-only; rules readers already use lingerings. Rewrite inject t
 
 ## Docs / EOS
 
-Update [`docs/engine-standardization-inventory.md`](../../engine-standardization-inventory.md) and floor lines in [`docs/git-hygiene.md`](../../git-hygiene.md) / roadmap baseline as each slice ships. End-of-session sync per standing hygiene.
+Update [`docs/engine-standardization-inventory.md`](engine-standardization-inventory.md) and floor lines in [`docs/git-hygiene.md`](../../git-hygiene.md) / roadmap baseline as each slice ships. End-of-session sync per standing hygiene.

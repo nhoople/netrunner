@@ -1,4 +1,6 @@
-# Format coverage audit (cards v1.147.6, engine v1.147.9)
+# Format coverage audit
+
+Audited 2026-10-01 at cards `v1.147.6` and engine `v1.147.9`; the card corpus has not changed since, so the coverage verdicts still hold. Current versions are in the [pin table](../README.md).
 
 **Overall: Core Sets, Standard, Startup, Eternal, and RAM are fully covered for unique-title play** (NSG set lists). Magnum Opus (`mo`/`mor`) cleared at milestone **v1.142.0**. The printed corpus is unchanged from **v1.143.0**.
 

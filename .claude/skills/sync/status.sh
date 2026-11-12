@@ -84,8 +84,6 @@ for repo in ["", "netrunner-engine", "netrunner-cards-data", "netrunner-comprehe
         except OSError:
             continue
         for i, line in enumerate(lines, 1):
-            if line.startswith("Last residual check"):
-                continue
             if ver.search(line) and pinword.search(line):
                 hits.append(f"{repo or 'netrunner'}/{f}:{i}")
 print(f"   docs restating a pinned version: {len(hits)}" + ("" if not hits else " (link the pin table instead)"))
