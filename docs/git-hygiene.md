@@ -26,7 +26,7 @@ Engine or cards PRs that change only tests, validators, coverage baselines, or d
 
 Set-complete milestones (or an explicit manual cut) share one semver on cards-data and engine. After a set-complete, leave cards and engine on that paired tag. CR-data uses its own scheme. When any release tag changes, update [nhoople/netrunner](https://github.com/nhoople/netrunner) in the same pass.
 
-**Today (maintenance floor, not a set-complete pair):** cards **`v1.147.22`**, engine **`v1.147.251`** (a choice keyed by a card id resolves its own effect, and ice that Project Yagi-Uda, Midori, or Mitra Aman swaps out is uninstalled; CR 8.1.1, CR 8.8.4b), CR **`v26.03`**. `netrunner-game` pins those three. On that pin it serves `/play/` and replays the applied-intent log after a restart; match files are record version 2. See the meta README for the narrative; do not invent bumps from stale examples in other docs.
+**Today:** a maintenance floor, not a set-complete pair. The current tags are in the [pin table](../README.md); each release's notes are on its GitHub Releases page. Do not invent bumps from version numbers quoted in older docs.
 
 ## End of session
 

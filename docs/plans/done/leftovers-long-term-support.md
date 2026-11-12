@@ -38,9 +38,9 @@ flowchart LR
 
 ## L1 — Prefer card-supplied decls + author the six
 
-**Engine** ([`netrunner-engine/src/cards/load.ts`](netrunner-engine/src/cards/load.ts)): today `instantiateCard` **overwrites** any card-supplied continuous arrays with boolean projections. Change to: if `def.continuousSubtypeGrants` / `def.continuousGainedSubDecls` present, use them; else keep projecting from the four flags. Keep collector boolean fallbacks.
+**Engine** ([`netrunner-engine/src/cards/load.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/cards/load.ts)): today `instantiateCard` **overwrites** any card-supplied continuous arrays with boolean projections. Change to: if `def.continuousSubtypeGrants` / `def.continuousGainedSubDecls` present, use them; else keep projecting from the four flags. Keep collector boolean fallbacks.
 
-**Cards** (paired release): add the two array properties to [`netrunner-cards-data/data/schema.json`](netrunner-cards-data/data/schema.json); rewrite the six cards that already use flags via `abilities[].declaration`:
+**Cards** (paired release): add the two array properties to [`netrunner-cards-data/data/schema.json`](https://github.com/nhoople/netrunner-cards-data/blob/master/data/schema.json); rewrite the six cards that already use flags via `abilities[].declaration`:
 
 | Card | Decl(s) |
 |------|---------|
@@ -64,18 +64,18 @@ Extend gained-sub decl shapes beyond markers so collectors stop hardcoding text/
 - `sub_boost_etr` — carry ETR sub payload + `after`.
 - `wetwork_hosted_before` — own the hosted sub list + `before` (migrate off `hostGainsSubroutinesBeforePrinted` as the grant source).
 
-Then simplify [`continuousSubs.ts`](netrunner-engine/src/state/continuousSubs.ts) `collectFatumaGainedSubs` / `collectSubBoostEtrSubs` / `collectHostedConditionSubsBeforePrinted` to walk decls only. Drop boolean fallbacks **for those three kinds** once cards no longer need the flags. Leave Winchester-family collectors flag-driven.
+Then simplify [`continuousSubs.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousSubs.ts) `collectFatumaGainedSubs` / `collectSubBoostEtrSubs` / `collectHostedConditionSubsBeforePrinted` to walk decls only. Drop boolean fallbacks **for those three kinds** once cards no longer need the flags. Leave Winchester-family collectors flag-driven.
 
-[`continuousEffects.ts`](netrunner-engine/src/state/continuousEffects.ts) subtype grants already kind-driven — drop the boolean OR branches for the six after L1 cards are the floor.
+[`continuousEffects.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousEffects.ts) subtype grants already kind-driven — drop the boolean OR branches for the six after L1 cards are the floor.
 
 **Ship:** engine maintenance (and cards if Wetwork payload moves off the hosted array field).
 
 ## L3 — Action-layer choose slice
 
-Route remaining **framework opens** through [`openPendingChoose`](netrunner-engine/src/state/pendingChoice.ts) (same class as graph mid-hooks):
+Route remaining **framework opens** through [`openPendingChoose`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/pendingChoice.ts) (same class as graph mid-hooks):
 
-- [`installRunner.ts`](netrunner-engine/src/actions/installRunner.ts), [`installCorp.ts`](netrunner-engine/src/actions/installCorp.ts), [`rez.ts`](netrunner-engine/src/actions/rez.ts), [`play.ts`](netrunner-engine/src/actions/play.ts), [`run.ts`](netrunner-engine/src/actions/run.ts), [`access.ts`](netrunner-engine/src/actions/access.ts) (~15 opens)
-- [`effects/chooseCard.ts`](netrunner-engine/src/effects/chooseCard.ts)
+- [`installRunner.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/installRunner.ts), [`installCorp.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/installCorp.ts), [`rez.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/rez.ts), [`play.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/play.ts), [`run.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/run.ts), [`access.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/access.ts) (~15 opens)
+- [`effects/chooseCard.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/effects/chooseCard.ts)
 
 Leave `eval.ts` / `*Primitives.ts` (~700 sites) and `apply.ts` null-clears alone. No `closePendingChoice` helper unless a clear duplication shows up mid-slice.
 
@@ -83,7 +83,7 @@ Leave `eval.ts` / `*Primitives.ts` (~700 sites) and `apply.ts` null-clears alone
 
 ## L4 — Delete dead strength/MU duration maps
 
-Maps are init/clear-only; rules readers already use lingerings. Rewrite inject tests in [`tests/cr-examples-ch10.test.ts`](netrunner-engine/tests/cr-examples-ch10.test.ts) and [`tests/instruction-checkpoints.test.ts`](netrunner-engine/tests/instruction-checkpoints.test.ts) to seed lingerings, then remove:
+Maps are init/clear-only; rules readers already use lingerings. Rewrite inject tests in [`tests/cr-examples-ch10.test.ts`](https://github.com/nhoople/netrunner-engine/blob/master/tests/cr-examples-ch10.test.ts) and [`tests/instruction-checkpoints.test.ts`](https://github.com/nhoople/netrunner-engine/blob/master/tests/instruction-checkpoints.test.ts) to seed lingerings, then remove:
 
 - turn/run map fields and their init/clear in `turn.ts`, `checkpoints.ts`, `graph.ts`, run construction
 - debug/key-count bookkeeping that only exists for those maps (`passedRunDurationCount` if map-only)
@@ -98,4 +98,4 @@ Maps are init/clear-only; rules readers already use lingerings. Rewrite inject t
 
 ## Docs / EOS
 
-Update [`docs/engine-standardization-inventory.md`](docs/engine-standardization-inventory.md) and floor lines in [`docs/git-hygiene.md`](docs/git-hygiene.md) / roadmap baseline as each slice ships. End-of-session sync per standing hygiene.
+Update [`docs/engine-standardization-inventory.md`](../../engine-standardization-inventory.md) and floor lines in [`docs/git-hygiene.md`](../../git-hygiene.md) / roadmap baseline as each slice ships. End-of-session sync per standing hygiene.

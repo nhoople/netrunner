@@ -58,14 +58,14 @@ isProject: false
 
 # Full CR fidelity program
 
-**Status (reviewed 2026-11-11):** phases 1–5 are done. Phase 5 (gained-subtype → further-grant chains) shipped as engine standardization S1 (`engine_standardization_program_761c2b4b.plan.md`); `tests/continuous-subtype-layer.test.ts` covers Mother Goddess gaining Egret-granted subtypes. Current floor is engine `v1.147.248`, cards `v1.147.22`; the floors below are historical.
+**Status (reviewed 2026-11-11):** phases 1–5 are done. Phase 5 (gained-subtype → further-grant chains) shipped as engine standardization S1 (`engine-standardization-program.md`); `tests/continuous-subtype-layer.test.ts` covers Mother Goddess gaining Egret-granted subtypes. Current floor is engine `v1.147.248`, cards `v1.147.22`; the floors below are historical.
 
 **Decision:** Nathaniel, 2026-10-29 (side chat → main). North star = full **executable** CR fidelity for the corpus. Still **not** a Comprehensive Rules prose / `nodes.json` → AST compiler (`docs/roadmap.md`, engine README). Card text wins on direct contradiction (**CR 1.2.1**).
 
 **Floor:** engine [`v1.147.221`](https://github.com/nhoople/netrunner-engine/releases/tag/v1.147.221), cards `v1.147.13`, CR `v26.03`.
 
-**Parent tracking:** [`stack_tracking_assessment_eadbad4f.plan.md`](stack_tracking_assessment_eadbad4f.plan.md)  
-**Records precursor (cards already have `abilities`):** [`cr_ability_records_6a90f553.plan.md`](cr_ability_records_6a90f553.plan.md) — phase 1 is **runtime** cutover, not re-declaring the corpus.  
+**Parent tracking:** [`stack-tracking-assessment.md`](stack-tracking-assessment.md)  
+**Records precursor (cards already have `abilities`):** [`cr-ability-records.md`](done/cr-ability-records.md) — phase 1 is **runtime** cutover, not re-declaring the corpus.  
 **Handoff for agents:** agent store `full-cr-fidelity-handoff.md`  
 **Roadmap:** Phase 5 note in [`docs/roadmap.md`](../roadmap.md)
 

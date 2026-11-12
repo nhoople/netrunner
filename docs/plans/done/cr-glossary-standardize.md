@@ -52,12 +52,12 @@ Later waves (backlog, not this PR set): close remaining `unmodeled` / `alias` ro
 
 ### Inventory
 
-Source of truth: pinned CR data (`vendor/cr-data` / fetch pin **v26.03**) [`data/terms.json`](netrunner-comprehensive-rules-data/data/terms.json).
+Source of truth: pinned CR data (`vendor/cr-data` / fetch pin **v26.03**) [`data/terms.json`](https://github.com/nhoople/netrunner-comprehensive-rules-data/blob/master/data/terms.json).
 
 Add:
 
-- [`netrunner-engine/docs/cr-glossary.md`](netrunner-engine/docs/cr-glossary.md) — human tables (zones, windows, and the full term list or a generated include)
-- [`netrunner-engine/data/cr-term-map.json`](netrunner-engine/data/cr-term-map.json) — machine-readable map keyed by normalized term text
+- [`netrunner-engine/docs/cr-glossary.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-glossary.md) — human tables (zones, windows, and the full term list or a generated include)
+- [`netrunner-engine/data/cr-term-map.json`](https://github.com/nhoople/netrunner-engine/blob/master/data/cr-term-map.json) — machine-readable map keyed by normalized term text
 
 Each entry:
 
@@ -84,11 +84,11 @@ Statuses:
 
 Script (optional but preferred): `scripts/build-cr-term-map.mjs` reads pinned `terms.json`, merges hand-maintained overrides for `code` / `status`, writes `cr-term-map.json` + regenerates the inventory section of the glossary. First landing may hand-seed statuses for known rows and default the rest to `unmodeled` or `card-text` by heuristic (subtypes → often `card-text` unless engine has the subtype).
 
-Link glossary from [`cr-adherence-gate.md`](netrunner-engine/docs/cr-adherence-gate.md) §3 and [`docs/roadmap.md`](docs/roadmap.md).
+Link glossary from [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) §3 and [`docs/roadmap.md`](../../roadmap.md).
 
 ### Denylist guard
 
-[`netrunner-engine/tests/cr-term-denylist.test.ts`](netrunner-engine/tests/cr-term-denylist.test.ts) (+ game-side check or shared list consumed by game test):
+[`netrunner-engine/tests/cr-term-denylist.test.ts`](https://github.com/nhoople/netrunner-engine/tree/master/tests/cr-term-denylist.test.ts) (+ game-side check or shared list consumed by game test):
 
 - Load banned strings from `cr-term-map.json` (`aliasesBanned` where status is `aligned`) plus a fixed seed list from this plan: `runner:rig`, `.discard` bag name, `advancementTokens`, `accessRemaining`, `brainDamage` (field), `*_interrupt_paw`, UI “Continue” for `pass_window`, etc.
 - Scan `src/**/*.ts` (and game `src/match.ts`, `public/table.html`) for banned identifiers/labels
@@ -119,7 +119,7 @@ ZoneId `runner:rig` → `runner:installed`.
 
 Play-area partitions (document, do not merge): `server:*`, `runner:installed`, `corp:play-area` / `runner:play-area`.
 
-Add [`netrunner-engine/src/state/zones.ts`](netrunner-engine/src/state/zones.ts) (`isPlayAreaZone`, side-name helpers).
+Add [`netrunner-engine/src/state/zones.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/zones.ts) (`isPlayAreaZone`, side-name helpers).
 
 ---
 

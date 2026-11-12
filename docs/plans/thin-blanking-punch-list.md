@@ -56,7 +56,7 @@ isProject: false
 
 **Floor:** engine [`v1.147.145`](https://github.com/nhoople/netrunner-engine/releases/tag/v1.147.145) — thin punch list + inactive cancel + Sebastião had-no-tags (#619). Cards `v1.147.13`, CR `v26.03`.
 
-**Parent assessment:** [`stack_tracking_assessment_eadbad4f.plan.md`](stack_tracking_assessment_eadbad4f.plan.md)
+**Parent assessment:** [`stack-tracking-assessment.md`](stack-tracking-assessment.md)
 
 **Rule:** cite CR **9.12.1d**; gate continuous/static ability *reads* with `abilitiesSuppressed`; add a focused `blanked-*.test.ts`; maintenance release + pins when `src/` changes.
 

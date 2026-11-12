@@ -1,6 +1,6 @@
 # Engine standardization inventory (S0)
 
-Snapshot for the maximal standardization program. Shipped floor: engine **`v1.147.244`** / cards **`v1.147.19`**. Golden transcripts are an intent list. `deckbuildingReport` is exported for the match host. Docklands Pass, Snare, Verbal Plasticity, and Restoring Humanity are declarations. The effect switch is split by procedure under `src/effects/kinds/`. Printed play, paid, and subroutine text is the CR 9.3 record (`playEffectFromCard`, `paidAbilitiesFromCard`, `subroutinesFromCard`). Card-level once-per-turn paid is `paidAbilitiesOncePerTurn`. Load copies `continuousSubtypeGrants` and `continuousGainedSubDecls` only.
+Snapshot for the maximal standardization program. Snapshot taken at engine `v1.147.244` and cards `v1.147.19`; the current versions are in the [pin table](../README.md). Golden transcripts are an intent list. `deckbuildingReport` is exported for the match host. Docklands Pass, Snare, Verbal Plasticity, and Restoring Humanity are declarations. The effect switch is split by procedure under `src/effects/kinds/`. Printed play, paid, and subroutine text is the CR 9.3 record (`playEffectFromCard`, `paidAbilitiesFromCard`, `subroutinesFromCard`). Card-level once-per-turn paid is `paidAbilitiesOncePerTurn`. Load copies `continuousSubtypeGrants` and `continuousGainedSubDecls` only.
 
 ## Continuous readers
 

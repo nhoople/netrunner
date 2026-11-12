@@ -61,14 +61,14 @@ flowchart TB
 
 - **Canonical:** `CardInstance.zone` (already).
 - **Partition indexes:** keep `Server.ice` / `Server.root` / `PlayerState.installed` / `PlayerState.setAside` / `hostedCardIds`; **add** `PlayerState.playArea: string[]` for non-installed play-area cards (today zone-only).
-- **Membership API** in [`zones.ts`](netrunner-engine/src/state/zones.ts): extend `isPlayAreaZone` to treat `hosted:${id}` as play area (**4.6.5g/h** — today it does not); add `playAreaCardIds`, `isInPlayArea`, lingering filters; set-aside stays its own zone (not play area).
+- **Membership API** in [`zones.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/zones.ts): extend `isPlayAreaZone` to treat `hosted:${id}` as play area (**4.6.5g/h** — today it does not); add `playAreaCardIds`, `isInPlayArea`, lingering filters; set-aside stays its own zone (not play area).
 - **Mutation path:** install / play / trash / move helpers update zone **and** the matching bag. Fix `removeCardFromCurrentZone` so play-area bags leave cleanly (set-aside and host lists already have dedicated paths).
 
 ## Engine slices
 
 ### A — Membership + sync bags
-- Add `playArea` on corp/runner in [`types.ts`](netrunner-engine/src/state/types.ts) / createGame / shortGame.
-- Wire place/trash paths in [`play.ts`](netrunner-engine/src/actions/play.ts), currents, lockdowns, and other writers of `corp:play-area` / `runner:play-area` to push/pop `playArea`.
+- Add `playArea` on corp/runner in [`types.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/types.ts) / createGame / shortGame.
+- Wire place/trash paths in [`play.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/play.ts), currents, lockdowns, and other writers of `corp:play-area` / `runner:play-area` to push/pop `playArea`.
 - Centralize leave-zone cleanup so play-area bags stay consistent with `installed` / servers.
 - Unit tests: place op/event → in `playArea` + zone; trash/linger/remove → bag empty; `isPlayAreaZone` covers the four play-area partitions.
 
@@ -76,10 +76,10 @@ flowchart TB
 - Extend `isPlayAreaZone` / `playAreaCardIds` so `hosted:*` counts as play area (**4.6.5g/h**).
 - Replace ad hoc `zone === "corp:play-area"` / Object.values scans for membership with helpers (currents, lockdowns, timing graph turn-begin).
 - Leave loops on `runner.installed` / `server.ice` where they mean that **partition**.
-- Update glossary / [`cr-term-map.json`](netrunner-engine/data/cr-term-map.json): play-area partitions as views; hosted is play area under a host; note set-aside and BP fund as open locations.
+- Update glossary / [`cr-term-map.json`](https://github.com/nhoople/netrunner-engine/blob/master/data/cr-term-map.json): play-area partitions as views; hosted is play area under a host; note set-aside and BP fund as open locations.
 
 ### C — Public view (additive)
-Extend [`library.ts`](netrunner-engine/src/api/library.ts) `getPublicView`:
+Extend [`library.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/api/library.ts) `getPublicView`:
 
 | Field | Source | Visibility |
 |-------|--------|------------|
@@ -94,8 +94,8 @@ Engine tests for seat / opponent / spectator-equivalent filtering on each field.
 ## Game slices
 
 ### D — Seat snapshot + table
-- [`match.ts`](netrunner-game/src/match.ts): decorate `playArea` and `setAside`; nest hosted **cards** (not only credits) under hosts; pass through `badPublicityFund`.
-- [`table.html`](netrunner-game/public/table.html):
+- [`match.ts`](https://github.com/nhoople/netrunner-game/blob/master/src/match.ts): decorate `playArea` and `setAside`; nest hosted **cards** (not only credits) under hosts; pass through `badPublicityFund`.
+- [`table.html`](https://github.com/nhoople/netrunner-game/blob/master/public/table.html):
   - Nested hosted cards under ice/root/installed hosts (today `hosted` on a slot is credits only)
   - **In play** strip per side (lingering ops/events/currents/lockdowns)
   - **Set aside** shared strip when non-empty

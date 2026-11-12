@@ -23,7 +23,7 @@ The finished product is a browser play site in the same role as [jinteki.net](ht
 
 This slice is the test table, not that site. Two browsers join one match, each sees only its seat, and legal clicks go through the engine. Accounts, a lobby, persistence, and more than one server process are not implemented now.
 
-The engine is already the rules library and is explicit that it has no sockets or UI. New work stays in [netrunner-game](../../netrunner-game) and calls the host API in [deps/netrunner-engine/src/api/library.ts](../../netrunner-game/deps/netrunner-engine/src/api/library.ts):
+The engine is already the rules library and is explicit that it has no sockets or UI. New work stays in [netrunner-game](https://github.com/nhoople/netrunner-game) and calls the host API in [deps/netrunner-engine/src/api/library.ts](https://github.com/nhoople/netrunner-engine/blob/master/src/api/library.ts):
 
 - `createGame`
 - `queryLegality`

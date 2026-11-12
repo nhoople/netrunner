@@ -8,7 +8,7 @@
 | Floor | cards **`v1.147.6`**, engine **`v1.147.9`** (updated 2026-10-17; ice, asset, and upgrade install cost follows the Comprehensive Rules) |
 | Criterion | “Support play” = every **unique title** in the format’s legal **card pool** exists as supported Effect IR in `pool.json` / card data. Ban lists, points lists, and MWL documents are in cards `v1.147.18` (`data/formats/`, `data/card-pools/`, `data/restrictions/`). Enforcement is **out of scope**. |
 | Corpus | [`roadmap.md`](roadmap.md) Phase 3 (68/68 `pool.json` waves supported, including Magnum Opus). Outside: skip `napd`, draft, championship; defer `tdc`; `sm` reprints only |
-| Preferences | [project store `preferences.md`](/cursor/stores/bc-ff07fe61-a54b-4ec3-9ab4-08ea6799859d/preferences.md) — Magnum Opus included (user override) |
+| Preferences | Maintainer preference: Magnum Opus included (user override) |
 
 ---
 

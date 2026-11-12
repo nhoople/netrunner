@@ -1,6 +1,6 @@
 # Netrunner Project Roadmap
 
-*Updated 2026-11-11 — cards `v1.147.22`, engine `v1.147.251`, CR `v26.03`. Corpus idle. Fidelity program phases 1–5 done; standardization S0–S6 landed. Product Phase 5 is met: the verification table and `/play/` share a match protocol, and a restart replays the applied-intent log. Next is a Discord Activity. The public host is one Lightsail instance. Discord is the account and the conversation.*
+*Updated 2026-11-11. Current versions are in the [pin table](../README.md). Corpus idle. Fidelity program phases 1–5 done; standardization S0–S6 landed. Product Phase 5 is met: the verification table and `/play/` share a match protocol, and a restart replays the applied-intent log. Next is a Discord Activity. The public host is one Lightsail instance. Discord is the account and the conversation.*
 
 ## North star
 
@@ -16,8 +16,8 @@ This stack is **not** a Comprehensive Rules prose or `nodes.json` compiler. Card
 - **Cards are pure data.** Card text becomes structured payloads (stats, subtypes, abilities as Effect IR). Host code does not special-case individual cards once the IR covers them.
 - **Engine is a headless library.** TypeScript rules core stays UI- and network-agnostic; CLI/demos are development hosts only.
 - **CR data is authority for citations and timing IDs**, not executable card behavior. Keep pinning [netrunner-comprehensive-rules-data](https://github.com/nhoople/netrunner-comprehensive-rules-data) (tag `v26.03` today).
-- **CR terminology** for the stack lives in [`cr-glossary.md`](../netrunner-engine/docs/cr-glossary.md) and [`cr-term-map.json`](../netrunner-engine/data/cr-term-map.json) (full `terms.json` inventory + denylist). Card printings are not rewritten (**CR 1.2.1**).
-- **CR adherence gate for new clears.** Card-text → Effect IR + engine tests are necessary but not sufficient; each slice must also pass the checklist in [`cr-adherence-gate.md`](../netrunner-engine/docs/cr-adherence-gate.md) (timing windows, defined terms, cannot/prevent, cite recording, fail-closed). PR templates in engine + cards-data require the gate recording section for IR/clear slices.
+- **CR terminology** for the stack lives in [`cr-glossary.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-glossary.md) and [`cr-term-map.json`](https://github.com/nhoople/netrunner-engine/blob/master/data/cr-term-map.json) (full `terms.json` inventory + denylist). Card printings are not rewritten (**CR 1.2.1**).
+- **CR adherence gate for new clears.** Card-text → Effect IR + engine tests are necessary but not sufficient; each slice must also pass the checklist in [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) (timing windows, defined terms, cannot/prevent, cite recording, fail-closed). PR templates in engine + cards-data require the gate recording section for IR/clear slices.
 - **Stable host API.** Export pure functions (`createGame`, `queryLegality`, `applyIntent`, side-filtered views). `netrunner-game` consumes them by release tag. The engine stays UI- and network-agnostic; multiplayer lives in the game repo.
 - **Grow IR and mechanics together.** Expand Effect IR and core CR procedures in lockstep with the card set that needs them—no big-bang “compile all of NRDB.”
 - **Compose Effect IR.** Card JSON uses `op` and `kind`. The source of truth is `Effect` and `KNOWN_PRIMITIVE_KINDS` in `netrunner-engine/src/effects/ir.ts`. Forms are `seq`, `do`, `if`, `prevent`, and `choose`. Compose with those before adding a primitive. Add a primitive when the same behavior is on many cards and a composition is unclear or fragile. A one-off stays composed on the card. Timing-sensitive procedure stays in the engine. A trace nests effects: `{ kind: "trace", strength, onSuccess, onFailure? }`. Unimplemented printed text goes in `unsupported`. Someone writing a card needs the current card JSON, the relevant Comprehensive Rules nodes, and a test. A kind is snake_case and names the procedure (verb, then object). Pack codes and card titles are not prefixes. The check is `primitiveNameFollowsStandard` in `netrunner-engine/src/effects/primitiveNames.ts`.
@@ -46,9 +46,9 @@ flowchart LR
 |-------|--------|
 | Project status | Corpus **idle** — Magnum Opus complete (**8/8**; `mor` absorbed). FFG Core-forward + Gateway→VP + MO supported. Eternal/RAM unique-title gaps closed. `tdc` deferred; skip `napd`/draft/championship. The verification table and `/play/` are in `netrunner-game`. Next is a Discord Activity |
 | CR dataset | Consumer JSON pipeline live; pin **`v26.03`** (do not invent a bump) |
-| Cards-as-data | [netrunner-cards-data](https://github.com/nhoople/netrunner-cards-data) — full FFG Core-forward + Gateway→VP + Magnum Opus; release **`v1.147.22`** (side and type, `deckLimit`, printings, printed sentences, verified rulings, and format lists). Title corpus unchanged from `v1.147.6`. Verbal Plasticity and Jinteki: Restoring Humanity declare their printed abilities |
-| Engine | [netrunner-engine](https://github.com/nhoople/netrunner-engine) — floor **`v1.147.251`**, pins cards **`v1.147.22`** and loads files by side and type. Play, paid, and subroutine text is the ability record. The effect switch is split by procedure |
-| Game | [netrunner-game](https://github.com/nhoople/netrunner-game) — the multiplayer game. Verification table, product client at `/play/`, and a restart that replays the applied-intent log. Pins engine **`v1.147.251`**, cards **`v1.147.22`**, CR **`v26.03`** |
+| Cards-as-data | [netrunner-cards-data](https://github.com/nhoople/netrunner-cards-data) — full FFG Core-forward + Gateway→VP + Magnum Opus; (side and type, `deckLimit`, printings, printed sentences, verified rulings, and format lists). Title corpus unchanged from `v1.147.6`. Verbal Plasticity and Jinteki: Restoring Humanity declare their printed abilities |
+| Engine | [netrunner-engine](https://github.com/nhoople/netrunner-engine) — pins cards by release tag and loads files by side and type. Play, paid, and subroutine text is the ability record. The effect switch is split by procedure |
+| Game | [netrunner-game](https://github.com/nhoople/netrunner-game) — the multiplayer game. Verification table, product client at `/play/`, and a restart that replays the applied-intent log. Pins engine, cards, and CR by release tag |
 | Corpus | **68/68** waves in `pool.json` are `supported`. Outside that list: skip `napd`, draft, and championship; defer `tdc`; `sm` is reprints only |
 | Formats | NSG **Core Sets**, **Standard**, **Startup**, **Eternal**, and **RAM** are covered for unique-title play ([`format-coverage-audit.md`](format-coverage-audit.md)). Challenge and Play offer Learn to play, Core Sets, Startup, Standard, and Eternal. Ranked offers those four formats. System Gateway is a set, not a choice. Ban lists are in cards **`v1.147.19`**. The host checks the list in force when a format match starts (Phase 6). The verification table does not |
 | Releases | Set-complete paired tags; engine maintenance releases when `src/` changes (game + meta pins in the same pass); test-only merges with no tag ([`git-hygiene.md`](git-hygiene.md)) |
@@ -72,7 +72,7 @@ Adopted 2026-10-29. Full **executable** CR fidelity for the corpus, still withou
 
 Phase-3 leftovers closed at **`v1.147.221`** (Jeitinho bypass note path; `fireInlineConditional` removed).
 
-**Plans:** [`full_cr_fidelity_program_a1b2c3d4.plan.md`](plans/full_cr_fidelity_program_a1b2c3d4.plan.md) (fidelity); [`engine_standardization_program_761c2b4b.plan.md`](plans/engine_standardization_program_761c2b4b.plan.md) (standardization); [`stack_tracking_assessment_eadbad4f.plan.md`](plans/stack_tracking_assessment_eadbad4f.plan.md) (status). Product Phase 5 is met. Phase 6 is the Discord Activity.
+**Plans:** [`full-cr-fidelity-program.md`](plans/full-cr-fidelity-program.md) (fidelity); [`engine-standardization-program.md`](plans/done/engine-standardization-program.md) (standardization); [`stack-tracking-assessment.md`](plans/stack-tracking-assessment.md) (status). Product Phase 5 is met. Phase 6 is the Discord Activity.
 
 ## Engine standardization
 
@@ -94,7 +94,7 @@ Historical build arc for the stack and multiplayer host. Numbering here is **not
 
 ### Phase 0 — Foundations (done)
 
-- Maintain CR ingest/validate/pin when Null Signal publishes new CR versions (checklist: [`cr-pin-bump-checklist.md`](../netrunner-engine/docs/cr-pin-bump-checklist.md)).
+- Maintain CR ingest/validate/pin when Null Signal publishes new CR versions (checklist: [`cr-pin-bump-checklist.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-pin-bump-checklist.md)).
 - Keep engine `npm run fetch-cr` + cite/timing-id tests green (default CI `npm test`: `tests/cr-cite-map.test.ts`, timing `stepId` check in `tests/engine.test.ts`).
 
 **Exit:** CR pin story and engine harness remain the source of rules citations.
@@ -118,7 +118,7 @@ Headless engine with a **scripted two-player game** via the library API (CLI/tes
 
 Supported subset in release order, each wave gated by IR/engine support; unsupported clauses marked explicitly.
 
-**Floor today:** cards **`v1.147.22`**, engine **`v1.147.251`**. Cards are stored by side and type. Printed link, deck size, influence limit, and influence cost are stored. Ice install cost is 1 credit for each piece of ice already protecting the server (CR 1.16.6b). Assets, agendas, and upgrades install for free (CR 8.5.11a). Each printed ability is a Comprehensive Rules 9.3 record. Play, paid, and subroutine text is that record. CR pin **`v26.03`**. `netrunner-game` pins those three tags.
+**Floor today:** see the [pin table](../README.md). Cards are stored by side and type. Printed link, deck size, influence limit, and influence cost are stored. Ice install cost is 1 credit for each piece of ice already protecting the server (CR 1.16.6b). Assets, agendas, and upgrades install for free (CR 8.5.11a). Each printed ability is a Comprehensive Rules 9.3 record. Play, paid, and subroutine text is that record. CR pin **`v26.03`**. `netrunner-game` pins those three tags.
 
 **Supported:** all **68** waves in [`data/pool.json`](https://github.com/nhoople/netrunner-cards-data/blob/v1.147.22/data/pool.json) `corpusOrder` are `supported`. That is FFG Core through Kitara, Reign and Reverie, Magnum Opus (`mo` 8/8, `mor` absorbed), System Core 2019, Downfall, Uprising, and Gateway through Vantage Point. Per-wave milestone tags are on the cards and engine GitHub Releases.
 
@@ -138,7 +138,7 @@ Supported subset in release order, each wave gated by IR/engine support; unsuppo
 
 Do not start a later set until the current release’s cards pass (fully supported or explicitly deferred with `unsupported` notes) **and** the CR adherence gate for cleared cards is satisfied (or residual debt is explicit).
 
-**Per-slice (every IR clear, not only set-complete):** follow [`cr-adherence-gate.md`](../netrunner-engine/docs/cr-adherence-gate.md) — timing windows, defined terms/keywords, cannot/prevent, install/rez/run touches, cite recording against pin `v26.03`, fail-closed when CR is ambiguous or the engine window is missing. Slice work lands as PR merges. If the engine PR changes `src/` and the game should pick it up, cut an engine maintenance release and bump game + meta pins ([`git-hygiene.md`](git-hygiene.md)); test-only slices merge with no tag.
+**Per-slice (every IR clear, not only set-complete):** follow [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) — timing windows, defined terms/keywords, cannot/prevent, install/rez/run touches, cite recording against pin `v26.03`, fail-closed when CR is ambiguous or the engine window is missing. Slice work lands as PR merges. If the engine PR changes `src/` and the game should pick it up, cut an engine maintenance release and bump game + meta pins ([`git-hygiene.md`](git-hygiene.md)); test-only slices merge with no tag.
 
 **Exit:** Declared supported pool with engine tests and a CR gate summary on the set-complete PR. Refresh the floor in this roadmap.
 
@@ -152,8 +152,8 @@ Run when a pack reaches **100% clear** (or explicit deferrals documented) and `p
 4. **README pairing** — Update Cards ↔ engine pairing sections in both repo READMEs.
 5. **Project docs** — Refresh [`roadmap.md`](roadmap.md) (baseline semver, the supported / not-in-corpus summary, wait/next kickoff).
 6. **Gate summary** — Record set-complete outcome (counts, smoke, deferrals) on the set-complete PR. An optional short note in the project store stays a receipt, not a second plan.
-7. **CR adherence pass** — Sample high-risk cards in the wave against [`cr-adherence-gate.md`](../netrunner-engine/docs/cr-adherence-gate.md) (timing, cannot/prevent, damage/tags/traces, install/rez, run structure). Fix **mismatch**-class findings or document explicit deferrals with CR cites on the set-complete PR.
-8. **Interaction smoke** — Sample cross-card pairs from [`interaction-smoke-samples.md`](../netrunner-engine/docs/interaction-smoke-samples.md) (prevent×cost, blank×host, interrupt chains, etc.); record pass/fail/defer in the set-complete summary. Required at set-complete for each **new** pack. One-time Gateway→VP corpus pass already shipped via engine [#193](https://github.com/nhoople/netrunner-engine/pull/193) (`tests/confidence-*.test.ts`).
+7. **CR adherence pass** — Sample high-risk cards in the wave against [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) (timing, cannot/prevent, damage/tags/traces, install/rez, run structure). Fix **mismatch**-class findings or document explicit deferrals with CR cites on the set-complete PR.
+8. **Interaction smoke** — Sample cross-card pairs from [`interaction-smoke-samples.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/interaction-smoke-samples.md) (prevent×cost, blank×host, interrupt chains, etc.); record pass/fail/defer in the set-complete summary. Required at set-complete for each **new** pack. One-time Gateway→VP corpus pass already shipped via engine [#193](https://github.com/nhoople/netrunner-engine/pull/193) (`tests/confidence-*.test.ts`).
 9. **Context prune** — Delete mid-wave progress, pin/tag status, and handoff notes after set-complete; keep `internal/` small (`README`, optional in-flight wave only). Fix broken `docs/` links. Do **not** recreate `internal/archive/` bulk.
 
 ### Phase 4 — Host polish (done)
@@ -170,7 +170,7 @@ CLI/demos and docs that exercise the library API; keep pin/fetch story clear for
 
 [netrunner-game](https://github.com/nhoople/netrunner-game) verifies the pinned engine in the browser. Corp, Runner, and spectator each see what the Comprehensive Rules allow that seat to see. The plain table stays a direct view of the match snapshot. It remains the test harness. The product client uses the same match protocol and moves into the Discord Activity.
 
-**Now:** local two-seat table. Pins engine `v1.147.251`, cards `v1.147.22`, Comprehensive Rules `v26.03`. The table already offers Corp, Runner, and spectator seats, lists legal plays, and records each applied intent. The step and priority are on the table (CR 10.2.3a, CR 9.2.4), and each applied intent shows its Comprehensive Rules citation. The log page restores the match to a chosen entry and drops later entries. Seat pages show that record and do not restore. Each rebuilt snapshot is still that seat's view. Open locations (lingering play area, set-aside groups, BP fund, hosted cards) follow the pinned engine public view.
+**Now:** local two-seat table. Pins engine, cards, and Comprehensive Rules by release tag ([pin table](../README.md)). The table already offers Corp, Runner, and spectator seats, lists legal plays, and records each applied intent. The step and priority are on the table (CR 10.2.3a, CR 9.2.4), and each applied intent shows its Comprehensive Rules citation. The log page restores the match to a chosen entry and drops later entries. Seat pages show that record and do not restore. Each rebuilt snapshot is still that seat's view. Open locations (lingering play area, set-aside groups, BP fund, hosted cards) follow the pinned engine public view.
 
 **Submitted decks.** `POST /matches` with no body starts the learn-to-play match. A body with Corp and Runner decks is checked with `deckbuildingReport` before the match is created: copies, influence after a zero-influence reduction, minimum deck size (CR 1.4.3), the identity's influence limit (CR 1.4.5), and the Corp agenda band (CR 1.4.6). An illegal deck is refused and no match is created. Comprehensive Rules 3.1.2 says those limits do not apply once the game has started. Format bans stay with the host. The verification table does not check them. Phase 6 does, when a match starts.
 
@@ -190,7 +190,7 @@ Formicary is offered in the approach-server paid ability window when an unrezzed
 
 **Product client:** Vite and SolidJS, in this repo, beside `public/table.html`. Served at `/play/` from `client/`. The board is a CSS perspective plane: Corp servers along the far edge, ice in columns toward the Runner. It speaks the same match protocol as the verification table. Each seat still receives only what the Comprehensive Rules allow that seat to see (CR 10.2.2a). Hidden zones stay counts. This board is what the Activity serves. Players play there. The verification table is the test harness, and the chat on that page stays a host test.
 
-**Local engine while editing:** The table can run the sibling `netrunner-engine` checkout. Build that checkout, point `deps/netrunner-engine` at it, and restart the table. `npm run fetch-engine` restores tag `v1.147.251`. CI, `npm test`, and `npm run check` stay on the pin files. The four repositories stay separate.
+**Local engine while editing:** The table can run the sibling `netrunner-engine` checkout. Build that checkout, point `deps/netrunner-engine` at it, and restart the table. `npm run fetch-engine` restores the pinned tag. CI, `npm test`, and `npm run check` stay on the pin files. The four repositories stay separate.
 
 **Durable matches.** The game container writes each match as the opening deal plus the applied-intent log. A restart deals that opening and replays the log, then sends the rebuilt snapshot for the same seat. Account recognizes the Discord user, and matchmaking issues a fresh credential for that seat. A spectator feed, when both players allow one, is delayed in every play style.
 

@@ -15,7 +15,7 @@ The repos stay separate. The game and the engine consume the others by release t
 
 Engine setup: `npm install && npm run fetch-cr` in `netrunner-engine`.
 
-Project docs live in `docs/` (roadmap, git hygiene, audits). Long-running plans live in `docs/plans/`.
+Project docs live in `docs/` (roadmap, git hygiene, audits). Long-running plans live in `docs/plans/`; move a plan to `docs/plans/done/` when its todos are complete. Current versions live only in the pin files and the README pin table: link the table instead of restating a version.
 
 ## Check the Comprehensive Rules
 

@@ -31,7 +31,7 @@ isProject: false
 
 Explicit non-goals (unchanged): no CR-prose compiler; no mass rewrite of `eval.ts` Effect `choose`; no Magic-style stack.
 
-Inventory remainders live in [`docs/engine-standardization-inventory.md`](docs/engine-standardization-inventory.md). Update that doc + roadmap when each phase exits.
+Inventory remainders live in [`docs/engine-standardization-inventory.md`](../../engine-standardization-inventory.md). Update that doc + roadmap when each phase exits.
 
 ```mermaid
 flowchart LR
@@ -50,8 +50,8 @@ Do **not** reorder: gained-subs finish unblocks subtype-correct strength; linger
 
 **Goal:** Graph only applies a unified continuous-subs list; no more inline Wetwork/Sub Boost special cases that bypass the layer.
 
-- Wire [`collectHostedConditionSubsBeforePrinted`](netrunner-engine/src/state/continuousSubs.ts) into [`graph.ts`](netrunner-engine/src/timing/graph.ts) encounter begin (replace the inline Wetwork loop; keep blanking gate).
-- Move **Sub Boost** barrier grant into [`resolveIceSubtypeMap`](netrunner-engine/src/state/continuousEffects.ts) / a subtype-grant kind; stop mutating `ice.subtypes` in `syncHostedSubBoost`.
+- Wire [`collectHostedConditionSubsBeforePrinted`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousSubs.ts) into [`graph.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/timing/graph.ts) encounter begin (replace the inline Wetwork loop; keep blanking gate).
+- Move **Sub Boost** barrier grant into [`resolveIceSubtypeMap`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousEffects.ts) / a subtype-grant kind; stop mutating `ice.subtypes` in `syncHostedSubBoost`.
 - Add collectors for the remaining graph sync families (one PR or tightly related PRs): Winchester HQ, Blockchain archives, Woodcutter/Tyrant advancement, NEXT Opal (use **layered** subtypes), Brainstorm grip, Tour Guide assets.
 - Tests: Wetwork blanking; Sub Boost → MG/Fatuma chain if applicable; existing gained-sub goldens stay green.
 - Ship maintenance release + game/meta pins per standing policy.
@@ -64,11 +64,11 @@ Prior failed approach: “prefer lingerings else maps” broke harden-unsupporte
 
 Order (one kind per PR unless noted):
 
-1. `breaker_strength_turn` — [`stubs.ts`](netrunner-engine/src/cards/stubs.ts) `effectiveBreakerStrength`, [`strengthIncrease.ts`](netrunner-engine/src/state/strengthIncrease.ts), [`hostDuration.ts`](netrunner-engine/src/state/hostDuration.ts) turn bucket, [`checkpoints.ts`](netrunner-engine/src/legality/checkpoints.ts), pump before/after in eval/primitives; rewrite map-seed tests to helpers.
+1. `breaker_strength_turn` — [`stubs.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/cards/stubs.ts) `effectiveBreakerStrength`, [`strengthIncrease.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/strengthIncrease.ts), [`hostDuration.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/hostDuration.ts) turn bucket, [`checkpoints.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/legality/checkpoints.ts), pump before/after in eval/primitives; rewrite map-seed tests to helpers.
 2. `breaker_strength_encounter` + `breaker_strength_run` together (System Seizure / Gamedragon / rekind couple them).
 3. `breaker_strength_checkpoint`.
 4. `ice_strength_turn` then `ice_strength_encounter`.
-5. `runner_mu` ([`turn.ts`](netrunner-engine/src/state/turn.ts) `memoryLimit`; single write in lunar primitives).
+5. `runner_mu` ([`turn.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/turn.ts) `memoryLimit`; single write in lunar primitives).
 6. Defer `ability_blank` until Klevetnik lingerings are cleanly separated from Magnet continuous blank flags.
 
 ## M3 — Graph mid-hook → `openPendingChoose`
@@ -91,7 +91,7 @@ Defer forced/tax shapes (Rigged Results, Cayambe/Manegarm taxes, Biotech face, d
 **Goal:** Continuous strength mods collect/solve like subtypes; `effectiveIceStrength` / `effectiveBreakerStrength` become thin wrappers.
 
 - Collect continuous strength effects (static card bonuses, subtype-gated bonuses) after blanking + subtype resolve.
-- Fix correctness gaps that still read **printed** subtypes (Stronger Together, Wraparound-class, NEXT Opal counts, `scoredAgendaIceSubtypeStrengthBonus` in [`breakerMods.ts`](netrunner-engine/src/state/breakerMods.ts)) to use `resolveIceSubtypes` / `effectiveIceSubtypes`.
+- Fix correctness gaps that still read **printed** subtypes (Stronger Together, Wraparound-class, NEXT Opal counts, `scoredAgendaIceSubtypeStrengthBonus` in [`breakerMods.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/breakerMods.ts)) to use `resolveIceSubtypes` / `effectiveIceSubtypes`.
 - Temp pumps come from M2 lingerings, not ad-hoc maps.
 - Dual-run or golden parity until suite green; one PR family (ice static continuous, then breaker static, then scored/agenda helpers).
 
@@ -99,21 +99,21 @@ Defer forced/tax shapes (Rigged Results, Cayambe/Manegarm taxes, Biotech face, d
 
 **Goal:** Rez/install continuous increases/reductions collected by the layer.
 
-- Fold [`continuousIceRezCostIncrease`](netrunner-engine/src/cards/stubs.ts) (already subtype-aware) into collect/solve first.
-- Then other rez helpers in stubs; then Runner install continuous mods in [`installRunner.ts`](netrunner-engine/src/actions/installRunner.ts).
+- Fold [`continuousIceRezCostIncrease`](https://github.com/nhoople/netrunner-engine/blob/master/src/cards/stubs.ts) (already subtype-aware) into collect/solve first.
+- Then other rez helpers in stubs; then Runner install continuous mods in [`installRunner.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/installRunner.ts).
 
 ## M6 — Static declarations for migrated families
 
 **Goal:** Stop new one-off booleans when a declaration shape exists.
 
-- Extend beyond `continuousSubtypeGrants`: gained-sub / strength / cost declaration records projected in [`load.ts`](netrunner-engine/src/cards/load.ts) as families migrate.
+- Extend beyond `continuousSubtypeGrants`: gained-sub / strength / cost declaration records projected in [`load.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/cards/load.ts) as families migrate.
 - Cards-data schema only when a new declaration field is required; pin policy unchanged.
 
 ## Sequencing / ship rules
 
 - One family (or listed mid-hook batch) per PR; `npm test` green; engine maintenance tag when `src/` changes; pin game + meta.
 - Never break Standard blanking or 9.12.1e examples for Eternal convenience.
-- Prefer extending [`continuousEffects.ts`](netrunner-engine/src/state/continuousEffects.ts) / [`continuousSubs.ts`](netrunner-engine/src/state/continuousSubs.ts) over parallel solvers.
+- Prefer extending [`continuousEffects.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousEffects.ts) / [`continuousSubs.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/continuousSubs.ts) over parallel solvers.
 - Known-gaps line: “framework migration M*n* done.”
 
 ## First implementation slice (after approval)
