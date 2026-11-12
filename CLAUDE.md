@@ -24,6 +24,7 @@ Before changing engine behavior, what a seat can see, or how the table presents 
 - Cite the rule number the change follows.
 - Do not hide information that rule says that seat may see, and do not reveal information it says they may not.
 - If the pinned engine disagrees with the CR, say so. Do not paper over it in the table, and do not bump the pin unless a release is intended.
+- Before committing an engine rules change, run the `cr-checker` agent on the diff and address what it reports.
 
 ## Tests before updating a repo
 
