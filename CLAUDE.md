@@ -52,7 +52,7 @@ Cards `v1.145.0` writes the procedure names. A new kind that skips the verb rule
 
 ## End-of-session sync
 
-When Nathaniel ends the session or the day's work, run the end-of-session steps in `docs/git-hygiene.md` before stopping. If a later session finds a repo still off that state, finish the sync before new work.
+When Nathaniel ends the session or the day's work, run the end-of-session steps in `docs/git-hygiene.md` before stopping. The `/sync` skill (`.claude/skills/sync/`) walks through them; start with its read-only `status.sh`. If a later session finds a repo still off that state, finish the sync before new work.
 
 - Move commits that are only on local `master` onto a `claude/<descriptive-name>` branch. Do not push `master` directly.
 - Push the branch and open or update its pull request.
