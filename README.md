@@ -23,7 +23,7 @@ Product Phase 5 (local table and `/play/`) is done. Next is **Phase 6, a Discord
 | [`docs/git-hygiene.md`](docs/git-hygiene.md) | Branches, pull requests, releases, and the end-of-session sync |
 | [`docs/plans/`](docs/plans/) | Active long-running plans; finished ones are in [`docs/plans/done/`](docs/plans/done/) |
 | [`docs/history.md`](docs/history.md) | How the floor got here, release by release |
-| [`docs/format-coverage-audit.md`](docs/format-coverage-audit.md), [`docs/stale-text-audit.md`](docs/stale-text-audit.md), [`docs/engine-standardization-inventory.md`](docs/engine-standardization-inventory.md) | Audits |
+| [`docs/format-coverage-audit.md`](docs/format-coverage-audit.md) | Which formats the card corpus covers |
 | [`CLAUDE.md`](CLAUDE.md), [`.claude/`](.claude/) | Instructions, agents, skills, and settings for Claude Code sessions |
 
 ## Releases

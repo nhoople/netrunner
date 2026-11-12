@@ -37,5 +37,4 @@ From the status report's pins section:
 ## 4. Finish
 
 - Every checkout on its default branch (`main` for meta, `master` for the four), level with origin, clean.
-- Update the "Last residual check" line at the top of `docs/git-hygiene.md` when this pass merged or released anything; that edit ships through the meta repo like any other.
 - Report per repo in a few lines: what merged (PR links), what was released, anything left and why.

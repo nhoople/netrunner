@@ -53,11 +53,4 @@ Cards `v1.145.0` writes the procedure names. A new kind that skips the verb rule
 
 ## End-of-session sync
 
-When Nathaniel ends the session or the day's work, run the end-of-session steps in `docs/git-hygiene.md` before stopping. The `/sync` skill (`.claude/skills/sync/`) walks through them; start with its read-only `status.sh`. If a later session finds a repo still off that state, finish the sync before new work.
-
-- Move commits that are only on local `master` onto a `claude/<descriptive-name>` branch. Do not push `master` directly.
-- Push the branch and open or update its pull request.
-- Squash-merge when that repo's required check is green, then check out `master` and pull.
-- Leave each checkout on `master`.
-- Do not bump a pin unless a release is intended (engine maintenance releases when `src/` changes count; test-only merges do not). Do not force-push.
-- Release policy detail: `docs/git-hygiene.md` (maintenance vs test-only vs set-complete).
+When Nathaniel ends the session or the day's work, run `/sync` (`.claude/skills/sync/`) before stopping. It follows the end-of-session steps and release policy in `docs/git-hygiene.md`, which is the one source for them. If a later session finds a repo off that state, finish the sync before new work.

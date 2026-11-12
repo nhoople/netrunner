@@ -31,7 +31,7 @@ isProject: false
 
 Explicit non-goals (unchanged): no CR-prose compiler; no mass rewrite of `eval.ts` Effect `choose`; no Magic-style stack.
 
-Inventory remainders live in [`docs/engine-standardization-inventory.md`](../../engine-standardization-inventory.md). Update that doc + roadmap when each phase exits.
+Inventory remainders live in [`docs/engine-standardization-inventory.md`](engine-standardization-inventory.md). Update that doc + roadmap when each phase exits.
 
 ```mermaid
 flowchart LR

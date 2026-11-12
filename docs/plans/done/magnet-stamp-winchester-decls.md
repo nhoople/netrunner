@@ -69,4 +69,4 @@ Cards that still use gained-sub flags (from cards-data):
 
 ## Ship / EOS
 
-Standing hygiene: tests green per repo, PR → squash-merge → maintenance/paired tags → game + meta pins → checkouts on master/main. Update [`docs/engine-standardization-inventory.md`](../../engine-standardization-inventory.md) when both slices land.
+Standing hygiene: tests green per repo, PR → squash-merge → maintenance/paired tags → game + meta pins → checkouts on master/main. Update [`docs/engine-standardization-inventory.md`](engine-standardization-inventory.md) when both slices land.
