@@ -1,6 +1,6 @@
 # Netrunner Project Roadmap
 
-*Updated 2026-11-11. Current versions are in the [pin table](../README.md). Corpus idle. Fidelity program phases 1–5 done; standardization S0–S6 landed. Product Phase 5 is met: the verification table and `/play/` share a match protocol, and a restart replays the applied-intent log. Next is a Discord Activity. The public host is one Lightsail instance. Discord is the account and the conversation.*
+*Updated 2026-11-12. Current versions are in the [pin table](../README.md). Corpus idle. Fidelity program phases 1–5 done; standardization S0–S6 landed. Product Phase 5 is met: the verification table and `/play/` share a match protocol, and a restart replays the applied-intent log. Next is a Discord Activity. The public host is one Lightsail instance. Discord is the account and the conversation.*
 
 ## North star
 
@@ -56,7 +56,7 @@ flowchart LR
 | Confidence extras | Engine [#193](https://github.com/nhoople/netrunner-engine/pull/193) — interaction smoke, cross-pack, cannot-sweep, goldens, fail-closed (merged) |
 | Multiplayer | Product Phase 5 is met. The verification table and `/play/` share a match protocol. A restart replays the applied-intent log. Next is Phase 6, a Discord Activity on one Lightsail instance |
 | Engine fidelity | Program phases **1–5 done** at **`v1.147.222`**. Standardization S0–S6 done — see [Engine standardization](#engine-standardization). |
-| Active work | **Product:** Discord Activity, still in `netrunner-game`. The verification table stays a test harness. Framework migration M1–M6 landed on engine floor. Corpus idle until the next NSG pack or a CR bump |
+| Active work | **Engine:** the [CR audit and standardization program](plans/cr-audit-standardization-program.md). **Product:** Discord Activity, still in `netrunner-game`. It starts at that program's [Phase 6 gate](plans/cr-audit-standardization-program.md#phase-6-gate) and opens with Learn to play and Startup. The verification table stays a test harness. Framework migration M1–M6 landed on engine floor. Corpus idle until the next NSG pack or a CR bump |
 
 ## Engine CR fidelity
 
@@ -167,6 +167,8 @@ What Phase 5 built, in detail: [`plans/done/local-table.md`](plans/done/local-ta
 ### Phase 6 — Discord Activity (next)
 
 The product is a Discord Activity on one Lightsail host. Discord is the account and the only player conversation. Account checks the Discord user. Matchmaking checks the format and deals through a game container. That container sends only that seat's snapshot. The engine never sees a Discord user. A restart replays the applied-intent log, and matchmaking returns the same Discord user to the same seat.
+
+**Start:** Phase 6 begins at the [Phase 6 gate](plans/cr-audit-standardization-program.md#phase-6-gate) of the CR audit program: its tools and guards are in, areas 1–4 (through visibility) are done, and the playouts and visibility fuzz run clean. The first matches offer Learn to play and Startup. Core Sets, Standard, and Eternal open as each pool passes the same two checks.
 
 **Exit:** Two Discord users play a match in an Activity. Each sees only their seat. Talk is Discord. A restart returns the same Discord user to the same seat. Challenge deals a format-checked match.
 
