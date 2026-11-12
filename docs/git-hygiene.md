@@ -2,7 +2,7 @@
 
 Repos: `nhoople/netrunner-engine`, `nhoople/netrunner-cards-data`, `nhoople/netrunner-comprehensive-rules-data`, `nhoople/netrunner-game`. The parent `Netrunner` folder is the checkout of the meta repo [nhoople/netrunner](https://github.com/nhoople/netrunner) (branch `main`): the pin table in `README.md`, plus `CLAUDE.md`, `docs/`, and `.claude/agents/`. It gitignores the four repo folders and `notes.md`.
 
-Last residual check: **2026-11-12T01:30Z** — Project Yagi-Uda swap fix shipped: engine [#893](https://github.com/nhoople/netrunner-engine/pull/893) (`v1.147.249`); game [#278](https://github.com/nhoople/netrunner-game/pull/278); meta pin table. Engine `v1.147.249` + cards `v1.147.22` + game/meta pins. Checkouts on master/main.
+Last residual check: **2026-11-12T03:30Z** — Midori, Mitra Aman, and choice fallback fixes shipped: engine [#894](https://github.com/nhoople/netrunner-engine/pull/894) (`v1.147.250`) and [#895](https://github.com/nhoople/netrunner-engine/pull/895) (`v1.147.251`); game [#279](https://github.com/nhoople/netrunner-game/pull/279); meta pin table. Engine `v1.147.251` + cards `v1.147.22` + game/meta pins. Checkouts on master/main.
 
 
 ## Releases
@@ -26,7 +26,7 @@ Engine or cards PRs that change only tests, validators, coverage baselines, or d
 
 Set-complete milestones (or an explicit manual cut) share one semver on cards-data and engine. After a set-complete, leave cards and engine on that paired tag. CR-data uses its own scheme. When any release tag changes, update [nhoople/netrunner](https://github.com/nhoople/netrunner) in the same pass.
 
-**Today (maintenance floor, not a set-complete pair):** cards **`v1.147.22`**, engine **`v1.147.249`** (Project Yagi-Uda swapping the encountered ice into HQ ends the encounter, and it swaps only into a location the card may occupy; CR 6.2.7c, CR 8.8.2), CR **`v26.03`**. `netrunner-game` pins those three. On that pin it serves `/play/` and replays the applied-intent log after a restart; match files are record version 2. See the meta README for the narrative; do not invent bumps from stale examples in other docs.
+**Today (maintenance floor, not a set-complete pair):** cards **`v1.147.22`**, engine **`v1.147.251`** (a choice keyed by a card id resolves its own effect, and ice that Project Yagi-Uda, Midori, or Mitra Aman swaps out is uninstalled; CR 8.1.1, CR 8.8.4b), CR **`v26.03`**. `netrunner-game` pins those three. On that pin it serves `/play/` and replays the applied-intent log after a restart; match files are record version 2. See the meta README for the narrative; do not invent bumps from stale examples in other docs.
 
 ## End of session
 
