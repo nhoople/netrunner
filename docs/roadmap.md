@@ -55,7 +55,7 @@ flowchart LR
 | CI | Engine: lint + typecheck + test; cards-data: validate; rules-data: transform + test + validate; game: typecheck + test + pin check ([`git-hygiene.md`](git-hygiene.md)) |
 | Confidence extras | Engine [#193](https://github.com/nhoople/netrunner-engine/pull/193) — interaction smoke, cross-pack, cannot-sweep, goldens, fail-closed (merged) |
 | Multiplayer | Product Phase 5 is met. The verification table and `/play/` share a match protocol. A restart replays the applied-intent log. Next is Phase 6, a Discord Activity on one Lightsail instance |
-| Engine fidelity | Program phases **1–5 done** at **`v1.147.222`**. Standardization S0–S6 done — see [Engine standardization](#engine-standardization). |
+| Engine fidelity | Program phases **1–5 done** at **`v1.147.222`**. Standardization S0–S6 done — see [Engine standardization](#engine-standardization). Next engine track: the [CR audit and procedure standardization program](#cr-audit-and-procedure-standardization). |
 | Active work | **Engine:** the [CR audit and standardization program](plans/cr-audit-standardization-program.md). **Product:** Discord Activity, still in `netrunner-game`. It starts at that program's [Phase 6 gate](plans/cr-audit-standardization-program.md#phase-6-gate) and opens with Learn to play and Startup. The verification table stays a test harness. Framework migration M1–M6 landed on engine floor. Corpus idle until the next NSG pack or a CR bump |
 
 ## Engine CR fidelity
@@ -85,8 +85,25 @@ Maximal program: grow the practical **9.12** blanking solver into a continuous-c
 | S2 | Gained subs / strength / cost continuous mods | **Done** at **`v1.147.222`**. Strength is lingering-only; gained subs are declarations (`v1.147.239`) |
 | S3 | Lingering single-write | **Done** at **`v1.147.222`**. The mark, blanks, and end-of-turn subtype grants each have one reader (`v1.147.239`) |
 | S4 | Graph mid-hook may/choose helper | **Done** (`openPendingChoose`; Security Nexus) |
-| S5 | Seat visibility module | **Done** (`seatVisibility.ts`) |
-| S6 | Static continuous declarations | **Done** (`continuousSubtypeGrants` projection) |
+| S5 | Seat visibility module | **Partly done.** `seatVisibility.ts` exists, but it cites CR 1.18 (Advancing Cards) where visibility is CR 1.21. `getPublicView` copies the run and pending state unfiltered, and the game builds spectator views separately. CR audit area 4 finishes it |
+| S6 | Static continuous declarations | **Done for subtype grants and gained subroutines** (`continuousSubtypeGrants`, `continuousGainedSubDecls`). Other card behavior is still 616 boolean card flags, and a flag can hide a procedure from a search of card JSON (Tāo Salonga) |
+
+## CR audit and procedure standardization
+
+Adopted 2026-11-11. The fidelity and standardization programs covered timing and continuous effects. They did not cover how cards move between zones. Many cards carry their own copy of install, trash, host, swap, rez, or run-position code, and those copies skip parts of the CR. This program builds tools that find those violations across the engine, routes each procedure through one shared helper, and adds guardrails against new copies. Plan: [`cr-audit-standardization-program.md`](plans/cr-audit-standardization-program.md). The Discord Activity starts at its [Phase 6 gate](plans/cr-audit-standardization-program.md#phase-6-gate).
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| 0 | Docs: cr-checker reads printed text, known gaps recorded | **Done** |
+| 1 | Verification tools (invariants, playouts, sweeps, visibility fuzz, mutation testing) | Next |
+| 2 | Guardrails on direct state writes and kind coverage | — |
+| 3 | Ten areas ordered by risk: nine procedures, then card flags and declarations | — |
+
+**Known gaps** at engine `v1.147.251` (each fixed by the area named):
+
+- **Off-Campus Apartment and other hosts (area 1).** Trashing a host moves its hosted Runner cards to the heap but leaves them in `runner.installed`. Their trash triggers don't run. The 10.3.1g checkpoint can't see them.
+- **Mandatory Seed Replacement (area 2).** It empties every server's ice list before the Corp rearranges. While the choices are open, the ice belongs to no server, so a checkpoint in that window could delete a remote that has only ice. Sunset and Mandatory Seed also have no run guard.
+- **Tāo Salonga: Telepresence Magician (area 3).** The swap after an agenda is scored or stolen does nothing. Every option of `swap_two_ice` gains 0 credits.
 
 ## Product phase map
 

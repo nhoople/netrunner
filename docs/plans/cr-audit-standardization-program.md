@@ -117,7 +117,7 @@ Checked against the code, not the roadmap text.
 
 Keep and reuse: `runPosition.ts`, the three swap helpers, `installCorp`/`installRunner`, `trashToHeap`/`trashCorpCardToArchives`, `dealDamage`, `openPendingChoose`, `seatVisibility.ts`, `boardProblems`, the one-off-kind baseline mechanism, `rule-cite-map`, and the jnet manifest.
 
-## Phase 0: housekeeping (meta repo, docs only, S)
+## Phase 0: housekeeping (meta repo, docs only, S) — done 2026-11-12
 
 - Fix `.claude/agents/cr-checker.md` so it reads printed text from `data/printed/<id>.json` at the cards tag and treats `label`/`text` as the engine's paraphrase.
 - Note this program in `docs/roadmap.md`. Rewrite the S5 and S6 rows to match the "held up" table.
