@@ -1,0 +1,12 @@
+# The four project repositories are separate git checkouts inside this
+# folder. They are not submodules and are not tracked here.
+/netrunner-engine/
+/netrunner-cards-data/
+/netrunner-comprehensive-rules-data/
+/netrunner-game/
+
+# Personal session-resume note.
+/notes.md
+
+# Per-machine Claude Code settings.
+/.claude/settings.local.json
