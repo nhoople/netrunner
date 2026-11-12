@@ -2,6 +2,8 @@
 
 *Drafted 2026-11-11 from an inventory of engine `v1.147.251` (master `aec05b54`), cards `v1.147.22`, and CR `v26.03`. Current versions are in the [pin table](../../README.md). The brief named `v1.147.250` as the floor, but the pin is already `v1.147.251` (the Midori choice-key fix, engine #895).*
 
+*Revised 2026-11-12: added the card flag inventory (1.10), the generated kind reference (1.11), two Phase 2 guards, area 10, and the Phase 6 gate.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -9,6 +11,16 @@ Much of the engine was written card by card. A card that needed a procedure (swa
 The earlier programs never covered this. The fidelity program (phases 1–5) standardized *timing*: ability records, trigger predicates, the 10.3.1a mark, and 9.9.9 replacement. The standardization program (S0–S6) standardized *continuous effects*: the 9.12 layer, 9.10 lingerings, choices, and the visibility module. Neither one audited how cards move between zones.
 
 This program builds tools that find CR violations across the whole engine. It then routes each procedure through one shared helper that follows the CR, and adds guardrails so new copies can't come back.
+
+### What it serves
+
+*Added 2026-11-12.* The project has three goals, and the program is measured against each.
+
+| Goal | What serves it here |
+|---|---|
+| A CR-cited engine | Phase 1 tools, the Phase 2 guards, and the shared helpers of areas 1–9 |
+| A documented card format | The flag inventory (1.10), the generated kind reference (1.11), the count guard (Phase 2), the kind merges in each area, and area 10 |
+| Discord-native play | Area 4 (visibility) and the [Phase 6 gate](#phase-6-gate), which starts the Activity before the whole program is done |
 
 ## Inventory (engine `v1.147.251`, cards `v1.147.22`)
 
@@ -128,8 +140,10 @@ They are ordered by expected bugs found per hour. Each tool writes a baseline JS
 | 1.7 | **Game visibility fuzz.** In netrunner-game, play seeded matches through `Match` and, after each intent, walk each seat's and the spectator's snapshot JSON for any hidden card id or title the CR 1.21 / 10.2 rules give that seat no right to see. Uses the engine's own facedown/hidden sets as the oracle | M | game test harness, 1.3 seeds | Leaks through raw `run`/`pending*`/`reactionStack`/`reveals` clones; spectator builder drift | Game test-only |
 | 1.8 | **jnet in CI and disagreement list.** Run `npm run test:jnet` in CI as a non-blocking job. Classify the 159 deferred entries: where the CR is silent or unclear and jnet differs, add a `disagreement` status with a CR cite and leave it **for a human decision**, never auto-fixed | M | `tests/jnet/manifest.json` | Rules the CR doesn't settle; a reading list per area | Test-only |
 | 1.9 | **Mutation testing.** Stryker with the vitest runner, configured per area (`mutate` = that area's helper files, test filter = that area's tests), run locally rather than in CI. Score recorded per area in `docs/mutation-scores.md` in the engine | M setup + S per area | — | Tests that check code shape, not outcome (the Yagi-Uda pattern). Used in each Phase 3 area | Test-only (devDependency) |
+| 1.10 | **Card flag inventory.** `tests/card-flag-inventory.test.ts` lists every optional boolean and number field on `CardDef` (`src/state/types.ts`) and every top-level property in the pinned `schema.json`. For each it records the cards that set it, the sites in `src/` that read it, and the kind that reader builds, if any. It also reports a flag nothing reads and a flag no card sets. Baseline `tests/baselines/card-flags.json`, shrink-only. Tool 1.2(c) reads its flag-to-kind map | S | `CardDef`, `vendor/cards-data` | Flags that hide a procedure the way Tāo's does; unread and unset flags. Starting size: 616 boolean flags on `CardDef`, and 854 top-level schema properties (333 boolean, 268 integer, 220 object) | Test-only |
+| 1.11 | **Generated kind reference.** `scripts/build-kind-reference.mjs` writes `docs/effect-ir-kinds.md` in the engine from `KNOWN_PRIMITIVE_KINDS` and the `Effect` type in `src/effects/ir.ts`: each kind, its fields, how many cards use it, and whether a card or the engine builds it. A test fails when the file is stale, the way `scripts/jnet-status.mjs --write` guards its generated block. `docs/effect-ir.md` links to it | S | `ir.ts`, the IR walk in `one-off-kind-coverage` | Nothing on its own. It makes the card format readable without the engine source, and each area's kind merges show up as a shorter file | Test-only |
 
-Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel.
+Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel. 1.10 runs beside 1.2, which reads its map. 1.11 depends on nothing and can run at any point in Phase 1.
 
 ## Phase 2: guardrails (S–M, test-only)
 
@@ -137,6 +151,8 @@ Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 
    - Starting baseline is roughly the table above: ~550 `zone`, ~200 host, ~100 ice/root, ~140 installed, ~120 discard, 4 position, 13 attacked-server.
 2. **Kind liveness and effect guard**, replacing the mention rule in `one-off-kind-coverage.test.ts`. Every kind in `KNOWN_PRIMITIVE_KINDS` must (a) be reachable from card JSON, a card flag consumer, or a named engine builder, and (b) appear in a test that **asserts a state change** through a shared outcome helper (`expectStateDelta(before, after, {...})`). Each test registers its kind as `coversKind("x")`, so a name mention no longer counts. The baseline starts at the current non-compliant set and only shrinks.
 3. **Engine-built kind names.** Extend `effect-ir-names.test.ts` to engine-built kinds as well, using the existing 215-entry legacy list as their baseline.
+4. **Counts may only shrink.** `tests/baselines/format-counts.json` holds three numbers: kinds in `KNOWN_PRIMITIVE_KINDS` (1,540 at the inventory), kinds used by exactly one card (735), and `CardDef` flags (616). A change that raises one fails unless the baseline is edited with a dated reason. No target number is set now. Each Phase 3 area records the counts it leaves behind.
+5. **Citation topics.** Tool 1.5b starts as a report. Once cr-checker has reviewed its baseline, a new topic mismatch fails the test instead of being recorded.
 
 ## Phase 3: audit and standardize by procedure
 
@@ -153,6 +169,7 @@ Risk = how often the procedure runs × how bad a wrong result is × how many pat
 7. **Rez and derez (8.2 rez / derez rules).** 21 rez sites without hooks; no derez helper.
 8. **Access (ch. 7).** 3 bypasses. Small, but Detente is visibly wrong.
 9. **Damage.** No bypass found. Confirm with tools and mutation testing, then close.
+10. **Card flags and declarations.** Last, because areas 1–9 each move the flags that hide their own procedure. What is left is the flags that describe a card, and this area sorts them.
 
 Add an area when Phase 1 shows another procedure copied often. Candidates from the inventory: counters and advancement (`counterPrimitives`), and shuffling (Code Siphon uses inline `random()`).
 
@@ -162,9 +179,9 @@ Add an area when Phase 1 shows another procedure copied often. Candidates from t
 2. **Evidence.** Collect this area's entries from each Phase 1 baseline: invariant failures, playout seeds, citations, missing CR examples, missing labels, jnet disagreements. Run Stryker on the area's helpers and record surviving mutants.
 3. **CR check.** Run cr-checker on the area's helper and on each bypass family, with the card titles. Read each affected card's `printed/<id>.json` at `v1.147.22`. A printed override (CR 1.2.1) is kept as a field on the shared helper, not as a copy.
 4. **Standardize.** One exported helper per procedure, in `src/state/procedures/<procedure>.ts`. Each bypass becomes a call to it. Card-specific behaviour becomes options (cost mode, destination, face, rez-after, chooser). The guard allowlist gains only that module.
-5. **Effect IR.** Merge card-specific kinds that differ only in fields into a general kind (verb then object; amounts, zones, sides, filters as camelCase fields), following CLAUDE.md. Old kinds stay as engine-side aliases until the paired cards release rewrites the JSON, then they're deleted. Add missing labels to the area's conditional and play abilities in the same cards release.
+5. **Effect IR.** Merge card-specific kinds that differ only in fields into a general kind (verb then object; amounts, zones, sides, filters as camelCase fields), following CLAUDE.md. Old kinds stay as engine-side aliases until the paired cards release rewrites the JSON, then they're deleted. Add missing labels to the area's conditional and play abilities in the same cards release. A card flag whose reader builds one of this area's kinds moves in this area too: it becomes a field on the general kind or a declared ability, and leaves the flag baseline (1.10).
 6. **Tests.** For each fixed path: a test that fails on the old code, cites the CR rule, and asserts state through `expectStateDelta`; the area's CR examples from 1.6; the invariant baseline entries for the area removed; the mutation score recorded, aiming at no surviving mutants in the helper's CR-cited branches.
-7. **Delivery.** One engine PR and one engine maintenance release per area (routing only, no card JSON change). Bump the game pin and the meta pin table in the same pass. Card JSON changes (kind merges, labels) are batched into **two paired cards+engine releases**: one after areas 1–4, one after 5–9. Each is an explicit manual paired cut under `docs/git-hygiene.md`, so pins don't churn. Run cr-checker on the diff before each engine commit.
+7. **Delivery.** One engine PR and one engine maintenance release per area (routing only, no card JSON change). Bump the game pin and the meta pin table in the same pass. Card JSON changes (kind merges, labels) are batched into **two paired cards+engine releases**: one after areas 1–4, one after 5–10. Each is an explicit manual paired cut under `docs/git-hygiene.md`, so pins don't churn. Run cr-checker on the diff before each engine commit.
 
 ### Areas
 
@@ -179,6 +196,19 @@ Add an area when Phase 1 shows another procedure copied often. Candidates from t
 | 7 | Rez and derez | 33 direct rez sites, ~20 derez sites | Surat, Sensor Net, Worlds Plaza, Advertisement, Mutate, Keros, Maui, Brasília, Miraju, Realloc | rez/derez rules in ch. 8, 9.x triggers | `procedures/rez.ts` (`rezCard(id, {costMode})`) and `derezCard(id)` carrying `derez_card`'s hooks | Engine maintenance |
 | 8 | Access | Khusyuk, Deep Dive, Detente | those three | 7.1–7.5 | All access goes through `access_card`; Detente picks a random card and does not turn it faceup | Engine maintenance |
 | 9 | Damage | `dealDamage`/`resolveDamage` | — | damage rules in ch. 10 | Confirm only: mutation score, CR examples, close | Test-only unless a fix is found |
+| 10 | Card flags and declarations | The flags left in `tests/baselines/card-flags.json` after areas 1–9 have moved the ones that hide a procedure | Full list from the 1.10 baseline at that point | 9.3 ability records; 9.12 for continuous declarations; the rule each flag's reader cites | Each flag family becomes one of three things: a declared static ability (the S6 `continuousSubtypeGrants` pattern), a field on an existing kind, or a printed characteristic that stays (cost, strength, link). No new flag for a one-off | Engine maintenance; card JSON in paired cut B |
+
+Area 10 exits when no flag's reader builds an effect kind, and the flag baseline holds only printed characteristics and declarations.
+
+### Phase 6 gate
+
+*Added 2026-11-12.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
+
+- Phase 1 and Phase 2 are done.
+- Areas 1–4 are done and paired cut A has shipped. Area 4 is the one that puts hidden information in front of real opponents.
+- The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup card pool.
+
+The first Activity matches offer Learn to play and Startup only. Core Sets, Standard, and Eternal open once the playouts and the fuzz run clean on that format's pool. Areas 5–10 continue beside Phase 6, one writer per repo at a time.
 
 ### Exit criteria per area
 
@@ -187,6 +217,7 @@ Add an area when Phase 1 shows another procedure copied often. Candidates from t
 - Every CR example for the area is covered.
 - No surviving mutants in CR-cited branches of the helper.
 - cr-checker returns `follows` on the area diff.
+- The kind and flag counts in `tests/baselines/format-counts.json` did not rise, and `docs/effect-ir-kinds.md` is regenerated.
 - Engine, cards and game suites pass, and the release and pins move together.
 
 ## Running it in sessions
@@ -203,9 +234,12 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | P1-e visibility fuzz | game | after P1-c seeds exist (can start on Learn to play) | 1.7: seeded matches, sweep every seat and spectator snapshot for hidden ids and titles after each intent; baseline leaks. |
 | P1-f jnet + mutation setup | engine | P1-a | 1.8 non-blocking jnet CI job and disagreement classification (human decision list); 1.9 Stryker config per area, scores doc. |
 | P1-g citation topics | engine | after P1-b | 1.5b topic-match report and baseline for cr-checker review. |
-| P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names. |
-| P3-1 … P3-9 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
-| Paired cut A / B | cards + engine + game + meta | after P3-4 / after P3-9 | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
+| P1-h flag inventory | engine | P1-a; before or with P1-b | 1.10: list every `CardDef` flag and schema property with its cards, readers, and the kind each reader builds; baseline; test-only. |
+| P1-i kind reference | engine | P1-a | 1.11: generate `docs/effect-ir-kinds.md` from `ir.ts`, add the stale-file test, and link it from `effect-ir.md`; test-only. |
+| P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names; the shrink-only kind and flag counts; the citation-topic test made failing after cr-checker's review. |
+| P3-1 … P3-10 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
+| Paired cut A / B | cards + engine + game + meta | after P3-4 / after P3-10 | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
+| Phase 6 start | game | after paired cut A, beside P3-5 … P3-10 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
 
 ## Verification of the program itself
 
@@ -218,4 +252,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
   - no dead or no-op kinds remain;
   - every conditional and play ability has a label;
   - the 11 CR examples are covered;
+  - no card flag's reader builds an effect kind;
+  - `docs/effect-ir-kinds.md` is generated and current;
+  - Phase 6 began at the gate, not after the last area;
   - the roadmap names this program done and the plan moves to `docs/plans/done/`.

@@ -1,6 +1,6 @@
 # Discord Activity (Phase 6)
 
-The design for the next product phase, moved here from the [roadmap](../roadmap.md). Status: not started. Turn this into tasks before building.
+The design for the next product phase, moved here from the [roadmap](../roadmap.md). Status: not started. Turn this into tasks before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program.
 
 The product is a Discord Activity on one Lightsail host (see Hosting below). Discord is the account and the only player conversation. Account checks the Discord user. Matchmaking checks the format and deals through a game container. That container sends only that seat's snapshot. The engine never sees a Discord user. A restart replays the applied-intent log, and matchmaking returns the same Discord user to the same seat.
 
@@ -48,6 +48,8 @@ Full means a few hundred concurrent matches, or the memory and legality time of 
 **Decks.** A player builds on NetrunnerDB and pastes a published link. The host turns that list into an identity and card ids, runs the construction check (CR 1.4), and stores a copy under the Discord user. When the match is dealt, the opening stores a second copy. A later edit to the library leaves the dealt match alone. A private NetrunnerDB login is later. The test table keeps its preset decks. NetrunnerDB is where the deck is edited. The pinned cards remain the titles, and a game in progress does not call NetrunnerDB.
 
 **Formats.** Challenge and Play offer Learn to play, Core Sets, Startup, Standard, and Eternal. Ranked offers Core Sets, Startup, Standard, and Eternal. System Gateway is a set inside Core Sets, not a choice.
+
+The first matches offer Learn to play and Startup only. Core Sets, Standard, and Eternal are added as each pool passes the seeded playouts and the visibility fuzz named in the gate.
 
 Learn to play deals the fixed lists already in the host. Each player chooses the Corp list or the Runner list, and starter or expanded, before the match starts. Starter is the cards before the "STOP HERE" divider. Expanded adds the booster cards after it. The opening records that preset and that side. There is no restriction list.
 
