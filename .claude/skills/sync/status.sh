@@ -62,4 +62,33 @@ r = subprocess.run(["git", "-C", f"{root}/netrunner-engine", "log", "--oneline",
                     f"{latest('netrunner-engine')}..origin/master", "--", "src/"], capture_output=True, text=True)
 n = len([l for l in r.stdout.splitlines() if l.strip()])
 print(f"   engine src/ commits on master since latest tag: {n}")
+
+# Docs should link the pin table, not restate current versions. Flag tracked
+# Markdown lines that state a current pin by version (the phrasings that
+# drifted before), outside the pin table and the history and plan records.
+import re
+skip = re.compile(r"^(README\.md|docs/history\.md|docs/plans/|tests/)")
+pinword = re.compile(r"(Pins today|\| \*\*Current\*\* \||pinned to tag|pins this tag|[Ff]loor today|Shipped floor|Current floor:\*\* \*\*`v|Floor:\*\* `?v1|Floor `v1)")
+ver = re.compile(r"`?v1\.147\.\d+`?")
+hits = []
+for repo in ["", "netrunner-engine", "netrunner-cards-data", "netrunner-comprehensive-rules-data", "netrunner-game"]:
+    path = f"{root}/{repo}" if repo else root
+    files = subprocess.run(["git", "-C", path, "ls-files", "*.md"], capture_output=True, text=True).stdout.split()
+    for f in files:
+        if not repo and skip.match(f):
+            continue
+        if repo and f.startswith("tests/"):
+            continue
+        try:
+            lines = open(f"{path}/{f}", encoding="utf-8", errors="ignore").read().splitlines()
+        except OSError:
+            continue
+        for i, line in enumerate(lines, 1):
+            if line.startswith("Last residual check"):
+                continue
+            if ver.search(line) and pinword.search(line):
+                hits.append(f"{repo or 'netrunner'}/{f}:{i}")
+print(f"   docs restating a pinned version: {len(hits)}" + ("" if not hits else " (link the pin table instead)"))
+for h in hits[:15]:
+    print(f"     {h}")
 EOF

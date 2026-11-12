@@ -23,7 +23,7 @@ isProject: false
 
 **Answer:** Yes, but not as one bulk search-replace. Shapes are almost uniform; the risks are `loopCount`, empty-option no-ops, and silent “already pending” no-ops. Migrate by tested families with a helper extension first.
 
-Floor after leftovers: engine `v1.147.235`. Graph + action-layer already use [`openPendingChoose`](netrunner-engine/src/state/pendingChoice.ts). Remaining: ~315 opens in [`eval.ts`](netrunner-engine/src/effects/eval.ts) + ~400 in `*Primitives.ts`.
+Floor after leftovers: engine `v1.147.235`. Graph + action-layer already use [`openPendingChoose`](https://github.com/nhoople/netrunner-engine/blob/master/src/state/pendingChoice.ts). Remaining: ~315 opens in [`eval.ts`](https://github.com/nhoople/netrunner-engine/blob/master/src/effects/eval.ts) + ~400 in `*Primitives.ts`.
 
 ```mermaid
 flowchart LR
@@ -37,7 +37,7 @@ flowchart LR
 
 ## Why not one PR
 
-- **`loopCount`:** Mandatory-loop open at `eval.ts` ~15172 sets `loopCount: true`; [`chooseOption`](netrunner-engine/src/actions/apply.ts) reads it. Current helper strips unknown fields.
+- **`loopCount`:** Mandatory-loop open at `eval.ts` ~15172 sets `loopCount: true`; [`chooseOption`](https://github.com/nhoople/netrunner-engine/blob/master/src/actions/apply.ts) reads it. Current helper strips unknown fields.
 - **Empty options:** Raw assign can open `options: []`; helper no-ops. Rare, but behavior changes if any caller relies on a stuck empty choice.
 - **Already-pending:** Most opens are unguarded. Helper returns `false` without opening; callers that log or mutate after a raw overwrite could diverge. Prefer `logLine` + check return where needed.
 - **Clears stay raw:** `= null` in eval/apply/primitives is fine; no need for `closePendingChoice` in this track.

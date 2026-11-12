@@ -27,13 +27,13 @@ isProject: false
 
 **Status (reviewed 2026-11-11):** done, then superseded on Node. Both repos later moved to `engines.node >=26` and `@types/node ^26`, and CI reads `.node-version` instead of a fixed `"24"`. TypeScript stays on 6; Dependabot is told to ignore TypeScript 7.x (engine PR #266, closed 2026-11-11). Branches now use the `claude/` prefix, not `cursor/`.
 
-Step [netrunner-engine](netrunner-engine) first, then [netrunner-game](netrunner-game). Each repo gets its own `cursor/` branch and pull request. Do not bump the game’s engine pin. Do not move either repo to TypeScript 7.0.2 (`typescript-eslint` still caps TypeScript at `<6.1.0`). Leave `ignoreDeprecations` unset.
+Step [netrunner-engine](https://github.com/nhoople/netrunner-engine) first, then [netrunner-game](https://github.com/nhoople/netrunner-game). Each repo gets its own `cursor/` branch and pull request. Do not bump the game’s engine pin. Do not move either repo to TypeScript 7.0.2 (`typescript-eslint` still caps TypeScript at `<6.1.0`). Leave `ignoreDeprecations` unset.
 
 Node 24.21.0 (Krypton) is the current LTS. Node 26 stays valid locally because the floor is `>=24`, but CI and `@types/node` stay on 24 so typecheck cannot accept APIs the floor does not have.
 
 ## netrunner-engine
 
-In [netrunner-engine/package.json](netrunner-engine/package.json):
+In [netrunner-engine/package.json](https://github.com/nhoople/netrunner-engine/blob/master/package.json):
 
 - `typescript`: `^5.8.2` to `^6.0.3`
 - `@types/node`: `^26.6.3` to `^24.19.1`
@@ -41,15 +41,15 @@ In [netrunner-engine/package.json](netrunner-engine/package.json):
 
 The existing ranges already allow these lockfile moves: `eslint` 10.11.0 to 10.12.0, `globals` 17.12.0 to 17.13.0, `typescript-eslint` 8.71.0 to 8.71.1, `vitest` 5.0.2 to 5.0.3. `tsx` and `@eslint/js` stay as they are.
 
-In [netrunner-engine/tsconfig.json](netrunner-engine/tsconfig.json), add `"types": ["node"]`. Keep `strict`, `NodeNext`, `rootDir: "src"`, and `target: ES2022`.
+In [netrunner-engine/tsconfig.json](https://github.com/nhoople/netrunner-engine/blob/master/tsconfig.json), add `"types": ["node"]`. Keep `strict`, `NodeNext`, `rootDir: "src"`, and `target: ES2022`.
 
-In [netrunner-engine/.github/workflows/ci.yml](netrunner-engine/.github/workflows/ci.yml), set `node-version` from `"22"` to `"24"`.
+In [netrunner-engine/.github/workflows/ci.yml](https://github.com/nhoople/netrunner-engine/blob/master/.github/workflows/ci.yml), set `node-version` from `"22"` to `"24"`.
 
 Install, then run the CI checks: `npm run lint`, `npm run typecheck`, `npm test`.
 
 ## netrunner-game
 
-In [netrunner-game/package.json](netrunner-game/package.json):
+In [netrunner-game/package.json](https://github.com/nhoople/netrunner-game/blob/master/package.json):
 
 - `typescript`: `^5.8.2` to `^6.0.3`
 - `@types/node`: `^22.13.10` to `^24.19.1`
@@ -57,8 +57,8 @@ In [netrunner-game/package.json](netrunner-game/package.json):
 
 `tsx`, `ws`, and `@types/ws` are already current.
 
-In [netrunner-game/tsconfig.json](netrunner-game/tsconfig.json), add the same `"types": ["node"]`.
+In [netrunner-game/tsconfig.json](https://github.com/nhoople/netrunner-game/blob/master/tsconfig.json), add the same `"types": ["node"]`.
 
-In [netrunner-game/.github/workflows/ci.yml](netrunner-game/.github/workflows/ci.yml), set `node-version` from `"22"` to `"24"`.
+In [netrunner-game/.github/workflows/ci.yml](https://github.com/nhoople/netrunner-game/blob/master/.github/workflows/ci.yml), set `node-version` from `"22"` to `"24"`.
 
 Install, then `npm run typecheck` and `npm test`. Cards and rules CI are Python and stay unchanged.

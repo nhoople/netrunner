@@ -27,7 +27,7 @@ todos:
     content: "Full 9.12 CR→AST continuous compiler — not required for Standard (roadmap/README); Eternal gained-subtype chains only (Mother Goddess / Egret / Warden Fatuma)"
     status: cancelled
   - id: next-thin-blanking
-    content: "Finish remaining thin ungated continuous/trigger read sites — see thin_blanking_punch_list_7f3a2c1e.plan.md"
+    content: "Finish remaining thin ungated continuous/trigger read sites — see thin-blanking-punch-list.md"
     status: completed
   - id: next-inactive-blank-parity
     content: "Pending inactive/blank cancel parity — blank/Magnet/Chum/Amaze (v1.147.143); checkpoint/Bug/Hostile + identity zone + 9.1.8g independents (v1.147.144)"
@@ -55,11 +55,11 @@ isProject: false
 
 # Cards / engine / Effect IR vs CR “stack”
 
-**Status (reviewed 2026-11-11):** fidelity phases 1–5 are done. Phase 5 shipped as engine standardization S1 (`engine_standardization_program_761c2b4b.plan.md`); `tests/continuous-subtype-layer.test.ts` covers Mother Goddess gaining Egret-granted subtypes. Mentions of phase 5 as pending below are historical. Current floor is engine `v1.147.248`, cards `v1.147.22`.
+**Status (reviewed 2026-11-11):** fidelity phases 1–5 are done. Phase 5 shipped as engine standardization S1 (`engine-standardization-program.md`); `tests/continuous-subtype-layer.test.ts` covers Mother Goddess gaining Egret-granted subtypes. Mentions of phase 5 as pending below are historical. Current floor is engine `v1.147.248`, cards `v1.147.22`.
 
 **Floor (maintenance, not a set-complete pair):** engine [`v1.147.221`](https://github.com/nhoople/netrunner-engine/releases/tag/v1.147.221), cards `v1.147.13`, CR `v26.03`.
 
-**Last revised:** 2026-11-01 — fidelity phases **1–4 complete** at `v1.147.221` (phase-3 leftovers closed). Program: [`full_cr_fidelity_program_a1b2c3d4.plan.md`](full_cr_fidelity_program_a1b2c3d4.plan.md). Thin blanking list complete: [`thin_blanking_punch_list_7f3a2c1e.plan.md`](thin_blanking_punch_list_7f3a2c1e.plan.md). Still **not** a `nodes.json` / prose compiler.
+**Last revised:** 2026-11-01 — fidelity phases **1–4 complete** at `v1.147.221` (phase-3 leftovers closed). Program: [`full-cr-fidelity-program.md`](full-cr-fidelity-program.md). Thin blanking list complete: [`thin-blanking-punch-list.md`](thin-blanking-punch-list.md). Still **not** a `nodes.json` / prose compiler.
 
 ## Short verdict
 
@@ -104,8 +104,8 @@ flowchart TD
 
 | Layer | Owns | Does not own |
 |-------|------|----------------|
-| [netrunner-cards-data](netrunner-cards-data) | CR **9.3** ability records + Effect IR bodies | When/order of resolution |
-| [netrunner-engine](netrunner-engine) `src/effects/ir.ts` + `eval.ts` | Instruction AST, pause/resume, primitives | CR prose compilation |
+| [netrunner-cards-data](https://github.com/nhoople/netrunner-cards-data) | CR **9.3** ability records + Effect IR bodies | When/order of resolution |
+| [netrunner-engine](https://github.com/nhoople/netrunner-engine) `src/effects/ir.ts` + `eval.ts` | Instruction AST, pause/resume, primitives | CR prose compilation |
 | Engine timing / legality / `storedTriggers` / `*Hooks` | Priority stack, checkpoints, interrupt slots, PAWs, **pending conditional bag** | Card prose → Effect compilation |
 | CR pin `v26.03` | Citations + timing IDs | Executable behavior |
 
