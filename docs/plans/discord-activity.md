@@ -1,6 +1,6 @@
 # Discord Activity (Phase 6)
 
-The design for the next product phase, moved here from the [roadmap](../roadmap.md). Status: not started. Turn this into tasks before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program.
+The design for the next product phase, moved here from the [roadmap](../roadmap.md). Status: not started. Turn this into tasks before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program. The board the Activity serves is built by the [product UI plan](product-ui.md).
 
 The product is a Discord Activity on one Lightsail host (see Hosting below). Discord is the account and the only player conversation. Account checks the Discord user. Matchmaking checks the format and deals through a game container. That container sends only that seat's snapshot. The engine never sees a Discord user. A restart replays the applied-intent log, and matchmaking returns the same Discord user to the same seat.
 
