@@ -11,6 +11,8 @@ Inside it are four separate git repositories, gitignored by the meta repo (not s
 
 Run git for one of the four inside its folder (`git -C netrunner-engine ...`). Git run from this folder acts on the meta repo.
 
+Before an LSP lookup (definitions, references, symbol search), `cd` into the repo that holds the file. The LSP tool drops results that the current folder's git ignores, and the meta repo ignores all four repos, so from here every result is filtered out.
+
 The repos stay separate. The game and the engine consume the others by release tag, not by `master` and not as workspace packages. Do not recommend merging the repositories, an npm workspace, or Turborepo unless asked to change that release model.
 
 Engine setup: `npm install && npm run fetch-cr` in `netrunner-engine`.
