@@ -22,6 +22,14 @@ The TypeScript and Python language servers are installed, but the `LSP` tool is 
 
 A `PreToolUse` hook (`.claude/hooks/lsp-nudge.mjs`) reminds a session of this when a grep looks for a camelCase or PascalCase symbol in the engine or game.
 
+## CR and card lookups
+
+Use the `lookup` skill (`node .claude/skills/lookup/lookup.mjs`) for CR text by number or keyword, a card's printed text, abilities and IR, its rulings, and which cards use an effect kind. It reads the engine's pinned `vendor/` data. Do not write a one-off `python3 -c` or `node -e` parser for these.
+
+## Waiting
+
+Do not wait with `sleep` in a foreground command. For a PR's CI, use the `ccd_pr` tools. For other CI runs, run `gh run watch <id> --exit-status` with `run_in_background`. For long tests or scripts, use `run_in_background`, or the `Monitor` tool (deferred) to wait for a condition. A `PreToolUse` hook (`.claude/hooks/wait-nudge.mjs`) reminds a session of this.
+
 The repos stay separate. The game and the engine consume the others by release tag, not by `master` and not as workspace packages. Do not recommend merging the repositories, an npm workspace, or Turborepo unless asked to change that release model.
 
 Engine setup: `npm install && npm run fetch-cr` in `netrunner-engine`.
