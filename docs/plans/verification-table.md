@@ -1,6 +1,6 @@
 # Verification table
 
-*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../README.md). Status: not started.*
+*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../README.md). Status: V1 done (netrunner-game #285, 2026-11-14). V2 next.*
 
 ## Why
 
