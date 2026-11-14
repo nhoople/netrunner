@@ -94,7 +94,7 @@ So 1,187 non-static abilities on 1,078 cards have no label. Midori and Mitra Ama
 1. **Off-Campus Apartment.** The brief's claim is confirmed, and it is worse than stated. In `releaseHostedCardsOnTrash` (`state/trashHooks.ts:370–406`), a hosted Runner card is pushed to the heap but stays in `runner.installed`. `hostId` is cleared first, so the second loop and the 10.3.1g checkpoint skip it, and no trash triggers or prevention run. In the other direction, trashing a hosted card through `moveRunnerCardToHeap` never removes it from the host's `hostedCardIds`.
 2. **Tāo Salonga's swap does nothing** (above).
 3. **Mandatory Seed Replacement leaves ice in no array** while its choices are open. A checkpoint in that window could delete an ice-only remote.
-4. **Citations.** `seatVisibility.ts`, `api/library.ts:352` and `types.ts:6057` cite CR 1.18 for visibility (8 sites in all). At `v26.03`, 1.18 is Advancing Cards; visibility is 1.21. `state/currents.ts` cites 3.5.1d, which doesn't exist at the pin.
+4. **Citations.** `seatVisibility.ts`, `api/library.ts:352` and `types.ts:6057` cite CR 1.18 for visibility (3 sites; the other 5 CR 1.18 citations are correctly about advancing). At `v26.03`, 1.18 is Advancing Cards; visibility is 1.21. `state/currents.ts` cites 3.5.1d, which doesn't exist at the pin.
 5. **Access.** Detente and Khusyuk bypass access (above).
 6. **`.claude/agents/cr-checker.md` is wrong about labels.** It says printed wording is in each ability's `label`, but conditional, play and static abilities have none. It should read `data/printed/<id>.json` at the cards tag.
 
@@ -136,8 +136,8 @@ They are ordered by expected bugs found per hour. Each tool writes a baseline JS
 | 1.1 | **State invariant checker.** `src/debug/invariants.ts` exports `checkInvariants(state): Problem[]`. A vitest `setupFiles` hook wraps `applyIntent`/`applyAction` so it runs after every action in every test. Checks: each card in exactly one zone array, matching `zone`; `hostId` ↔ `hostedCardIds` agree both ways and the host is installed; nothing in heap, Archives, HQ, grip, stack, R&D or score is listed installed or hosted; `run.position` is in range or null (never −1); `encounter.iceId === iceAtRunnerPosition()` unless `iceUninstalled`/`positionVacated`; every `server:X:ice` card is in that server's `ice`; Runner cards are never `rezzed` | M | `boardProblems` | OCA double zone; hostId-only cards; Mandatory Seed orphans; Mumbad `zone`; Compile/DaVinci `rezzed`; `rfgRunnerInstalled` orphans; position drift from the 37 install bypasses. Expect a large initial baseline, keyed by test name + problem code | Engine maintenance (one, end of Phase 1) |
 | 1.2 | **No-op and dead-kind sweep.** `tests/kind-liveness.test.ts`: (a) the 19 dead kinds; (b) each `choose`/`options` builder where every non-decline option is a no-op (`gain_credits 0`, empty `seq`); (c) card flags whose consumer builds a no-op kind | S | IR walk in `one-off-kind-coverage` | 19 dead kinds, Tāo, and more stubs like it | Test-only |
 | 1.3 | **Seeded random playouts.** Extend the learn-to-play playout: (a) every Learn to play list; (b) random legal decks per format from `pool.json` (fixed seeds); (c) N seeds × 200 steps, with N set per CI budget and a larger nightly-style local script. Invariant checker on. A failing seed is saved to `tests/fixtures/playout-seeds.json` and replayed as a regression test | M | 1.1, `queryLegality` | Crashes, refused legal actions, and invariant failures from card combinations no hand-written test covers | Test-only |
-| 1.4 | **Printed-text check.** `scripts/check-labels.mjs` in cards-data, run by CI as a report and a baseline, never a hard fail on wording: (a) conditional and play abilities with no label (1,187); (b) labels whose normalized text isn't a substring of `printed/<id>.strippedText`; (c) cards with non-empty `unsupported` | S | `data/printed/` | 1,187 missing labels; paraphrase drift. Labels get added area by area in Phase 3 | Cards test-only |
-| 1.5 | **Citation test.** Extend `rule-cite-map.test.ts`: (a) every literal `CR n.n…` in `src/**` exists at the pin (now: 1 miss, 3.5.1d); (b) a topic check that compares keywords near the citation (visibility, swap, install, trash, host, rez, access, damage, run) with the cited node's section title and text, and records mismatches in a baseline for cr-checker review | S (a) + M (b) | `vendor/cr-data/nodes.json` | 1.18 → 1.21 (8 sites); citations like 6.2.7e used where the rule doesn't apply | Test-only (comment fixes ship with each area) |
+| 1.4 | **Printed-text check.** `scripts/check_labels.py` in cards-data (written in Python to match that repo's CI; baseline in `scripts/baselines/labels.json`), run by CI as a report and a baseline, never a hard fail on wording: (a) conditional and play abilities with no label (1,187); (b) labels whose normalized text isn't a substring of `printed/<id>.strippedText`; (c) cards with non-empty `unsupported` | S | `data/printed/` | 1,187 missing labels; paraphrase drift. Labels get added area by area in Phase 3 | Cards test-only |
+| 1.5 | **Citation test.** Extend `rule-cite-map.test.ts`: (a) every literal `CR n.n…` in `src/**` exists at the pin (now: 1 miss, 3.5.1d); (b) a topic check that compares keywords near the citation (visibility, swap, install, trash, host, rez, access, damage, run) with the cited node's section title and text, and records mismatches in a baseline for cr-checker review | S (a) + M (b) | `vendor/cr-data/nodes.json` | 1.18 → 1.21 (3 sites); citations like 6.2.7e used where the rule doesn't apply | Test-only (comment fixes ship with each area) |
 | 1.6 | **CR example coverage table.** `tests/cr-example-coverage.test.ts` lists every `.exN` at the pin and the `it()` that cites it; unreferenced examples go in a shrink-only baseline. It also emits a per-area table that Phase 3 reads | S | `cr-examples-ch*.test.ts` | 11 gaps now. Adequacy, not presence, is checked by mutation (1.9) | Test-only |
 | 1.7 | **Game visibility fuzz.** In netrunner-game, play seeded matches through `Match` and, after each intent, walk each seat's and the spectator's snapshot JSON for any hidden card id or title the CR 1.21 / 10.2 rules give that seat no right to see. Uses the engine's own facedown/hidden sets as the oracle | M | game test harness, 1.3 seeds | Leaks through raw `run`/`pending*`/`reactionStack`/`reveals` clones; spectator builder drift | Game test-only |
 | 1.8 | **jnet in CI and disagreement list.** Run `npm run test:jnet` in CI as a non-blocking job. Classify the 159 deferred entries: where the CR is silent or unclear and jnet differs, add a `disagreement` status with a CR cite and leave it **for a human decision**, never auto-fixed | M | `tests/jnet/manifest.json` | Rules the CR doesn't settle; a reading list per area | Test-only |
@@ -146,6 +146,43 @@ They are ordered by expected bugs found per hour. Each tool writes a baseline JS
 | 1.11 | **Generated kind reference.** `scripts/build-kind-reference.mjs` writes `docs/effect-ir-kinds.md` in the engine from `KNOWN_PRIMITIVE_KINDS` and the `Effect` type in `src/effects/ir.ts`: each kind, its fields, how many cards use it, and whether a card or the engine builds it. A test fails when the file is stale, the way `scripts/jnet-status.mjs --write` guards its generated block. `docs/effect-ir.md` links to it | S | `ir.ts`, the IR walk in `one-off-kind-coverage` | Nothing on its own. It makes the card format readable without the engine source, and each area's kind merges show up as a shorter file | Test-only |
 
 Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel. 1.10 runs beside 1.2, which reads its map. 1.11 depends on nothing and can run at any point in Phase 1.
+
+## Phase 1 results (2026-11-14)
+
+Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.252` for the `src/debug/` hook), cards #293 and #294, game #283 and #284. The baselines are in each repo's tests; this section records what they found, and what is still open. Each Phase 3 area reads its own entries in its Evidence step.
+
+**Corrections to the inventory above**
+
+- 3 sites cite CR 1.18 for visibility, not 8 (fixed above).
+- 17 dead kinds, not 19 (`tests/baselines/kind-liveness.json`), plus 4 no-op choice builders, including `swap_two_ice`.
+- 12 uncovered CR examples, not 11 (`tests/baselines/cr-examples.json`).
+- Label drift: 395 paid and subroutine labels don't match the printed text. Most are paraphrases (about 40 `Pump <Title> +N strength`). Security Nexus and Unregistered S&W '35 look like real errors.
+
+**Findings by area**
+
+| Area | Finding | Source | CR |
+|---|---|---|---|
+| 1 Hosting and trash | A played current is also pushed to its discard pile while still active (`trashActiveCurrentsBeforePlay`) | jnet, invariants | 3.5.1b, 8.6.6c |
+| 3 Swap | Mutation score 32% (61% of covered). Removing the hosted-card trash, the swap checkpoint's install handling, or any legality gate in `canSwapIntoPlaceOf` survives | Stryker | 8.8.4b, 8.8.2 |
+| 4 Visibility | The Corp's view shows its own R&D card ids in `run.accessCandidates`, `accessingCardId` and `accessedCardIds` during an R&D access | game fuzz | 4.1.5, 10.2.2a |
+| 4 Visibility | The Runner loses sight of HQ cards already accessed this breach (`stripSecrets` nulls them) | game fuzz | 7.3.1a |
+| 4 Visibility | 3 CR 1.18 citations for visibility; 2 CR 1.16.1b citations for additional costs (1.16.10); 1 CR 10.1 for ignoring costs (1.16.5c, area 5) | citation topics | — |
+| 8 Access | Stealing an agenda mid-breach (Bacterial Programming) stalls at `access.stealAgenda`: `finish_breach` is offered and refused. The playouts' `NO_LEGAL_ACTION` cluster | jnet, playouts | 7.4.7 |
+| 8 Access | `refreshRdDeckCandidate` keys on card id, so cards the Corp rearranges in R&D (new objects) can't be accessed again | jnet | 1.12.3, 7.4.7a |
+| 9 Damage | The Runner is flatlined as soon as core damage drops max hand size below 0, not at the discard step | jnet | 1.7.2b |
+| 10 Card flags | Sportsmetal never triggers: `fireOnAgendaScoredOrStolen` never passes the Corp identity | jnet | 9.3.7c |
+| none | After a terminal operation the Corp can still score in the 5.6.2a window | jnet | 5.4.3a, 5.6.2 |
+| none | Psi bids during a run can't spend bad publicity credits | jnet | 10.6.2, 10.14.3 |
+
+The last two have no area. Decide at Phase 2: add an area 11 (turn structure and psi), or fold them into areas 8 and 10.
+
+**Open items**
+
+- Tool 1.2(c), card flags whose reader builds a no-op kind, is an `it.todo`. It can now read `tests/baselines/card-flags.json`; do it in Phase 2.
+- 51 of the 159 deferred jnet scenarios are unclassified (list in the engine's `docs/jnet-test-ports.md`). No `disagreement` case has turned up yet.
+- The visibility fuzz rarely reaches facedown Runner installs, facedown set-aside cards, or grip reveals with the Learn to play and Startup pools. Add hand-built scenarios for those before counting the Phase 6 gate's fuzz condition as met.
+- Cards #294 (Hedge Fund and PAD Campaign store `influence: 0`) is on cards master, unreleased. It ships with paired cut A.
+- Mutation scores exist only for area 3. Each area measures its own in Phase 3.
 
 ## Phase 2: guardrails (S–M, test-only)
 
