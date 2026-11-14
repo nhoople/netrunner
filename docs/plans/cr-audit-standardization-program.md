@@ -187,7 +187,7 @@ Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area
 - Tool 1.2(c), card flags whose reader builds a no-op kind, is an `it.todo`. It can now read `tests/baselines/card-flags.json`; do it in Phase 2.
 - 51 of the 159 deferred jnet scenarios are unclassified (list in the engine's `docs/jnet-test-ports.md`). No `disagreement` case has turned up yet.
 - The visibility fuzz rarely reaches facedown Runner installs, facedown set-aside cards, or grip reveals with the Learn to play and Startup pools. Add hand-built scenarios for those before counting the Phase 6 gate's fuzz condition as met.
-- Cards #294 (Hedge Fund and PAD Campaign store `influence: 0`) is on cards master, unreleased. It ships with paired cut A.
+- Cards #294 (Hedge Fund and PAD Campaign store `influence: 0`) shipped in cards `v1.147.23` on 2026-11-14, ahead of paired cut A, with the verification table follow-ups (engine `v1.147.255`).
 - Mutation scores exist only for area 3. Each area measures its own in Phase 3.
 
 ## Phase 2: guardrails (S–M, test-only)
