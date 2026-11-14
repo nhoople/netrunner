@@ -58,7 +58,7 @@ Before V7 was built, 37 illegal actions were tried on one set position against e
 
 Every refusal carried a CR citation, so V7 was built. An engine intent names no seat; the engine acts for whoever the state says. The panel therefore checks the named seat against the legality list and flags an intent the engine takes for the other seat.
 
-A possible engine follow-up, not started: check the target before the timing window, give clearer messages for the three misleading cases, and refuse a `remote_root` destination for ice.
+The engine follow-up is done. Ice sent to a server's root is refused (netrunner-engine #912). The target is checked before the timing window, and the three misleading cases give clearer messages (netrunner-engine #913). Both shipped in engine `v1.147.254` on 2026-11-14.
 
 ## Tests
 
