@@ -2,6 +2,8 @@
   "permissions": {
     "allow": [
       "LSP",
+      "Bash(node .claude/skills/lookup/lookup.mjs *)",
+      "Bash(node ../.claude/skills/lookup/lookup.mjs *)",
       "Bash(gh pr view *)",
       "Bash(gh pr list *)",
       "Bash(gh pr checks *)",
@@ -61,6 +63,16 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/lsp-nudge.mjs\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/wait-nudge.mjs\"",
             "timeout": 5
           }
         ]
