@@ -1,14 +1,14 @@
 # Verification table
 
-*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../README.md). Status: V1–V6 done (netrunner-game #285–#290, netrunner-engine #908, 2026-11-14). V7 next.*
+*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../../README.md). Status: done. V1–V7 landed in netrunner-game #285–#290 and #292, with netrunner-engine #908, on 2026-11-14.*
 
 ## Why
 
 The verification table at `/` exists to check that the engine does what the Comprehensive Rules and the printed card say. It already shows every zone, CR citations on each play, each visible card's Effect IR, and timing readouts. The debug page shows both seat snapshots and the internal board, and steps an engine golden transcript. The log page restores an earlier position.
 
-It is slow at the one thing the [CR audit program](cr-audit-standardization-program.md) will ask of it most: checking one card or one interaction. Today that means starting a match from a preset or a deck list, opening two seat links, and playing turns until the card shows up. Each Phase 3 area re-verifies dozens of cards.
+It is slow at the one thing the [CR audit program](../cr-audit-standardization-program.md) will ask of it most: checking one card or one interaction. Today that means starting a match from a preset or a deck list, opening two seat links, and playing turns until the card shows up. Each Phase 3 area re-verifies dozens of cards.
 
-This plan makes that check fast. It is separate from the [product UI plan](product-ui.md), which leaves this table alone. The table keeps its plain, show-everything view. None of this ships to players.
+This plan makes that check fast. It is separate from the [product UI plan](../product-ui.md), which leaves this table alone. The table keeps its plain, show-everything view. None of this ships to players.
 
 ## What a test match showed
 
@@ -44,6 +44,21 @@ Sizes: **S** ≈ half a session, **M** ≈ one session. Each item ends with the 
 | V7 | **Why not** | S | On the debug page, pick a card and an action the table did not offer. The host asks the engine to apply it to a copy of the state and shows the refusal reason. The live match is not touched | Check first that `applyIntent`'s refusal carries a useful reason for most actions. If it does not, drop this item | 6 |
 
 Order: V1 → V2 → V3 → V4 → V5 → V6 → V7. V1 and V2 are small and need nothing else. V3 gives the largest saving and should land before audit Phase 3 starts. V4 waits for the engine release.
+
+## V7 gate
+
+Before V7 was built, 37 illegal actions were tried on one set position against engine `v1.147.253`. They covered the wrong seat, too few credits or clicks, the wrong timing window, an illegal target, a card not in hand, a server that does not exist, a rez outside a run, and more.
+
+| Result | Count | Examples |
+|---|---|---|
+| Specific, accurate reason | 30 | `Insufficient credits to play operation.` (CR 5.2.6e); `Only the Runner may make a run.` (CR 5.2.7f); `Unknown attacked server.` (CR 6.1.2a); `Runner must be tagged to trash a resource.` (CR 5.2.6g) |
+| Accurate, but an earlier timing check hides the more useful reason | 3 | Scoring an under-advanced agenda at the take-action step says `Score only in a paid ability window marked (S).`; rezzing a rezzed card outside a run says `Ice can only be rezzed during the approach PAW.` |
+| Misleading | 3 | A card id that does not exist says `Not an operation.`; Remove tag on the Corp's turn says `Basic actions are only legal at the take-action step.`; a Corp install on the Runner's turn gives the Runner install message |
+| Accepted instead of refused | 1 | Ice sent to a remote's root is installed protecting that server |
+
+Every refusal carried a CR citation, so V7 was built. An engine intent names no seat; the engine acts for whoever the state says. The panel therefore checks the named seat against the legality list and flags an intent the engine takes for the other seat.
+
+A possible engine follow-up, not started: check the target before the timing window, give clearer messages for the three misleading cases, and refuse a `remote_root` destination for ice.
 
 ## Tests
 

@@ -106,7 +106,7 @@ Order: U0 → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 and U2 together a
 - A deck builder. Decks come from NetrunnerDB, per the Phase 6 design.
 - Sound, themes, cosmetics, emotes, and a turn timer.
 - Arena's art, card frames, fonts, effects, sounds, and exact layout. The reference is how it plays.
-- Changes to the verification table. Those are in the [verification table plan](verification-table.md).
+- Changes to the verification table. Those are in the [verification table plan](done/verification-table.md).
 
 ## Done
 
