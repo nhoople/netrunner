@@ -72,7 +72,7 @@ Adopted 2026-10-29. Full **executable** CR fidelity for the corpus, still withou
 
 Phase-3 leftovers closed at **`v1.147.221`** (Jeitinho bypass note path; `fireInlineConditional` removed).
 
-**Plans:** [`full-cr-fidelity-program.md`](plans/full-cr-fidelity-program.md) (fidelity); [`engine-standardization-program.md`](plans/done/engine-standardization-program.md) (standardization); [`cr-audit-standardization-program.md`](plans/cr-audit-standardization-program.md) (CR audit and procedure standardization, next engine track); [`stack-tracking-assessment.md`](plans/stack-tracking-assessment.md) (status). Product Phase 5 is met. Phase 6 is the Discord Activity.
+**Plans:** [`full-cr-fidelity-program.md`](plans/done/full-cr-fidelity-program.md) (fidelity); [`engine-standardization-program.md`](plans/done/engine-standardization-program.md) (standardization); [`cr-audit-standardization-program.md`](plans/cr-audit-standardization-program.md) (CR audit and procedure standardization, next engine track); [`stack-tracking-assessment.md`](plans/done/stack-tracking-assessment.md) (status). Product Phase 5 is met. Phase 6 is the Discord Activity.
 
 ## Engine standardization
 

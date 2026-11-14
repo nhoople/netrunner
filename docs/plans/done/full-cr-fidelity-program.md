@@ -65,9 +65,9 @@ isProject: false
 **Floor:** engine [`v1.147.221`](https://github.com/nhoople/netrunner-engine/releases/tag/v1.147.221), cards `v1.147.13`, CR `v26.03`.
 
 **Parent tracking:** [`stack-tracking-assessment.md`](stack-tracking-assessment.md)  
-**Records precursor (cards already have `abilities`):** [`cr-ability-records.md`](done/cr-ability-records.md) — phase 1 is **runtime** cutover, not re-declaring the corpus.  
+**Records precursor (cards already have `abilities`):** [`cr-ability-records.md`](cr-ability-records.md) — phase 1 is **runtime** cutover, not re-declaring the corpus.  
 **Handoff for agents:** agent store `full-cr-fidelity-handoff.md`  
-**Roadmap:** Phase 5 note in [`docs/roadmap.md`](../roadmap.md)
+**Roadmap:** Phase 5 note in [`docs/roadmap.md`](../../roadmap.md)
 
 ## What “fully” means here
 

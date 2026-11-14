@@ -37,7 +37,7 @@ todos:
     status: completed
   - id: backlog-bespoke-payloads
     content: "Broader: bespoke pending payloads (Bug / Geist / Chum / Amaze) — keep unless context moves to turn/window"
-    status: pending
+    status: cancelled
   - id: backlog-inactive-parity
     content: "Broader: inactive/imminent cancel parity — blank + Chum/Amaze (143); checkpoint/Bug/Hostile + identity/9.1.8g (144)"
     status: completed
