@@ -11,7 +11,16 @@ Inside it are four separate git repositories, gitignored by the meta repo (not s
 
 Run git for one of the four inside its folder (`git -C netrunner-engine ...`). Git run from this folder acts on the meta repo.
 
-Before an LSP lookup (definitions, references, symbol search), `cd` into the repo that holds the file. The LSP tool drops results that the current folder's git ignores, and the meta repo ignores all four repos, so from here every result is filtered out.
+## Code navigation (LSP)
+
+The TypeScript and Python language servers are installed, but the `LSP` tool is deferred: load it with `ToolSearch` (`select:LSP`) before the first call.
+
+- Before an LSP lookup, `cd` into the repo that holds the file. The LSP tool drops results that the current folder's git ignores, and the meta repo ignores all four repos, so from here every result is filtered out. `hover` works either way.
+- Use `findReferences` before changing the signature or behavior of an exported function or type in `netrunner-engine` or `netrunner-game`, and to list the callers of a symbol.
+- Use `goToDefinition` or `workspaceSymbol` to find where a TypeScript symbol is defined, and `hover` for its type.
+- Grep stays right for string literals, comments, log text, effect kind strings, card JSON, and CR text.
+
+A `PreToolUse` hook (`.claude/hooks/lsp-nudge.mjs`) reminds a session of this when a grep looks for a camelCase or PascalCase symbol in the engine or game.
 
 The repos stay separate. The game and the engine consume the others by release tag, not by `master` and not as workspace packages. Do not recommend merging the repositories, an npm workspace, or Turborepo unless asked to change that release model.
 
