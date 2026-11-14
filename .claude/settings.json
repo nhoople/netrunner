@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "LSP",
       "Bash(gh pr view *)",
       "Bash(gh pr list *)",
       "Bash(gh pr checks *)",
@@ -50,6 +51,20 @@
       "Bash(gh release create *)",
       "Bash(gh release delete *)",
       "Bash(gh release edit *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/lsp-nudge.mjs\"",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
