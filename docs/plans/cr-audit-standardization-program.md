@@ -156,7 +156,8 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 - 3 sites cite CR 1.18 for visibility, not 8 (fixed above).
 - 17 dead kinds, not 19 (`tests/baselines/kind-liveness.json`), plus 4 no-op choice builders, including `swap_two_ice`.
 - 12 uncovered CR examples, not 11 (`tests/baselines/cr-examples.json`).
-- Label drift: 395 paid and subroutine labels don't match the printed text. Most are paraphrases (about 40 `Pump <Title> +N strength`). Security Nexus and Unregistered S&W '35 look like real errors.
+- Label drift: 395 paid and subroutine labels don't match the printed text. A triage on 2026-11-14 rebuilt the list (393 by its criterion, all paid abilities) and sorted it: 371 paraphrases (abbreviations, shortened "use only" notes, reworded counter costs, 42 `Pump <Title> +N strength`), 12 wrong labels on a correct model (the area 11 rows below), and 9 wrong models. The wrong models are fixed one engine session each, outside the areas: N-Pot and Hákarl 1.0 (Runner can't use the break), Vladisibirsk City Grid (a click in the cost), False Lead (trashed, not forfeited), Security Nexus (auto-resolved trace, usable outside an encounter), Labyrinthine Servers (likely never usable), Corporate Troubleshooter (X chosen after the trash), Panic Button and Mamba (encounter only, not the whole run). Unregistered S&W '35 is fixed (engine #918, cards #297).
+- Two kinds carry a pack prefix, against the naming rule: `cotc_no_one_home` and `win_gebrselassie_host`.
 
 **Findings by area**
 
@@ -176,6 +177,8 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 11 Turn structure | Operations whose play opens a choice, Subcontract's plays, and Corp identity click abilities are counted as actions. Found while fixing action counting (engine #915–#917) | hand check | 5.2.5b, 5.2.1a |
 | 11 Turn structure | The generic break on Markus-style ice always breaks the first unbroken subroutine instead of letting the Runner choose | hand check | 6.5.4, 9.8.5 |
 | 11 Turn structure | Consulting Visit's play from R&D does not charge the play cost | hand check | 8.6.2, 1.16 |
+| 11 Turn structure | Labels drop the [click] cost, hiding that the ability is an action: Ronin, Reversed Accounts, Elizabeth Mills, Contract Killer, Fermenter, Red Team, Professional Contacts, Sneakdoor Beta, Conduit, Ayla "Bios" Rahim, Pennyshaver. The model is right; fix the labels in paired cut C | label triage | 5.2.1 |
+| 11 Turn structure | Unity's label says +1 strength; the engine gives +X (X = installed icebreakers), as printed. Fix the label in paired cut C | label triage | 1.2.1 |
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
