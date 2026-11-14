@@ -1,6 +1,6 @@
 # Verification table
 
-*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../README.md). Status: V1–V4 done (netrunner-game #285, #286, #287, #288, 2026-11-14). V5 next.*
+*Drafted 2026-11-13 from a played test match and a read of `public/table.html`, `public/debug.html`, and `public/log.html` in `netrunner-game`. Current versions are in the [pin table](../../README.md). Status: V1–V5 done (netrunner-game #285–#289, netrunner-engine #908, 2026-11-14). V6 next.*
 
 ## Why
 
