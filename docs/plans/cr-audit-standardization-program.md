@@ -4,6 +4,8 @@
 
 *Revised 2026-11-12: added the card flag inventory (1.10), the generated kind reference (1.11), two Phase 2 guards, area 10, and the Phase 6 gate.*
 
+*Revised 2026-11-13: added the playout blockers step between Phase 2 and area 1.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -154,6 +156,28 @@ Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 
 4. **Counts may only shrink.** `tests/baselines/format-counts.json` holds three numbers: kinds in `KNOWN_PRIMITIVE_KINDS` (1,540 at the inventory), kinds used by exactly one card (735), and `CardDef` flags (616). A change that raises one fails unless the baseline is edited with a dated reason. No target number is set now. Each Phase 3 area records the counts it leaves behind.
 5. **Citation topics.** Tool 1.5b starts as a report. Once cr-checker has reviewed its baseline, a new topic mismatch fails the test instead of being recorded.
 
+## Playout blockers (after Phase 2, before area 1)
+
+*Added 2026-11-13 from the first playout sweep (tool 1.3, engine #903): 30 seeds per format, no crashes, failures in every format.*
+
+Two failure clusters are not procedure copies, so no early area owns them. They are also the ones that hit the Learn to play starter list most, and the [Phase 6 gate](#phase-6-gate) needs that list to run clean. Fix them first, in one engine session.
+
+| # | Cluster | Seen in | What happens | CR to read first |
+|---|---|---|---|---|
+| B1 | **Breach actions offered, then refused** | 38 seeds, every format; 9 of 30 on the Learn to play starter list | `queryLegality` offers `finish_breach` or `access_card` at `access.stealAgenda`, and `applyAction` refuses with "No breach access window" | ch. 7 (accessing and breaching), 9.2 (timing and priority) |
+| B2 | **A turn with no legal action** | 42 seeds, at `corp.turnBegins` and `runner.turnBegins` | Legality offers an ability whose cost cannot be paid (AU Co. with fewer than 2 power counters is one case). Taking it leaves the turn with nothing legal | 1.16 (costs), 9.5 (paid abilities), 9.2, ch. 5 (turns) |
+
+How to run it:
+
+- Reproduce each from its entry in `tests/fixtures/playout-seeds.json`. Find the rule before changing code, and run cr-checker on the diff.
+- The fix is where legality and apply disagree. Make one of them the source for the other; do not patch the single card.
+- Each fix gets a test that cites the CR rule and asserts state, and its entries leave the seeds fixture.
+- One engine maintenance release, with the game pin and the meta pin table in the same pass.
+
+Exit: no `REFUSED` at a breach step and no `NO_LEGAL_ACTION` at a turn start in the CI seeds or the nightly sweep, on any format.
+
+The sweep's other clusters stay with their areas, and are evidence for the order below: a trashed card pushed to Archives twice (about 20 seeds) and broken hosting links on Botulus, Tranquilizer, Stowaway, Slap Vandal, and Ekomind go to area 1; an attacked remote deleted mid-run (20 seeds) and a position out of range on an unprotected HQ go to area 2; install legality mismatches (Egret, Research Station, The Red Room, Flagship, region-only upgrades, Earth Station's remote limit) go to area 5.
+
 ## Phase 3: audit and standardize by procedure
 
 ### Order and why
@@ -204,7 +228,7 @@ Area 10 exits when no flag's reader builds an effect kind, and the flag baseline
 
 *Added 2026-11-12.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
 
-- Phase 1 and Phase 2 are done.
+- Phase 1 and Phase 2 are done, and so are the [playout blockers](#playout-blockers-after-phase-2-before-area-1).
 - Areas 1–4 are done and paired cut A has shipped. Area 4 is the one that puts hidden information in front of real opponents.
 - The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup card pool.
 
@@ -237,6 +261,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | P1-h flag inventory | engine | P1-a; before or with P1-b | 1.10: list every `CardDef` flag and schema property with its cards, readers, and the kind each reader builds; baseline; test-only. |
 | P1-i kind reference | engine | P1-a | 1.11: generate `docs/effect-ir-kinds.md` from `ir.ts`, add the stale-file test, and link it from `effect-ir.md`; test-only. |
 | P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names; the shrink-only kind and flag counts; the citation-topic test made failing after cr-checker's review. |
+| PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
 | P3-1 … P3-10 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
 | Paired cut A / B | cards + engine + game + meta | after P3-4 / after P3-10 | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
 | Phase 6 start | game | after paired cut A, beside P3-5 … P3-10 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
