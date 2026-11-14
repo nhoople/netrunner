@@ -171,10 +171,13 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 8 Access | `refreshRdDeckCandidate` keys on card id, so cards the Corp rearranges in R&D (new objects) can't be accessed again | jnet | 1.12.3, 7.4.7a |
 | 9 Damage | The Runner is flatlined as soon as core damage drops max hand size below 0, not at the discard step | jnet | 1.7.2b |
 | 10 Card flags | Sportsmetal never triggers: `fireOnAgendaScoredOrStolen` never passes the Corp identity | jnet | 9.3.7c |
-| none | After a terminal operation the Corp can still score in the 5.6.2a window | jnet | 5.4.3a, 5.6.2 |
-| none | Psi bids during a run can't spend bad publicity credits | jnet | 10.6.2, 10.14.3 |
+| 11 Turn structure | After a terminal operation the Corp can still score in the 5.6.2a window | jnet | 5.4.3a, 5.6.2 |
+| 11 Turn structure | Psi bids during a run can't spend bad publicity credits | jnet | 10.6.2, 10.14.3 |
+| 11 Turn structure | Operations whose play opens a choice, Subcontract's plays, and Corp identity click abilities are counted as actions. Found while fixing action counting (engine #915–#917) | hand check | 5.2.5b, 5.2.1a |
+| 11 Turn structure | The generic break on Markus-style ice always breaks the first unbroken subroutine instead of letting the Runner choose | hand check | 6.5.4, 9.8.5 |
+| 11 Turn structure | Consulting Visit's play from R&D does not charge the play cost | hand check | 8.6.2, 1.16 |
 
-The last two have no area. Decide at Phase 2: add an area 11 (turn structure and psi), or fold them into areas 8 and 10.
+Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
 **Open items**
 
@@ -221,18 +224,21 @@ The sweep's other clusters stay with their areas, and are evidence for the order
 
 Risk = how often the procedure runs × how bad a wrong result is × how many paths bypass the helper. Dependencies also matter: trash and hosting sit under swap, uninstall and install.
 
-1. **Hosting and trash.** Two confirmed bugs (OCA, the stale `hostedCardIds`). No hosting helper, two representations, 21 trash copies plus ~90 inline sites. Every later area calls these.
-2. **Uninstall, ice removal and run position (8.5.10, ch. 6, 8.3 rearrange).** No uninstall helper; `onUninstall` never fires outside trash; position drift touches every run; Mandatory Seed orphan ice. Needs area 1's hosted release.
-3. **Swap (8.8).** Finish what #893/#894 started: 13 kinds outside the helpers, plus Tāo. Needs the uninstall helper from area 2.
-4. **Visibility (1.21, 10.2).** Moved up because Phase 6, the Discord Activity, puts hidden information in front of real opponents. Wrong citations and raw state clones.
-5. **Corp install (8.5).** 42 bypasses; every ice bypass can desync the position (made safe by area 2).
-6. **Runner install (8.5).** 30 bypasses plus 8 semi-shared helpers; MU limit and hook gaps.
-7. **Rez and derez (8.2 rez / derez rules).** 21 rez sites without hooks; no derez helper.
-8. **Access (ch. 7).** 3 bypasses. Small, but Detente is visibly wrong.
-9. **Damage.** No bypass found. Confirm with tools and mutation testing, then close.
-10. **Card flags and declarations.** Last, because areas 1–9 each move the flags that hide their own procedure. What is left is the flags that describe a card, and this area sorts them.
+- **Area 1: Hosting and trash.** Two confirmed bugs (OCA, the stale `hostedCardIds`). No hosting helper, two representations, 21 trash copies plus ~90 inline sites. Every later area calls these.
+- **Area 2: Uninstall, ice removal and run position (8.5.10, ch. 6, 8.3 rearrange).** No uninstall helper; `onUninstall` never fires outside trash; position drift touches every run; Mandatory Seed orphan ice. Needs area 1's hosted release.
+- **Area 3: Swap (8.8).** Finish what #893/#894 started: 13 kinds outside the helpers, plus Tāo. Needs the uninstall helper from area 2.
+- **Area 4: Visibility (1.21, 10.2).** Moved up because Phase 6, the Discord Activity, puts hidden information in front of real opponents. Wrong citations and raw state clones.
+- **Area 5: Corp install (8.5).** 42 bypasses; every ice bypass can desync the position (made safe by area 2).
+- **Area 6: Runner install (8.5).** 30 bypasses plus 8 semi-shared helpers; MU limit and hook gaps.
+- **Area 7: Rez and derez (8.2 rez / derez rules).** 21 rez sites without hooks; no derez helper.
+- **Area 8: Access (ch. 7).** 3 bypasses. Small, but Detente is visibly wrong.
+- **Area 9: Damage and prevention.** No damage bypass found, but 23 `prevent_*` kinds route prevention card by card. Run the full recipe on prevention; confirm damage itself with tools and mutation testing.
+- **Area 12: Counters and advancement.** Runs after 9. 36 `place_*` kinds, many card-specific (`place_adv_on_ice`, `may_place_up_to_advancements_on_remote_root_then_access_unless_pay`), and `counterPrimitives`. Advancement feeds scoring in area 11, which runs after it.
+- **Area 13: Search, shuffle and deck order.** Runs after 12. 53 `search_*` and 46 `shuffle_*` kinds, mostly one-offs; Code Siphon shuffles with inline `random()`. Deck order is hidden information. Access (area 8) runs before it; its three bypasses don't depend on the deck helpers, and area 13 re-checks access to rearranged R&D.
+- **Area 11: Turn structure, actions, breaking and psi (ch. 5, 6.5, 9.8, 8.6, 1.16, 10.14).** Runs after 13 and before 10. Also owns scoring, stealing and forfeiting agendas (13 `score_*`, 7 `forfeit_*` kinds). Action counting has no shared path: engine #915–#917 fixed three ways an ability was counted as an action or not, and three more are known. Breaking subroutines and play costs have no owner either.
+- **Area 10: Card flags and declarations.** Last, because areas 1–9 and 11–13 each move the flags that hide their own procedure. What is left is the flags that describe a card, and this area sorts them.
 
-Add an area when Phase 1 shows another procedure copied often. Candidates from the inventory: counters and advancement (`counterPrimitives`), and shuffling (Code Siphon uses inline `random()`).
+Add an area when Phase 1 shows another procedure copied often. Areas 11–13 were added on 2026-11-14 from the kind counts in `docs/effect-ir-kinds.md` and the findings above. Kind counts measure duplication, not bugs: an area whose evidence step comes back clean closes like area 9.
 
 ### The per-area recipe (applies to every area)
 
@@ -241,8 +247,8 @@ Add an area when Phase 1 shows another procedure copied often. Candidates from t
 3. **CR check.** Run cr-checker on the area's helper and on each bypass family, with the card titles. Read each affected card's `printed/<id>.json` at `v1.147.22`. A printed override (CR 1.2.1) is kept as a field on the shared helper, not as a copy.
 4. **Standardize.** One exported helper per procedure, in `src/state/procedures/<procedure>.ts`. Each bypass becomes a call to it. Card-specific behaviour becomes options (cost mode, destination, face, rez-after, chooser). The guard allowlist gains only that module.
 5. **Effect IR.** Merge card-specific kinds that differ only in fields into a general kind (verb then object; amounts, zones, sides, filters as camelCase fields), following CLAUDE.md. Old kinds stay as engine-side aliases until the paired cards release rewrites the JSON, then they're deleted. Add missing labels to the area's conditional and play abilities in the same cards release. A card flag whose reader builds one of this area's kinds moves in this area too: it becomes a field on the general kind or a declared ability, and leaves the flag baseline (1.10).
-6. **Tests.** For each fixed path: a test that fails on the old code, cites the CR rule, and asserts state through `expectStateDelta`; the area's CR examples from 1.6; the invariant baseline entries for the area removed; the mutation score recorded, aiming at no surviving mutants in the helper's CR-cited branches.
-7. **Delivery.** One engine PR and one engine maintenance release per area (routing only, no card JSON change). Bump the game pin and the meta pin table in the same pass. Card JSON changes (kind merges, labels) are batched into **two paired cards+engine releases**: one after areas 1–4, one after 5–10. Each is an explicit manual paired cut under `docs/git-hygiene.md`, so pins don't churn. Run cr-checker on the diff before each engine commit.
+6. **Tests.** For each fixed path, a hand check on the game's verification table: start from a position (V3), play the path from the debug page, and read the what-changed and invariant panels. A bug found by hand is exported (V5) as an engine fixture. Then: a test that fails on the old code, cites the CR rule, and asserts state through `expectStateDelta`; the area's CR examples from 1.6; the invariant baseline entries for the area removed; the mutation score recorded, aiming at no surviving mutants in the helper's CR-cited branches.
+7. **Delivery.** Findings and open items go in the PR body and this plan's findings table, not in a notes file: that is where the next area's evidence step reads. One engine PR and one engine maintenance release per area (routing only, no card JSON change). Bump the game pin and the meta pin table in the same pass. Card JSON changes (kind merges, labels) are batched into **three paired cards+engine releases**: cut A after areas 1–4; cut B after area 9, covering 5–9; cut C after area 10, covering 12, 13, 11 and 10. Three cuts keep each card JSON rewrite small enough to review. Each is an explicit manual paired cut under `docs/git-hygiene.md`, so pins don't churn. Run cr-checker on the diff before each engine commit.
 
 ### Areas
 
@@ -256,8 +262,11 @@ Add an area when Phase 1 shows another procedure copied often. Candidates from t
 | 6 | Runner install | 30 kinds, 8 semi-shared helpers, graph.ts pushes | Street Peddler, Hayley, Compile, DaVinci, Crowdfunding, Rosetta, Supplier, Kabonesa, Emergent, Diana, Reclaim, Chatterjee, Code Siphon | 8.5, MU rules, console uniqueness | `installRunner` with the same options; Runner cards never `rezzed` | Engine maintenance |
 | 7 | Rez and derez | 33 direct rez sites, ~20 derez sites | Surat, Sensor Net, Worlds Plaza, Advertisement, Mutate, Keros, Maui, Brasília, Miraju, Realloc | rez/derez rules in ch. 8, 9.x triggers | `procedures/rez.ts` (`rezCard(id, {costMode})`) and `derezCard(id)` carrying `derez_card`'s hooks | Engine maintenance |
 | 8 | Access | Khusyuk, Deep Dive, Detente | those three | 7.1–7.5 | All access goes through `access_card`; Detente picks a random card and does not turn it faceup | Engine maintenance |
-| 9 | Damage | `dealDamage`/`resolveDamage` | — | damage rules in ch. 10 | Confirm only: mutation score, CR examples, close | Test-only unless a fix is found |
-| 10 | Card flags and declarations | The flags left in `tests/baselines/card-flags.json` after areas 1–9 have moved the ones that hide a procedure | Full list from the 1.10 baseline at that point | 9.3 ability records; 9.12 for continuous declarations; the rule each flag's reader cites | Each flag family becomes one of three things: a declared static ability (the S6 `continuousSubtypeGrants` pattern), a field on an existing kind, or a printed characteristic that stays (cost, strength, link). No new flag for a one-off | Engine maintenance; card JSON in paired cut B |
+| 9 | Damage and prevention | `dealDamage`/`resolveDamage`, 23 `prevent_*` kinds | Prevention cards from the area inventory | damage and prevention rules in ch. 10 | Damage: confirm with mutation score and CR examples. Prevention: one prevent helper the `prevent_*` kinds call | Engine maintenance if prevention changes; test-only otherwise |
+| 11 | Turn structure, actions, breaking, scoring and psi | `costBeginsWithClick`, the `score_*` and `forfeit_*` kinds, `corpActionTypeCounts` and their writers, the operation play path, ability plays of operations, the break kinds, psi bids | MirrorMorph, Nebula Talent Management, Petty Cash, Plutus, Subcontract, Corp identity click abilities, Markus 1.0 and the bioroid breaks, Consulting Visit, psi ice and upgrades | 5.1–5.7, 6.5 and 9.8.5 (encounter and breaking), 8.6.2 and 1.16 (play costs), 10.14 (psi) | `procedures/action.ts` that records an action once, with its type, for every path that is one, and no path that is not; one break helper with a Runner choice of subroutine; play costs charged in one place | Engine maintenance |
+| 12 | Counters and advancement | `counterPrimitives`, 36 `place_*` kinds, advancement writers | Cards from the area inventory that place or move counters and advancements | advancement and counter rules (ch. 1, 8), from the area's cr-checker pass | `procedures/counters.ts` (`placeCounters(id, type, n)`, `removeCounters`) that every `place_*` kind calls | Engine maintenance |
+| 13 | Search, shuffle and deck order | 53 `search_*` and 46 `shuffle_*` kinds, inline `random()` (Code Siphon), R&D rearrange | Code Siphon and the search and shuffle cards from the area inventory | search, shuffle and deck rules, from the area's cr-checker pass | `procedures/deck.ts` with one search and one shuffle helper using the game's seeded random; search kinds merged into a filter field | Engine maintenance |
+| 10 | Card flags and declarations | The flags left in `tests/baselines/card-flags.json` after areas 1–9 and 11–13 have moved the ones that hide a procedure | Full list from the 1.10 baseline at that point | 9.3 ability records; 9.12 for continuous declarations; the rule each flag's reader cites | Each flag family becomes one of three things: a declared static ability (the S6 `continuousSubtypeGrants` pattern), a field on an existing kind, or a printed characteristic that stays (cost, strength, link). No new flag for a one-off | Engine maintenance; card JSON in paired cut C |
 
 Area 10 exits when no flag's reader builds an effect kind, and the flag baseline holds only printed characteristics and declarations.
 
@@ -299,9 +308,9 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | P1-i kind reference | engine | P1-a | 1.11: generate `docs/effect-ir-kinds.md` from `ir.ts`, add the stale-file test, and link it from `effect-ir.md`; test-only. |
 | P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names; the shrink-only kind and flag counts; the citation-topic test made failing after cr-checker's review. |
 | PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
-| P3-1 … P3-10 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
-| Paired cut A / B | cards + engine + game + meta | after P3-4 / after P3-10 | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
-| Phase 6 start | game | after paired cut A, beside P3-5 … P3-10 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
+| P3-1 … P3-13 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; 12, 13 and 11 run in that order after 9; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
+| Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-5 … P3-9) / after P3-10 (P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
+| Phase 6 start | game | after paired cut A, beside P3-5 … P3-13 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
 
 ## Verification of the program itself
 
