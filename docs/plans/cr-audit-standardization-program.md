@@ -8,6 +8,8 @@
 
 *Revised 2026-11-14: Phase 2 done (engine #928); inventory counts corrected from its baselines.*
 
+*Revised 2026-11-15: playout blockers done (engine #930 and #932, releases `v1.147.259` and `v1.147.260`); the playouts drop System Gateway (engine #931).*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -176,8 +178,13 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 4 Visibility | The game's visibility oracle allows a reveal's titles only at the step of the reveal, so the host log line and `view.reveals` written at the next action are flagged. These are records of a reveal both players saw. Three Invasion of Privacy entries are baselined as allowed. Teach the oracle that a reveal record stays open | game #298 | 1.21.3 |
 | 4 Visibility | 3 CR 1.18 citations for visibility; 2 CR 1.16.1b citations for additional costs (1.16.10); 1 CR 10.1 for ignoring costs (1.16.5c, area 5) | citation topics | — |
 | 4 Visibility | cr-checker review of the citation baseline (2026-11-14). `seatVisibility.ts` CR 1.18 → 1.21 (1.21.1, 1.21.2a). `api/library.ts` and `types.ts` ice-counter docs: drop 1.18.1 and keep 10.2.3a, adding 4.6.3. Earth Station's run cost (`runInitiateTax.ts`, `types.ts` `additionalRunInitiateCredits`) cites 1.16.1b / 4.6.8f; it should be 6.3.2b with 1.16.10. Howler's log (`installKinds.ts`) CR 10.1 → 1.16.5c (area 5). 9.3.7d (`cardLifecycleHooks.ts`) and 9.3.7e (`graph.ts`) are false positives, recorded with their verdicts | citation topics, cr-checker | 1.21, 4.6.3, 6.3.2b, 1.16.5c |
-| 8 Access | Stealing an agenda mid-breach (Bacterial Programming) stalls at `access.stealAgenda`: `finish_breach` is offered and refused. The playouts' `NO_LEGAL_ACTION` cluster | jnet, playouts | 7.4.7 |
+| ~~8 Access~~ | ~~Stealing an agenda mid-breach (Bacterial Programming) stalls at `access.stealAgenda`: `finish_breach` is offered and refused.~~ Fixed by the playout blockers (engine #930): a 4-card R&D breach that steals it and declines its ability goes on to access all 4 | jnet, playouts | 7.4.7 |
 | 8 Access | `refreshRdDeckCandidate` keys on card id, so cards the Corp rearranges in R&D (new objects) can't be accessed again | jnet | 1.12.3, 7.4.7a |
+| 2 Uninstall and run position | The attacked remote ceases to exist mid-encounter, and passing the position crashes (`run.passIce`, `s.servers[attackedServerId]` undefined). The remote-deleted-mid-run cluster as a crash. Startup seed 66 | playout blockers sweep | 4.6.8e, 6.2.7 |
+| 2 Uninstall and run position | A run object survives into `runner.takeAction`, so no basic action is legal. Standard seed 70 | playout blockers sweep | 6.9.6d, 5.2 |
+| 2 Uninstall and run position | Rigged Results' run loops at `run.initiatePaw` (`closeEmptyRunPaw` never advances) until the walk's step budget runs out. Eternal seed 32 | playout blockers sweep | 6.9.1 |
+| 2 Uninstall and run position | Always Have a Backup Plan's bypass: `backupPlanBypassIceId` is cleared after the first match (the card bypasses that ice on every encounter), and it sets `bypassFirstEncounter`, which can bypass the next ice instead when an upgrade blocks the bypass | cr-checker (engine #932) | 6.5.8a, 1.2.1 |
+| 2 Uninstall and run position | Runs started through `pendingStartRun` never call `isRunTargetAllowed` (Off the Grid, Replicating Perfection) | cr-checker (engine #932) | 6.3.2a |
 | 9 Damage | The Runner is flatlined as soon as core damage drops max hand size below 0, not at the discard step | jnet | 1.7.2b |
 | 8 Access | Imp (`accessTrashWithVirus`), Neutralize All Threats (`mustTrashFirstAccessedCardWithTrashCostEachTurn`) and Mumbad Virtual Tour (`mustTrashWhenAccessedWhileInstalled`) are read in `advanceFromMidAccess`, whose choice options are all no-ops and are resolved by option id in `apply.ts` | kind liveness (c) | 7.4 |
 | 10 Card flags | Jesminder Sareen prints "the first time each **run**", but the engine models it as `preventFirstTagThisTurn`, and `canPayTakeTagsNestedCost` checks `tagsGivenThisTurn`. A second run in a turn that already gave a tag would not prevent. Not confirmed by a test. If one confirms it, the triage rule makes it a fix-now (a supported card plays wrong) | cr-checker, citation review | 1.2.1 |
@@ -197,6 +204,12 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 11 Turn structure | A trace that opens a prompt leaves a pending Tollbooth-style encounter effect unresumed | Security Nexus fix (engine #921) | 10.8, 6.9.3 |
 | 11 Turn structure | Security Nexus is offered at encounter start, but Femme Fatale's encounter trigger can resolve in the wrong order around it | Security Nexus fix (engine #921) | 9.2.8d |
 | 11 Turn structure | Security Nexus's card data still models the ability as unconditional; the encounter-only limit lives in the engine. Make it a conditional ability in the card data | Security Nexus fix (engine #921) | 9.6, 6.9.3a |
+| 11 Turn structure | AU Co.: The Gold Standard in Clones offers "remove 2 power counters" with fewer than 2; it resolves as a no-op. A `choose` option's nested cost sits inside its kind (`remove_co_2_look_rd`), so legality can't see it. Gate the option on the cost (an `if` on the counters, or a cost or condition field on `ChoiceOption`). The paid path also skips the cost-paid checkpoint before the look | playout blockers, cr-checker | 1.16.1, 1.16.11a, 1.16.3 |
+| 11 Turn structure | Nothing is legal at `corp.takeAction` with 3 clicks (Standard seed 118, the same before and after the playout blockers) | playout blockers sweep | 5.2, 5.6.2 |
+| 11 Turn structure | Hired Help's additional cost to run forfeits the agenda; the card says trash it | cr-checker (engine #932) | 1.2.1, 8.2.5 |
+| 11 Turn structure | Service Outage's first-run credit is charged only by the basic run action, not when a run event makes the turn's first run | cr-checker (engine #932) | 6.3.2b |
+| 11 Turn structure | `payStealAdditionalCosts` stops at the first cost that opens a choice, and clicks and credits are spent before the effect costs, so a set of steal costs is not checked as a whole | cr-checker (engine #932) | 1.16.10b |
+| 11 Turn structure | `autoWalk` runs an auto step's `onResolve` again each time the walk is parked on it, and `applyAction` now walks after every action (engine #930). `corp.turnBegins`, `runner.turnBegins` and `run.ends` are guarded; check the other auto steps that can open a choice for the same once-only guard | playout blockers, cr-checker | 9.6.6, 9.2.2 |
 | 11 Turn structure | `candidateRun.ts` offers `break_bioroid_subroutine` (spend [click]: break) on any ice with the bioroid subtype, whether or not that ice prints the ability. Not yet checked against the printed text of every bioroid | N-Pot fix (engine #922) | 1.2.1, 6.5 |
 | 11 Turn structure | ChiLo City Grid and Spinal Modem have no test for a tied trace (engine #923 fixed ties in `traceSucceeds`) | trace tie fix (engine #923) | 10.8.4 |
 | 11 Turn structure | `corp.turnBegins` has the shape `runner.turnBegins` had before engine #929: `autoWalk` re-runs the whole step after a turn-begin ability's choice, so a Corp "when your turn begins" ability with a choice may be noted again. Not confirmed by a test | Apex fix (engine #929) | 9.6.6 |
@@ -258,7 +271,7 @@ How the guards differ from the plan text:
 - **Engine-built kind names.** The `Primitive` union and `KNOWN_PRIMITIVE_KINDS` are the same 1,537 kinds, and every kind `src/` builds is registered, so the verb rule already covered engine-built kinds. What was missing was the card-title half of the naming rule. Engine-built kinds (no card JSON names them) may not contain a multi-word card title. A new test also fails on a built kind that isn't registered.
 - **Format counts.** `cardDefFlags` is tool 1.10's count of boolean and number fields (602), read from `card-flags.json`.
 
-## Playout blockers (after Phase 2, before area 1)
+## Playout blockers (after Phase 2, before area 1) — done 2026-11-15
 
 *Added 2026-11-13 from the first playout sweep (tool 1.3, engine #903): 30 seeds per format, no crashes, failures in every format.*
 
@@ -277,6 +290,25 @@ How to run it:
 - One engine maintenance release, with the game pin and the meta pin table in the same pass.
 
 Exit: no `REFUSED` at a breach step and no `NO_LEGAL_ACTION` at a turn start in the CI seeds or the nightly sweep, on any format.
+
+### Playout blockers results (2026-11-15)
+
+Done in engine #930 (`v1.147.259`) and #932 (`v1.147.260`), with the game pin (#299, #300) and this pin table. The 200-seed nightly sweep, 200 steps each:
+
+| Engine | Formats | Breach-step `REFUSED` | Turn-start `NO_LEGAL_ACTION` | `CRASH` |
+|---|---|---|---|---|
+| `v1.147.258` (before) | 7, with System Gateway | 205 | 238 | 0 |
+| `v1.147.260` (after) | 6, without System Gateway | 0 | 0 | 1 (area 2, below) |
+
+Root causes. Neither cluster was a single card:
+
+- **B1.** After a steal, a "when stolen" choice (Send a Message) was answered and the run stayed on `access.stealAgenda` with no card being accessed. Legality gated `access_card`/`finish_breach` on `step.kind === "access"`, which also matches the nested access steps; apply gated on `breach.awaitAccess`. Now an access whose card has left it completes (CR 7.1.7, 7.2.4), and both use `actionAllowedHere` (11.5_4_a). The sweep on `v1.147.259` then found legality offering a steal whose additional cost could not be paid (SDS Drone Deployment with no program). Legality now tries the steal on a copy and offers it only when apply takes it (CR 1.16.1, 1.16.10b, 7.1.6a).
+- **B2.** Not AU Co.'s cost: any "when your turn begins" choice (AU Co., Clearinghouse, MuslihaT) left the turn parked on the auto step `corp.turnBegins`/`runner.turnBegins`. The game host hid this with `autoWalk`, and the Corp step then re-ran its `onResolve` and noted the same abilities again, so in the game the prompt came back each time. `applyAction` now walks to the next step where a player acts (CR 9.2.2), and the Corp's turn begins once per turn (CR 9.6.6).
+- **Exposed by the walk.** `run.ends` crashed when Always Have a Backup Plan's run-end choice was answered after the run was over. It returns once the run is over (CR 6.9.6d, 10.3.6). Backup Plan's rerun had never started a run; it now goes through `startRun`, ignoring additional costs to run (CR 1.16.5a, 6.3.2b).
+
+System Gateway left the playouts (engine #931, test-only): it is a product, not a sanctioned format, and the Phase 6 gate names only the Learn to play lists and Startup.
+
+New findings from these sweeps and cr-checker are in the findings table above under areas 2 and 11.
 
 The sweep's other clusters stay with their areas, and are evidence for the order below: a trashed card pushed to Archives twice (about 20 seeds) and broken hosting links on Botulus, Tranquilizer, Stowaway, Slap Vandal, and Ekomind go to area 1; an attacked remote deleted mid-run (20 seeds) and a position out of range on an unprotected HQ go to area 2; install legality mismatches (Egret, Research Station, The Red Room, Flagship, region-only upgrades, Earth Station's remote limit) go to area 5.
 
@@ -336,7 +368,7 @@ Area 10 exits when no flag's reader builds an effect kind, and the flag baseline
 
 *Added 2026-11-12.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
 
-- Phase 1 and Phase 2 are done, and so are the [playout blockers](#playout-blockers-after-phase-2-before-area-1).
+- Phase 1 and Phase 2 are done, and so are the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15).
 - Areas 1–4 are done and paired cut A has shipped. Area 4 is the one that puts hidden information in front of real opponents.
 - The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup card pool.
 
@@ -369,7 +401,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | P1-h flag inventory | engine | P1-a; before or with P1-b | 1.10: list every `CardDef` flag and schema property with its cards, readers, and the kind each reader builds; baseline; test-only. |
 | P1-i kind reference | engine | P1-a | 1.11: generate `docs/effect-ir-kinds.md` from `ir.ts`, add the stale-file test, and link it from `effect-ir.md`; test-only. |
 | P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names; the shrink-only kind and flag counts; the citation-topic test made failing after cr-checker's review. |
-| PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
+| PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
 | P3-1 … P3-13 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; 12, 13 and 11 run in that order after 9; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
 | Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-5 … P3-9) / after P3-10 (P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
 | Phase 6 start | game | after paired cut A, beside P3-5 … P3-13 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
