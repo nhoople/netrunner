@@ -85,7 +85,7 @@ Order: U0 → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 and U2 together a
 
 - **Automatic passing can leak information.** If a seat's window resolves at once when it has no play, the pause when it does have one tells the opponent something. The host already resolves empty windows. The working answer follows the reference model: skip empty windows, accept the tell, and give each seat stops and a hold-priority toggle to bluff with. Run `cr-checker` on CR 10.2 for whether the rules speak to this, and confirm the answer before U2 starts.
 - **Printed text needs a data path.** The game pins the cards data, so `data/printed/` is available to the host at the pin. Sending it adds to the snapshot size. Decide in U0 whether text rides in the snapshot or is fetched once per card.
-- **Card images.** They are fetched to a gitignored folder today. Whether a public host may serve them is a Phase 6 question and is not answered here.
+- **Card images.** The host sends each visible card's link on Null Signal Games' image host (`card-images.netrunnerdb.com`), and clients load and cache the image from there. The game does not store or serve image files. A link names the card, so it is sent only where the title is (CR 10.2.2a).
 
 ## Tests
 
