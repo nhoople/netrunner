@@ -64,6 +64,24 @@ One Learn to play match, both seats, through the Corp's first turn and a Runner 
 - **Printed text wins (CR 1.2.1).** A card a seat may see shows its printed text.
 - **Arena's play, our look.** The interaction model follows the [reference model](#reference-model). The palette, card backs, panels, and motion are the project's own.
 
+## Technology
+
+*Added 2026-11-15.* The client keeps its current stack: SolidJS, Vite, and TypeScript. The board is mostly text and layout (printed text, prompts, the log, a frame that runs from phone width to desktop), and the DOM handles that better than a canvas. Solid's small bundle suits the Discord Activity's mobile webview.
+
+| Need | Choice | Slice |
+|---|---|---|
+| Snapshot state | `createStore` plus `reconcile`, keyed by card id, in place of the one snapshot signal in `app.tsx`. A card that changes zones keeps its object and its DOM node, which the motion in U6 needs | U0 or U1 |
+| Click and drag to play | Native Pointer Events, which treat mouse and touch alike. A drop only picks one of the legal intents already lit. Use `@thisbeyond/solid-dnd` only if this turns out too thin | U1 |
+| Fanned hand, glow, card backs | CSS transforms and custom properties. A card's place in the fan is computed from its index and set as a CSS variable | U1, U4 |
+| Cards moving between zones | The View Transitions API, with a `view-transition-name` from each card id. Spike it first in Discord's mobile webview; if it falls short, use [Motion](https://motion.dev) or FLIP by hand | U6 |
+| Styling | Plain CSS. Design tokens (palette, spacing, radii, motion timing) are custom properties on `:root`. `@layer` sets the order, container queries fit the Activity frame, and card states are `data-*` attributes (`data-state="playable"`). Split into one file per component, or CSS Modules, if it grows | All; tokens settle in U7 |
+
+Not adopted:
+
+- **Tailwind.** The board's dynamic values (fan positions, transition names, drag offsets) end up in CSS variables either way, and card states read better as named selectors than as long class strings. It can still be added later for panels and prompts without changing the tokens.
+- **A canvas or WebGL renderer** (PixiJS, Phaser). It would mean rebuilding text layout, hit-testing, accessibility, and responsive layout. Consider it only if U7's visual pass needs effects the DOM can't do, and then as a layer under the DOM interface.
+- **Another framework** (React with Framer Motion, Svelte), or a game framework that owns state and rules (boardgame.io). The engine and host already own both.
+
 ## Slices
 
 Sizes: **S** ≈ half a session, **M** ≈ one session, **L** ≈ two or three. Each slice ends with the game suite passing and a played match on the Learn to play decks.
