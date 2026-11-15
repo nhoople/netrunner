@@ -10,16 +10,16 @@ todos:
     status: completed
   - id: pack-batches
     content: Migrate *Primitives.ts by pack/wave batches with tests
-    status: in_progress
+    status: completed
   - id: exit-gate
     content: Add lint/CI gate against new raw pendingChoice opens
-    status: pending
+    status: completed
 isProject: false
 ---
 
 # Safely migrate IR/pack `pendingChoice` opens
 
-**Status (reviewed 2026-11-11):** mostly done. `openPendingChoose` takes `loopCount`, and raw `state.pendingChoice = {` opens are down from about 715 to 2: `src/actions/costCards.ts:216` and `src/state/msKeywords.ts:65`. Remaining: migrate those two, then add the exit gate (step 4), which does not exist yet.
+**Status (2026-11-14):** done in engine `v1.147.257` ([netrunner-engine#927](https://github.com/nhoople/netrunner-engine/pull/927)). The last two raw opens (the multi-pick cost-card picker in `src/actions/costCards.ts` and the Sabotage HQ picker in `src/state/msKeywords.ts`) go through `openPendingChoose`. Their picks are taken outside `chooseOption`, so each picker clears its own previous window before re-opening. The exit gate is an eslint `no-restricted-syntax` rule in `eslint.config.js` that fails on an object literal assigned to `.pendingChoice` in `src/` outside `src/state/pendingChoice.ts`. CI runs it with `npm run lint`. Clears to `null` stay allowed.
 
 **Answer:** Yes, but not as one bulk search-replace. Shapes are almost uniform; the risks are `loopCount`, empty-option no-ops, and silent “already pending” no-ops. Migrate by tested families with a helper extension first.
 
