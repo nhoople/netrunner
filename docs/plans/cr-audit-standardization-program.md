@@ -188,7 +188,7 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 11 Turn structure | Security Nexus's card data still models the ability as unconditional; the encounter-only limit lives in the engine. Make it a conditional ability in the card data | Security Nexus fix (engine #921) | 9.6, 6.9.3a |
 | 11 Turn structure | `candidateRun.ts` offers `break_bioroid_subroutine` (spend [click]: break) on any ice with the bioroid subtype, whether or not that ice prints the ability. Not yet checked against the printed text of every bioroid | N-Pot fix (engine #922) | 1.2.1, 6.5 |
 | 11 Turn structure | ChiLo City Grid and Spinal Modem have no test for a tied trace (engine #923 fixed ties in `traceSucceeds`) | trace tie fix (engine #923) | 10.8.4 |
-| 10 Card flags | The pack generator scripts in `netrunner-cards-data/scripts/` (Uprising, Midnight Sun, Elevation, and others) still write the shapes cards #298 and #299 replaced; regenerating a pack would undo those fixes | N-Pot and False Lead fixes | — |
+| 10 Card flags | The pack generator scripts in `netrunner-cards-data/scripts/` (Uprising, Midnight Sun, Elevation, and others) still write the shapes cards #298 and #299 replaced; regenerating a pack would undo those fixes. `generate-midnight-sun.py` also still gives Drago Ivanov's ability a click cost; the checked-in data is right | N-Pot, False Lead and Vladisibirsk fixes | — |
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
