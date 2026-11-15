@@ -6,6 +6,8 @@
 
 *Revised 2026-11-13: added the playout blockers step between Phase 2 and area 1.*
 
+*Revised 2026-11-14: Phase 2 done (engine #928); inventory counts corrected from its baselines.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -32,13 +34,13 @@ This program builds tools that find CR violations across the whole engine. It th
 |---|---|
 | Cards in the catalog | 2,016 |
 | Printed abilities | 4,418 (2,123 static, 873 conditional, 545 paid, 563 subroutine, 314 play) |
-| Kinds in `KNOWN_PRIMITIVE_KINDS` (`src/effects/ir.ts`) | 1,540 |
+| Kinds in `KNOWN_PRIMITIVE_KINDS` (`src/effects/ir.ts`) | 1,540 (1,537 at engine `v1.147.257`) |
 | Kinds used by card JSON | 887 |
-| Kinds used by exactly one card | 735 |
+| Kinds used by exactly one card | 735 (746 at cards `v1.147.24`, counted per card id) |
 | Kinds no card uses but the engine builds (continuations, flag-driven effects, `fx.*` helpers) | 633 (161 of them end in `_resolve`/`_pick`/`_continue`-style suffixes) |
 | Dead kinds: no card uses them and nothing builds them, but each still has a dispatch `case` | 19 |
-| Engine-built kinds with a card or pack name (`dtwn_wari_name_subtype`, `win_embezzle_named`, `tdatd_amani_bounce`, `glenn_host_card`, …) | in the 215-entry `tests/effect-ir-legacy-names.json` |
-| Static declaration fields | 652 distinct fields; `CardDef` has 616 optional boolean flags (`src/state/types.ts`) |
+| Engine-built kinds with a card or pack name (`dtwn_wari_name_subtype`, `win_embezzle_named`, `tdatd_amani_bounce`, `glenn_host_card`, …) | in the 214-entry `tests/effect-ir-legacy-names.json` (272 after Phase 2 added 58 engine-built kinds that name a card) |
+| Static declaration fields | 652 distinct fields; `CardDef` has 602 optional flag fields, 333 boolean and 269 number (`src/state/types.ts`; tool 1.10's count, not the 616 first estimated) |
 
 The 19 dead kinds: `add_pending_damage`, `brain_damage`, `give_bad_publicity_unless_corp_pays`, `host_stack_card_on_source`, `increase_hand_size`, `may_breach_instead_eden_shard`, `may_breach_instead_keyhole`, `may_place_advancement_on_self_meat`, `may_swap_drawn`, `net_mercur_place_or_draw`, `pay_or_net`, `refresh_khondi_plaza_recurring`, `return_subliminal_from_archives`, `rez_installed_paying`, `set_skip_breach`, `swap_two_ice`*, `trace_white_hat`, `trash_hq_gain_credits_finalize`, `trash_rezzed_copy`.
 
@@ -77,6 +79,8 @@ So 1,187 non-static abilities on 1,078 cards have no label. Midori and Mitra Ama
 | Visibility (1.21) | `state/seatVisibility.ts`, `getPublicView` | game `spectatorView` (`netrunner-game/src/match.ts:1319`) is a second builder | `getPublicView` passes `run`, `pendingAbilities`, `pendingEffectContinuation`, `reactionStack`, `lingeringEffects`, `reveals` and the full `log` through as raw clones. The game deletes the log, but the rest is unswept |
 
 ### Direct state writes (Phase 2 baseline candidates, `src/**/*.ts`)
+
+*The type-checked counts from the Phase 2 write guard are in [Phase 2 results](#phase-2-results-2026-11-14). They replace this regex estimate.*
 
 | Pattern | Sites | Files |
 |---|---|---|
@@ -168,9 +172,13 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 4 Visibility | The Corp's view shows its own R&D card ids in `run.accessCandidates`, `accessingCardId` and `accessedCardIds` during an R&D access | game fuzz | 4.1.5, 10.2.2a |
 | 4 Visibility | The Runner loses sight of HQ cards already accessed this breach (`stripSecrets` nulls them) | game fuzz | 7.3.1a |
 | 4 Visibility | 3 CR 1.18 citations for visibility; 2 CR 1.16.1b citations for additional costs (1.16.10); 1 CR 10.1 for ignoring costs (1.16.5c, area 5) | citation topics | — |
+| 4 Visibility | cr-checker review of the citation baseline (2026-11-14). `seatVisibility.ts` CR 1.18 → 1.21 (1.21.1, 1.21.2a). `api/library.ts` and `types.ts` ice-counter docs: drop 1.18.1 and keep 10.2.3a, adding 4.6.3. Earth Station's run cost (`runInitiateTax.ts`, `types.ts` `additionalRunInitiateCredits`) cites 1.16.1b / 4.6.8f; it should be 6.3.2b with 1.16.10. Howler's log (`installKinds.ts`) CR 10.1 → 1.16.5c (area 5). 9.3.7d (`cardLifecycleHooks.ts`) and 9.3.7e (`graph.ts`) are false positives, recorded with their verdicts | citation topics, cr-checker | 1.21, 4.6.3, 6.3.2b, 1.16.5c |
 | 8 Access | Stealing an agenda mid-breach (Bacterial Programming) stalls at `access.stealAgenda`: `finish_breach` is offered and refused. The playouts' `NO_LEGAL_ACTION` cluster | jnet, playouts | 7.4.7 |
 | 8 Access | `refreshRdDeckCandidate` keys on card id, so cards the Corp rearranges in R&D (new objects) can't be accessed again | jnet | 1.12.3, 7.4.7a |
 | 9 Damage | The Runner is flatlined as soon as core damage drops max hand size below 0, not at the discard step | jnet | 1.7.2b |
+| 8 Access | Imp (`accessTrashWithVirus`), Neutralize All Threats (`mustTrashFirstAccessedCardWithTrashCostEachTurn`) and Mumbad Virtual Tour (`mustTrashWhenAccessedWhileInstalled`) are read in `advanceFromMidAccess`, whose choice options are all no-ops and are resolved by option id in `apply.ts` | kind liveness (c) | 7.4 |
+| 10 Card flags | Jesminder Sareen prints "the first time each **run**", but the engine models it as `preventFirstTagThisTurn`, and `canPayTakeTagsNestedCost` checks `tagsGivenThisTurn`. A second run in a turn that already gave a tag would not prevent. Not confirmed by a test. If one confirms it, the triage rule makes it a fix-now (a supported card plays wrong) | cr-checker, citation review | 1.2.1 |
+| All (step 5) | 58 engine-built kinds pass the verb rule but name a card (`swap_raman_rai_resolve`, `install_street_peddler_hosted_card`, `move_credits_to_sealed_vault`, …). They are now in `effect-ir-legacy-names.json`; each area renames its own when it merges kinds | IR names guard | — |
 | 10 Card flags | Sportsmetal never triggers: `fireOnAgendaScoredOrStolen` never passes the Corp identity | jnet | 9.3.7c |
 | 11 Turn structure | After a terminal operation the Corp can still score in the 5.6.2a window | jnet | 5.4.3a, 5.6.2 |
 | 11 Turn structure | Psi bids during a run can't spend bad publicity credits | jnet | 10.6.2, 10.14.3 |
@@ -196,13 +204,13 @@ Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area
 
 **Open items**
 
-- Tool 1.2(c), card flags whose reader builds a no-op kind, is an `it.todo`. It can now read `tests/baselines/card-flags.json`; do it in Phase 2.
+- ~~Tool 1.2(c), card flags whose reader builds a no-op kind, is an `it.todo`.~~ Done in Phase 2 (engine #928).
 - 51 of the 159 deferred jnet scenarios are unclassified (list in the engine's `docs/jnet-test-ports.md`). No `disagreement` case has turned up yet.
 - The visibility fuzz rarely reaches facedown Runner installs, facedown set-aside cards, or grip reveals with the Learn to play and Startup pools. Add hand-built scenarios for those before counting the Phase 6 gate's fuzz condition as met.
 - Cards #294 (Hedge Fund and PAD Campaign store `influence: 0`) shipped in cards `v1.147.23` on 2026-11-14, ahead of paired cut A, with the verification table follow-ups (engine `v1.147.255`).
 - Mutation scores exist only for area 3. Each area measures its own in Phase 3.
 
-## Phase 2: guardrails (S–M, test-only)
+## Phase 2: guardrails (S–M, test-only) — done 2026-11-14
 
 1. **Write guard** `tests/procedure-write-guard.test.ts`. A TypeScript-AST scan (the `typescript` package is already a dependency) over `src/**` for assignments and mutating calls on `.zone`, `.hostId`, `.hostedCardIds`, `server.ice`, `server.root`, `runner.installed`, `*.hand`, `*.deck`, `discardPile`, score areas, `removedFromGame`, `.rezzed`, `run.position`, and `run.attackedServerId`. It covers `=`, `+=`, `-=`, casts, `push`/`splice`/`unshift`/`shift`/`pop`, and `filter` reassignments. An allowlist names the helper modules. Baseline is `tests/baselines/direct-writes.json`, keyed by file + property + count (not line numbers) so it doesn't churn. It replaces the regex in `ice-uninstalled-during-run.test.ts`.
    - Starting baseline is roughly the table above: ~550 `zone`, ~200 host, ~100 ice/root, ~140 installed, ~120 discard, 4 position, 13 attacked-server.
@@ -210,6 +218,40 @@ Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area
 3. **Engine-built kind names.** Extend `effect-ir-names.test.ts` to engine-built kinds as well, using the existing 215-entry legacy list as their baseline.
 4. **Counts may only shrink.** `tests/baselines/format-counts.json` holds three numbers: kinds in `KNOWN_PRIMITIVE_KINDS` (1,540 at the inventory), kinds used by exactly one card (735), and `CardDef` flags (616). A change that raises one fails unless the baseline is edited with a dated reason. No target number is set now. Each Phase 3 area records the counts it leaves behind.
 5. **Citation topics.** Tool 1.5b starts as a report. Once cr-checker has reviewed its baseline, a new topic mismatch fails the test instead of being recorded.
+
+## Phase 2 results (2026-11-14)
+
+All five guards are on engine master (#928, test-only, no release). Each baseline may only shrink: a lower count fails until it is recorded, the regenerate command refuses to raise one, and a raise needs a hand edit with a dated reason.
+
+| Guard | Test | Baseline | Starting size |
+|---|---|---|---|
+| 1 Write guard | `procedure-write-guard.test.ts` (scanner `tests/direct-writes.ts`) | `tests/baselines/direct-writes.json` | 1,952 writes in 97 files |
+| 2 Kind effect coverage | `kind-effect-coverage.test.ts` (helpers `tests/kind-coverage.ts`) | `tests/baselines/kind-effect-coverage.json` | 1,533 of 1,537 kinds without a `coversKind` + `expectStateDelta` test |
+| 2 Tool 1.2(c) | `kind-liveness.test.ts` (c) | `noOpFlags` in `tests/baselines/kind-liveness.json` | 4 |
+| 3 Engine-built kind names | `effect-ir-names.test.ts` | `tests/effect-ir-legacy-names.json` | 272 (214 verb-rule names + 58 engine-built kinds that name a card) |
+| 4 Format counts | `format-counts.test.ts` | `tests/baselines/format-counts.json` | 1,537 kinds; 746 one-card kinds; 602 `CardDef` flags |
+| 5 Citation topics | `cr-citation-topics.test.ts` | `tests/baselines/cr-citation-topics.json`, with cr-checker's verdict per entry | 8 (4 wrong, 2 partly wrong, 2 false positives) |
+
+Write guard counts by property, all of `src/**` (the 3 `runPosition.ts` writes are allowlisted, the rest are the baseline):
+
+| Property | Writes | Files |
+|---|---|---|
+| `zone` | 549 | 87 |
+| `hostId` / `hostedCardIds` | 102 / 88 | 40 / 27 |
+| `server.ice` / `server.root` | 50 / 54 | 21 / 25 |
+| `installed` | 80 | 37 |
+| `hand` / `deck` / `discardPile` / `scoreArea` | 251 / 268 / 194 / 30 | 70 / 71 / 69 / 12 |
+| `removedFromGame` | 59 | 19 |
+| `rezzed` | 205 | 66 |
+| `run.position` | 7 (4 outside `runPosition.ts`) | 4 |
+| `run.attackedServerId` | 18 | 11 |
+
+How the guards differ from the plan text:
+
+- **Write guard.** It uses the type checker, so a field counts only on the state type that owns it (`CardInstance`, `Server`, `PlayerState`, `GameState`, `RunState`); public-view objects don't count. It doesn't see writes through an alias (`const ice = server.ice; ice.push(x)`). The allowlist is `src/state/procedures/` (the Phase 3 helpers, empty today) and `runPosition.ts` for `position` and `attackedServerId`. Today's partial helpers (`installCorp`, `trashHooks`, …) are in the baseline, because they are under audit too. Each area adds its procedure module to the allowlist.
+- **Kind coverage.** Reachability, half (a), stays in `kind-liveness.test.ts` (a) and (c). The new test enforces half (b) for every kind, not only one-card kinds. Four `one-off-kind-outcomes` tests use the helpers now (Fester, High-Risk Investment, Chronos Project, Profiteering). `one-off-kind-coverage.test.ts` and its empty `one-off-kind-untested.json` are gone.
+- **Engine-built kind names.** The `Primitive` union and `KNOWN_PRIMITIVE_KINDS` are the same 1,537 kinds, and every kind `src/` builds is registered, so the verb rule already covered engine-built kinds. What was missing was the card-title half of the naming rule. Engine-built kinds (no card JSON names them) may not contain a multi-word card title. A new test also fails on a built kind that isn't registered.
+- **Format counts.** `cardDefFlags` is tool 1.10's count of boolean and number fields (602), read from `card-flags.json`.
 
 ## Playout blockers (after Phase 2, before area 1)
 
