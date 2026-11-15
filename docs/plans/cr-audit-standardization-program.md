@@ -183,8 +183,16 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 11 Turn structure | Corporate Troubleshooter pays only `trashSelf` and picks X during resolution: with 0 credits it trashes for nothing, and X=0 is never offered | label triage | 1.16 (costs paid together) |
 | 11 Turn structure | Panic Button ("only during a run on HQ") and Mamba ("only during a run") open only in `encounter_paw`, not at approach or movement | label triage | 9.2.7b |
 | 11 Turn structure | Traces auto-resolve with no Corp spend and no Runner link boost at about 10 `autoResolveTrace` callers (`scoreTraceOffer`, `boostRezTrace`, non-interactive `trace`). Security Nexus is fixed separately; check the rest here | label triage | 10.8.2–10.8.3 |
+| 11 Turn structure | A trace that opens a prompt leaves a pending Tollbooth-style encounter effect unresumed | Security Nexus fix (engine #921) | 10.8, 6.9.3 |
+| 11 Turn structure | Security Nexus is offered at encounter start, but Femme Fatale's encounter trigger can resolve in the wrong order around it | Security Nexus fix (engine #921) | 9.2.8d |
+| 11 Turn structure | Security Nexus's card data still models the ability as unconditional; the encounter-only limit lives in the engine. Make it a conditional ability in the card data | Security Nexus fix (engine #921) | 9.6, 6.9.3a |
+| 11 Turn structure | `candidateRun.ts` offers `break_bioroid_subroutine` (spend [click]: break) on any ice with the bioroid subtype, whether or not that ice prints the ability. Not yet checked against the printed text of every bioroid | N-Pot fix (engine #922) | 1.2.1, 6.5 |
+| 11 Turn structure | ChiLo City Grid and Spinal Modem have no test for a tied trace (engine #923 fixed ties in `traceSucceeds`) | trace tie fix (engine #923) | 10.8.4 |
+| 10 Card flags | The pack generator scripts in `netrunner-cards-data/scripts/` (Uprising, Midnight Sun, Elevation, and others) still write the shapes cards #298 and #299 replaced; regenerating a pack would undo those fixes. `generate-midnight-sun.py` also still gives Drago Ivanov's ability a click cost; the checked-in data is right | N-Pot, False Lead and Vladisibirsk fixes | — |
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
+
+**Triage rule (2026-11-14).** Fix right away, in a separate engine session (one engine writer at a time), only what breaks play: a card marked supported that plays wrong in normal use, or a seat that sees information it shouldn't (CR 1.21, 10.2.2a). File everything else here under its area, with its source and CR number. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward. The reason: fixing one copy of a procedure turns up the copies next to it, and the area recipe replaces all of them with one helper.
 
 **Open items**
 
