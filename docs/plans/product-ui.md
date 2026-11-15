@@ -62,6 +62,7 @@ One Learn to play match, both seats, through the Corp's first turn and a Runner 
 - **A spectator's view may lag.** The roadmap gives product spectators a delayed feed. The board draws whatever snapshot it is sent and does not assume it is live.
 - **The verification table is not the product.** It keeps its raw view. Nothing here changes it.
 - **Printed text wins (CR 1.2.1).** A card a seat may see shows its printed text.
+- **A flat, top-down board.** *Decided 2026-11-15.* The board is drawn straight down, with no perspective tilt. The first client's angled felt (`rotateX`) shrank the far side and made cards harder to read, so it was removed.
 - **Arena's play, our look.** The interaction model follows the [reference model](#reference-model). The palette, card backs, panels, and motion are the project's own.
 
 ## Technology
@@ -97,11 +98,16 @@ Sizes: **S** ≈ half a session, **M** ≈ one session, **L** ≈ two or three. 
 | U6 | **Log and motion** | M | A log in plain sentences, in a side drawer that can be closed, naming only cards that seat may see. Cards move between zones with short transitions, so a draw, install, trash, or access is seen. The last change on the board is marked | 8, 13 |
 | U7 | **Fit the frame, and our look** | M | A layout that holds from a phone-width frame to a desktop one without sideways scrolling, with touch-sized targets. This is the layout the Discord Activity frame will use. The project's own visual pass lands here: palette, card backs, panel style. The Discord SDK itself stays in Phase 6 | 12 |
 
-Order: U0 → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 and U2 together are the first point at which a turn is playable without the list. U4 can move ahead of U3 if a played match shows missing zones hurt more than the run view.
+Order: U0 → auto-pass leak fix (see [Decisions](#decisions-for-a-human)) → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 and U2 together are the first point at which a turn is playable without the list. U4 can move ahead of U3 if a played match shows missing zones hurt more than the run view.
 
 ## Decisions for a human
 
-- **Automatic passing can leak information.** If a seat's window resolves at once when it has no play, the pause when it does have one tells the opponent something. The host already resolves empty windows. The working answer follows the reference model: skip empty windows, accept the tell, and give each seat stops and a hold-priority toggle to bluff with. Run `cr-checker` on CR 10.2 for whether the rules speak to this, and confirm the answer before U2 starts.
+- **Automatic passing can leak information.** *Decided 2026-11-15.* `cr-checker` found that the CR allows automatic passing when Pass is a seat's only option (CR 9.2.7f), and allows stops, "pass until something happens", and a hold-priority toggle that a seat sets for itself (CR 9.2.4b, 9.2.4c). It does not allow the host's current test. `settleEmptyWindows` treats a window as empty from the engine's legal plays, and some of those depend on facedown cards: approach-ice `rez_ice` and `rez_asset` are offered only when affordable, and scoring is offered only for an agenda that can be scored. So whether the game pauses tells the Runner a rez cost, a card type, or a scorable agenda (CR 10.2.2a, 10.2.2b). The fix runs as its own `netrunner-game` session right after U0 and before U1: judge "nothing to decide" only from what the opponent can see, with a test for each of the three tells. U2 then builds on that, and must:
+  - never auto-pass in an action window (CR 9.2.6b), or spend clicks or end the turn with clicks left;
+  - never auto-pass with pending mandatory abilities, and not drop optional ones unless the seat asked (CR 9.2.8e, 9.2.9f);
+  - never pay a 0 cost automatically (CR 1.16.1d);
+  - send every automatic pass through the engine's `pass_window`, so the checkpoint runs (CR 9.2.4e, 10.3.3);
+  - keep each seat's stops and toggles private to that seat.
 - **Printed text needs a data path.** The game pins the cards data, so `data/printed/` is available to the host at the pin. Sending it adds to the snapshot size. Decide in U0 whether text rides in the snapshot or is fetched once per card.
 - **Card images.** The host sends each visible card's link on Null Signal Games' image host (`card-images.netrunnerdb.com`), and clients load and cache the image from there. The game does not store or serve image files. A link names the card, so it is sent only where the title is (CR 10.2.2a).
 
