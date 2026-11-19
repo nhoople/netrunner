@@ -20,6 +20,8 @@ Product Phase 5 (local table and `/play/`) is done. Next is **Phase 6, a Discord
 | Path | Contents |
 | --- | --- |
 | [`docs/roadmap.md`](docs/roadmap.md) | Product phases, engine fidelity, and what is next |
+| [`docs/how-we-work.md`](docs/how-we-work.md) | How each piece of work is decided, planned, built, proven, and kept up |
+| [`docs/health.md`](docs/health.md) | The monthly health check, one row per month |
 | [`docs/git-hygiene.md`](docs/git-hygiene.md) | Branches, pull requests, releases, and the end-of-session sync |
 | [`docs/plans/`](docs/plans/) | Active long-running plans; finished ones are in [`docs/plans/done/`](docs/plans/done/) |
 | [`docs/history.md`](docs/history.md) | How the floor got here, release by release |
