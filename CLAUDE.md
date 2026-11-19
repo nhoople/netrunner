@@ -34,7 +34,15 @@ The repos stay separate. The game and the engine consume the others by release t
 
 Engine setup: `npm install && npm run fetch-cr` in `netrunner-engine`.
 
-Project docs live in `docs/` (roadmap, git hygiene, audits). Long-running plans live in `docs/plans/`; move a plan to `docs/plans/done/` when its todos are complete. Current versions live only in the pin files and the README pin table: link the table instead of restating a version.
+Project docs live in `docs/` (roadmap, git hygiene, audits). Current versions live only in the pin files and the README pin table: link the table instead of restating a version.
+
+## How we work
+
+Work follows the loop in `docs/how-we-work.md`: decide, plan, build, prove, sustain. Nathaniel is not a software engineer, so he decides and accepts, and agents build and check.
+
+- A new plan in `docs/plans/` starts with the `grill` skill and uses the plan format in that doc, including "Shared pieces" and "Not yet decided". Move a plan to `docs/plans/done/` when its "Done" is true.
+- Each slice ends with proof he can see without reading code, named in its PR.
+- When he corrects the same mistake twice, fix it and add a check that fails on it, then delete the rule here that the check replaces.
 
 ## Check the Comprehensive Rules
 
