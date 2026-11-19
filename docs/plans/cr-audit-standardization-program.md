@@ -12,6 +12,8 @@
 
 *Revised 2026-11-19: added the kind and phrase check (1.12) and the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate) of the whole Eternal corpus; the Phase 6 gate now waits for every format to be clean and opens them all at once.*
 
+*Revised 2026-11-19: area 1 (hosting and trash) done: engine #942 (release `v1.147.264`), game #313. Its new findings are filed under areas 2, 5, 6, 9 and 11.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -172,7 +174,14 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 
 | Area | Finding | Source | CR |
 |---|---|---|---|
-| 1 Hosting and trash | A played current is also pushed to its discard pile while still active (`trashActiveCurrentsBeforePlay`) | jnet, invariants | 3.5.1b, 8.6.6c |
+| ~~1 Hosting and trash~~ | ~~A played current is also pushed to its discard pile while still active (`trashActiveCurrentsBeforePlay`)~~ Fixed in engine #942: an ended current is trashed at the next checkpoint, by its controller | jnet, invariants | 3.5.1b, 8.6.6c |
+| 2 Uninstall and run position | A host that moves from installed to a score area keeps its hosted cards: `leftPlay` in `checkpoints.ts` leaves out score areas (Casting Call). Track "this host was uninstalled" in the uninstall helper | cr-checker (engine #942) | 1.13.13, 10.3.1g |
+| 2 Uninstall and run position | About 20 ability hosting sites call `hostCard(…, { installed: true })` for cards that are not installed and then set `zone` by hand. Same result; use `hostCard` without `installed` when the move helper lands | cr-checker (engine #942) | 1.13.2a, 1.13.12 |
+| 5 Corp install | The install-time trash in `installCorp.ts` passes no `faceup`, so a card the Runner is looking at goes faceup; the region-limit path already keeps the installed face | cr-checker (engine #942) | 8.5.7 |
+| 6 Runner install | The memory-limit trash at checkpoint 10.3.1e records no player; the Runner carries it out | cr-checker (engine #942) | 3.9.3c, 1.14.5a |
+| 9 Damage and prevention | No test observes Director Haas's pending record (`controller`, `mandatory`, `independentOfSource`); its ability resolves in the same instruction. 7 surviving mutants in `procedures/trash.ts` | Stryker (engine #942) | 9.6.12 |
+| 11 Turn structure | An ended current is trashed at the checkpoint after the new current resolves, not at the 8.6.7e checkpoint before it | cr-checker (engine #942) | 8.6.7d–f, 3.5.1b |
+| 11 Turn structure | Lockdowns are trashed in the turn-begin step just before the checkpoint, not during it | cr-checker (engine #942) | 3.5.1c |
 | 3 Swap | Mutation score 32% (61% of covered). Removing the hosted-card trash, the swap checkpoint's install handling, or any legality gate in `canSwapIntoPlaceOf` survives | Stryker | 8.8.4b, 8.8.2 |
 | 4 Visibility | The Corp's view shows its own R&D card ids in `run.accessCandidates`, `accessingCardId` and `accessedCardIds` during an R&D access | game fuzz | 4.1.5, 10.2.2a |
 | 4 Visibility | The Runner loses sight of HQ cards already accessed this breach (`stripSecrets` nulls them) | game fuzz | 7.3.1a |
@@ -352,7 +361,7 @@ Each batch is split into sessions by cycle, about 60–100 cards each, roughly 2
 
 Risk = how often the procedure runs × how bad a wrong result is × how many paths bypass the helper. Dependencies also matter: trash and hosting sit under swap, uninstall and install.
 
-- **Area 1: Hosting and trash.** Two confirmed bugs (OCA, the stale `hostedCardIds`). No hosting helper, two representations, 21 trash copies plus ~90 inline sites. Every later area calls these.
+- **Area 1: Hosting and trash** (done 2026-11-19, [results](#area-1-results-2026-11-19)). Two confirmed bugs (OCA, the stale `hostedCardIds`). No hosting helper, two representations, 21 trash copies plus ~90 inline sites. Every later area calls these.
 - **Area 2: Uninstall, ice removal and run position (8.5.10, ch. 6, 8.3 rearrange).** No uninstall helper; `onUninstall` never fires outside trash; position drift touches every run; Mandatory Seed orphan ice. Needs area 1's hosted release.
 - **Area 3: Swap (8.8).** Finish what #893/#894 started: 13 kinds outside the helpers, plus Tāo. Needs the uninstall helper from area 2.
 - **Area 4: Visibility (1.21, 10.2).** Moved up because Phase 6, the Discord Activity, puts hidden information in front of real opponents. Wrong citations and raw state clones.
@@ -397,6 +406,21 @@ Add an area when Phase 1 shows another procedure copied often. Areas 11–13 wer
 | 10 | Card flags and declarations | The flags left in `tests/baselines/card-flags.json` after areas 1–9 and 11–13 have moved the ones that hide a procedure | Full list from the 1.10 baseline at that point | 9.3 ability records; 9.12 for continuous declarations; the rule each flag's reader cites | Each flag family becomes one of three things: a declared static ability (the S6 `continuousSubtypeGrants` pattern), a field on an existing kind, or a printed characteristic that stays (cost, strength, link). No new flag for a one-off | Engine maintenance; card JSON in paired cut C |
 
 Area 10 exits when no flag's reader builds an effect kind, and the flag baseline holds only printed characteristics and declarations.
+
+### Area 1 results (2026-11-19)
+
+Done in engine #942 (release `v1.147.264`) and game #313.
+
+- **Helpers.** `src/state/procedures/host.ts` (`hostCard`, `unhostCard`, `unhostAllFrom`) is the only writer of `hostId` and `hostedCardIds`; both fields stay, kept in step by the helper. `src/state/procedures/trash.ts` (`trashCard(state, id, { by, cause, faceup, preventable, simultaneousSet })`, `discardCard`) is the one trash for both sides, with prevention, triggers, faces (CR 4.4.6b) and who trashed (CR 1.14.5).
+- **Hosted release.** A host leaving play no longer moves its hosted cards. The 10.3.1g checkpoint trashes them (CR 1.13.13). This fixed Off-Campus Apartment and the stale hosted lists, and hosts bounced to the grip now lose their hosted cards.
+- **Write guard.** `hostId` 100 → 0, `hostedCardIds` 88 → 0, `discardPile` 194 → 75. The rest of `discardPile` is 4 swap pushes (area 3), 1 forfeit (area 11) and about 70 removals from discard piles (areas 5, 6, 13).
+- **Baselines.** All host-link invariant entries are gone (27 entries out, none in). Playout seeds 19 → 11, including both "pushed to Archives twice" seeds and the Stowaway and Street Peddler host links.
+- **IR.** `host_self_as_condition` replaces three engine-built kinds; kinds 1,537 → 1,535. No card JSON changed, so paired cut A has nothing from area 1.
+- **Mutation score** (`procedures/host.ts`, `procedures/trash.ts`): 57.37% at start, 88.96% at close. No survivor changes a CR-cited outcome; the list is in the engine's `docs/mutation-scores.md`.
+- **CR examples.** None of the 12 uncovered examples belongs to area 1.
+- **Hand check** (game #313): Off-Campus Apartment trashed by the Corp sends its hosted Kati Jones to the heap with both ends of the link cleared; the invariant panel is clean.
+- **CI.** The playout-blocker replays took over 5 s on CI on master too; engine #942 gave them the playout suites' 60 s timeout.
+- **Fix-now findings** (reported to the program session, not fixed here): Alexa Belsky trashes the HQ cards it should keep; Marilyn Campaign always shuffles, though its text says "you may"; Simulchip's "an installed program has already been trashed this turn" is met by any installed Runner card's trash, by either player.
 
 ### Phase 6 gate
 
