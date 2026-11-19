@@ -45,6 +45,8 @@ A plan in `docs/plans/` has these sections, in this order. Leave out a section t
 
 Unchanged from today: one fresh session per slice, a test for the behavior in the repo that owns it, `cr-checker` before an engine rules commit, and a `claude/*` PR. The rules are in [`CLAUDE.md`](../CLAUDE.md).
 
+A session that coordinates a plan starts each slice with the [`coordinate` skill](../.claude/skills/coordinate/SKILL.md). It gives the brief every slice session gets and what to check when the slice reports back.
+
 #### Model and effort
 
 A session started by another session gets the same model and effort as the one that started it, unless the starter picks lower. It can never pick higher. So a coordinator runs at the highest level any of its slices needs, and picks lower from this table when it starts each slice.
