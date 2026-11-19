@@ -1,12 +1,14 @@
 # Dev tooling
 
-*Drafted 2026-11-19 from a grill on lint, browser tests, dead code, and formatting. Current versions are in the [pin table](../../README.md). Status: not started.*
+*Drafted 2026-11-19 from a grill on lint, browser tests, dead code, and formatting. Current versions are in the [pin table](../../../README.md). Status: done 2026-11-19.*
+
+Shipped: T1 game lint (netrunner-game #306), T2 browser smoke tests (netrunner-game #307), T3 dead code sweep (netrunner-engine #937, released v1.147.262; netrunner-game #308, #309), T4 formatter (netrunner-engine #938, #939; netrunner-game #310, #311; netrunner-cards-data #303, #304; netrunner-comprehensive-rules-data #10, #11). Formatter settings: Prettier defaults (80 columns) in the engine and 120 columns in the game, Ruff at line length 88 in cards-data and 100 in rules-data, each the setting with the smallest diff for that repo's existing code. Each reformat landed by rebase merge and its final hash is in that repo's `.git-blame-ignore-revs`. The engine reformat needed no release of its own; the next engine maintenance release carries it.
 
 ## Why
 
 The checks the repos run today are uneven. The engine's CI runs lint, typecheck and tests. The game's CI runs typecheck, tests and the pin check, but no lint, and nothing in it opens `/play/` or the verification table in a browser. Neither TypeScript repo has a formatter, so each agent formats its own way and diffs carry style noise. A first knip run on the engine, with no configuration, reports 16 unused files, 126 unused exports and 62 unused exported types, left behind by earlier programs.
 
-The [product UI plan](product-ui.md) is about to grow the Solid client in `netrunner-game`. These four slices put checks in place first, so U1 and later slices start with lint, a browser smoke test, and screenshots for proof ([how we work](../how-we-work.md), stages 4 and 5).
+The [product UI plan](../product-ui.md) is about to grow the Solid client in `netrunner-game`. These four slices put checks in place first, so U1 and later slices start with lint, a browser smoke test, and screenshots for proof ([how we work](../../how-we-work.md), stages 4 and 5).
 
 ## Shared pieces
 
@@ -24,7 +26,7 @@ One session each, in this order.
 |---|---|---|---|
 | T1 | Game lint | `netrunner-game` | ESLint with `typescript-eslint` recommended and `eslint-plugin-solid`, over `src/`, `client/src/`, `scripts/` and tests. Fix every existing finding in the same PR. Add `npm run lint` and a CI step. Test-only merge, no tag |
 | T2 | Browser smoke tests | `netrunner-game` | Playwright with the shared fixture. `/play/` at phone (375 wide) and desktop widths: the page loads with no page error, and the hand, servers, prompt or primary button, and log are present. The verification table at desktop width: create a match, then open the Corp, Runner, spectator, log and debug pages with no page error and their main parts present. Screenshots saved every run and uploaded as a CI artifact. Add a CI step |
-| T3 | Dead code sweep | `netrunner-engine`, then `netrunner-game` | Configure knip with the engine's real entry points (the package exports the game uses, tests, scripts, Stryker and vitest configs). Check each finding by hand before deleting it. Ship the deletions as an engine maintenance release with the game and meta pin updates in the same pass ([git hygiene](../git-hygiene.md)). Then add `npm run knip` to engine CI, and the same check to game CI |
+| T3 | Dead code sweep | `netrunner-engine`, then `netrunner-game` | Configure knip with the engine's real entry points (the package exports the game uses, tests, scripts, Stryker and vitest configs). Check each finding by hand before deleting it. Ship the deletions as an engine maintenance release with the game and meta pin updates in the same pass ([git hygiene](../../git-hygiene.md)). Then add `npm run knip` to engine CI, and the same check to game CI |
 | T4 | Formatter | All four repos | Prettier for TypeScript, JavaScript, CSS and config in the engine and the game. Ruff's formatter for the Python scripts in cards-data and rules-data. Card and CR JSON data are never reformatted. One reformat commit per repo, merged when no other PR is open in that repo, listed in `.git-blame-ignore-revs`. Then a CI step that fails on unformatted files. Prettier settings are chosen so ESLint and Prettier do not disagree (`eslint-config-prettier`) |
 
 ## Decisions for a human
@@ -61,10 +63,10 @@ All decided 2026-11-19.
 ## Out of scope
 
 - Switching the engine from ESLint to oxlint. Lint takes about 5 seconds today, and the engine's `openPendingChoose` guard uses ESLint selectors.
-- React tooling. The client is SolidJS ([product UI plan](product-ui.md)).
+- React tooling. The client is SolidJS ([product UI plan](../product-ui.md)).
 - Pre-commit hooks. CI catches the same things.
 - Stricter TypeScript flags such as `noUncheckedIndexedAccess`.
-- A monorepo tool or shared config package across repos. The repos stay separate ([CLAUDE.md](../../CLAUDE.md)).
+- A monorepo tool or shared config package across repos. The repos stay separate ([CLAUDE.md](../../../CLAUDE.md)).
 - Reformatting card or CR JSON data.
 
 ## Done
