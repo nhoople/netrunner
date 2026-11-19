@@ -49,7 +49,7 @@ Full means a few hundred concurrent matches, or the memory and legality time of 
 
 **Formats.** Challenge and Play offer Learn to play, Core Sets, Startup, Standard, and Eternal. Ranked offers Core Sets, Startup, Standard, and Eternal. System Gateway is a set inside Core Sets, not a choice.
 
-The first matches offer Learn to play and Startup only. Core Sets, Standard, and Eternal are added as each pool passes the seeded playouts and the visibility fuzz named in the gate.
+All formats open at once. The gate needs every card swept against its printed text and fixed, and each pool to pass the seeded playouts and the visibility fuzz.
 
 Learn to play deals the fixed lists already in the host. Each player chooses the Corp list or the Runner list, and starter or expanded, before the match starts. Starter is the cards before the "STOP HERE" divider. Expanded adds the booster cards after it. The opening records that preset and that side. There is no restriction list.
 
