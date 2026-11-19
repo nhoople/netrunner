@@ -10,6 +10,8 @@
 
 *Revised 2026-11-15: playout blockers done (engine #930 and #932, releases `v1.147.259` and `v1.147.260`); the playouts drop System Gateway (engine #931).*
 
+*Revised 2026-11-19: added the kind and phrase check (1.12) and the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate) of the whole Eternal corpus; the Phase 6 gate now waits for every format to be clean and opens them all at once.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -26,7 +28,7 @@ This program builds tools that find CR violations across the whole engine. It th
 |---|---|
 | A CR-cited engine | Phase 1 tools, the Phase 2 guards, and the shared helpers of areas 1–9 |
 | A documented card format | The flag inventory (1.10), the generated kind reference (1.11), the count guard (Phase 2), the kind merges in each area, and area 10 |
-| Discord-native play | Area 4 (visibility) and the [Phase 6 gate](#phase-6-gate), which starts the Activity before the whole program is done |
+| Discord-native play | Area 4 (visibility), the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate), and the [Phase 6 gate](#phase-6-gate), which starts the Activity once every format is clean |
 
 ## Inventory (engine `v1.147.251`, cards `v1.147.22`)
 
@@ -150,8 +152,9 @@ They are ordered by expected bugs found per hour. Each tool writes a baseline JS
 | 1.9 | **Mutation testing.** Stryker with the vitest runner, configured per area (`mutate` = that area's helper files, test filter = that area's tests), run locally rather than in CI. Score recorded per area in `docs/mutation-scores.md` in the engine | M setup + S per area | — | Tests that check code shape, not outcome (the Yagi-Uda pattern). Used in each Phase 3 area | Test-only (devDependency) |
 | 1.10 | **Card flag inventory.** `tests/card-flag-inventory.test.ts` lists every optional boolean and number field on `CardDef` (`src/state/types.ts`) and every top-level property in the pinned `schema.json`. For each it records the cards that set it, the sites in `src/` that read it, and the kind that reader builds, if any. It also reports a flag nothing reads and a flag no card sets. Baseline `tests/baselines/card-flags.json`, shrink-only. Tool 1.2(c) reads its flag-to-kind map | S | `CardDef`, `vendor/cards-data` | Flags that hide a procedure the way Tāo's does; unread and unset flags. Starting size: 616 boolean flags on `CardDef`, and 854 top-level schema properties (333 boolean, 268 integer, 220 object) | Test-only |
 | 1.11 | **Generated kind reference.** `scripts/build-kind-reference.mjs` writes `docs/effect-ir-kinds.md` in the engine from `KNOWN_PRIMITIVE_KINDS` and the `Effect` type in `src/effects/ir.ts`: each kind, its fields, how many cards use it, and whether a card or the engine builds it. A test fails when the file is stale, the way `scripts/jnet-status.mjs --write` guards its generated block. `docs/effect-ir.md` links to it | S | `ir.ts`, the IR walk in `one-off-kind-coverage` | Nothing on its own. It makes the card format readable without the engine source, and each area's kind merges show up as a shorter file | Test-only |
+| 1.12 | **Kind and phrase check.** *Added 2026-11-19.* `tests/printed-phrases.test.ts` pairs effect kinds with the phrases their printed text should hold (`deal_net_damage` and "net damage", `end_the_run` and "end the run", `gain_credits` and "gain"), and checks each card's kinds against `vendor/cards-data/printed/<id>.json`. It includes the kinds a card flag's reader builds, from the 1.10 map, so a flag can't hide a kind the way Tāo's did. It also flags polarity ("if you do" against "if you do not"). Report and a shrink-only baseline `tests/baselines/printed-phrases.json`. It generalizes the [stale-text audit](done/stale-text-audit.md) | S | 1.10, `vendor/cards-data/printed` | Wrong models whose kind names an effect the card never prints, and guards each card the sweep checks against a later regression | Test-only |
 
-Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel. 1.10 runs beside 1.2, which reads its map. 1.11 depends on nothing and can run at any point in Phase 1.
+Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel. 1.10 runs beside 1.2, which reads its map. 1.11 depends on nothing and can run at any point in Phase 1. 1.12 was added after Phase 1 closed. It depends only on 1.10 and runs now, beside area 1.
 
 ## Phase 1 results (2026-11-14)
 
@@ -312,6 +315,37 @@ New findings from these sweeps and cr-checker are in the findings table above un
 
 The sweep's other clusters stay with their areas, and are evidence for the order below: a trashed card pushed to Archives twice (about 20 seeds) and broken hosting links on Botulus, Tranquilizer, Stowaway, Slap Vandal, and Ekomind go to area 1; an attacked remote deleted mid-run (20 seeds) and a position out of range on an unprotected HQ go to area 2; install legality mismatches (Egret, Research Station, The Red Room, Flagship, region-only upgrades, Earth Station's remote limit) go to area 5.
 
+## Printed-text sweep (beside Phase 3, before the Phase 6 gate)
+
+*Added 2026-11-19.* Nothing checks every card's Effect IR against its printed text. The label check (1.4) compares wording, and its triage still found 9 wrong models in 395 labels. The 1,078 abilities with no label have never been looked at. Each area reads the printed text of its own cards, but only for the procedure it audits. The sweep reads every card in the corpus once, so no format reaches real opponents with a card known to play wrong (CR 1.2.1: the card text wins).
+
+### Batches
+
+The formats nest, so each batch holds only the cards the earlier batches did not cover. Counts are from cards `v1.147.24`.
+
+| Batch | Cards | Printed words | Covers |
+|---|---|---|---|
+| S1 Startup | 225 | ~6,400 | Startup, and all 28 Learn to play cards |
+| S2 Standard | 388 more | ~13,400 | Standard, and all of Core Sets (Core Sets adds no card beyond Startup and Standard) |
+| S3 Eternal | 1,403 more | ~36,100 | Eternal, including Random Access Memories. This is the whole catalog of 2,016 cards |
+
+Each batch is split into sessions by cycle, about 60–100 cards each, roughly 25 sessions in all. They run in order S1, S2, S3, beside the areas. A sweep session only reads and reports, so it doesn't collide with an area's engine work.
+
+### Per-session recipe
+
+1. For each card in the cycle, read `printed/<id>.json` and the card's Effect IR, including any kind a card flag builds (1.10 map), with the `lookup` skill.
+2. Decide for each ability: matches, wrong, or unsure. Run cr-checker on every wrong or unsure ability, with the card title.
+3. Leave labels alone. Labels are added in each area's paired cards release.
+4. The PR adds the session's cards to `tests/baselines/printed-sweep.json` in the engine with their results, and lists every card and its result in its body: matches, wrong (and where it went), or filed. That list is the proof for the maintainer.
+5. Remove each checked card's entries from the 1.12 baseline once its result is "matches", so 1.12 guards it from then on.
+
+### Fixes
+
+- **A card's own mistake** (a wrong amount, a missing condition, the wrong kind for that card) is fixed in one engine session per batch, after the batch's sweep sessions. That session follows the normal engine rules: CR first, cr-checker on the diff, a test that cites the rule, one maintenance release, pins.
+- **A bug in a shared procedure** (install, swap, rez, and so on) goes in that area's row of the findings table above, with the card titles. The area fixes it once when it replaces the copy. It is not fixed card by card first.
+- A fix that needs card JSON rides with the next paired cut, or its own paired cards release if no cut is near.
+- The gate below needs every wrong card fixed. If one area holds most of the shared-procedure findings, run that area earlier.
+
 ## Phase 3: audit and standardize by procedure
 
 ### Order and why
@@ -366,13 +400,15 @@ Area 10 exits when no flag's reader builds an effect kind, and the flag baseline
 
 ### Phase 6 gate
 
-*Added 2026-11-12.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
+*Added 2026-11-12. Revised 2026-11-19: every format is clean before the gate, and all formats open at once.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
 
 - Phase 1 and Phase 2 are done, and so are the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15).
 - Areas 1–4 are done and paired cut A has shipped. Area 4 is the one that puts hidden information in front of real opponents.
-- The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup card pool.
+- The [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate) has checked all three batches, and every card it found wrong is fixed, in every format. That includes the shared-procedure findings, so every area that holds one is done.
+- The 1.12 baseline holds no card the sweep marked as matching.
+- The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup, Core Sets, Standard, and Eternal pools.
 
-The first Activity matches offer Learn to play and Startup only. Core Sets, Standard, and Eternal open once the playouts and the fuzz run clean on that format's pool. Areas 5–10 continue beside Phase 6, one writer per repo at a time.
+The Activity then opens with Learn to play, Startup, Core Sets, Standard, and Eternal at once. The remaining areas continue beside Phase 6, one writer per repo at a time.
 
 ### Exit criteria per area
 
@@ -404,7 +440,27 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
 | P3-1 … P3-13 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; 12, 13 and 11 run in that order after 9; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
 | Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-5 … P3-9) / after P3-10 (P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
-| Phase 6 start | game | after paired cut A, beside P3-5 … P3-13 | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for Learn to play and Startup. |
+| P1-j kind and phrase check | engine | now, beside P3-1 | 1.12: the kind-to-phrase table, the check against `printed/`, flag-built kinds from the 1.10 map, polarity; baseline; test-only. |
+| PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
+| PF-S1 … PF-S3 sweep fixes | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
+| Phase 6 start | game | after the sweep, its fixes, and every area holding a sweep finding | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
+
+## Decisions for a human
+
+| Date | Decision | Reason |
+|---|---|---|
+| 2026-11-19 | Add a check of every card's Effect IR against its printed text: tool 1.12 and the printed-text sweep | Nothing checked behavior against text across the corpus. The label triage found 9 wrong models by accident (CR 1.2.1) |
+| 2026-11-19 | 1.12 lives in the engine, as a report with a shrink-only baseline | Only the engine sees the kinds card flags build. It matches the other Phase 1 tools |
+| 2026-11-19 | Sweep the whole Eternal corpus, in batches by format with only the cards each adds: Startup, then Standard, then Eternal. Core Sets needs no batch | Every card gets read once, in the order players meet them |
+| 2026-11-19 | The sweep starts now and runs beside the areas | It only reads, so it doesn't collide with area work, and its findings can reorder the areas |
+| 2026-11-19 | Card-own fixes are grouped, one engine session per batch. Shared-procedure bugs go to their area | Fixing a procedure copy card by card is redone when the area replaces it (`docs/how-we-work.md`, Findings) |
+| 2026-11-19 | Before the Phase 6 gate, every format is swept and every wrong card is fixed, including the ones an area owns. The gate waits for those areas; run an area early if it holds most of the findings | No player meets a card known to play wrong |
+| 2026-11-19 | The Activity opens all formats at once: Learn to play, Startup, Core Sets, Standard, and Eternal | One launch and one checklist, since every format is clean before the gate |
+| 2026-11-19 | The sweep leaves labels alone | It reads the printed text directly. Labels stay in each area's paired cards release |
+
+## Not yet decided
+
+- **The order of areas 5–13 after the sweep.** The gate now waits for every area that holds a sweep finding. Once S1–S3 report, decide whether to run any area earlier, and whether the gate moves after most of Phase 3. Blocks: the Phase 6 start row.
 
 ## Verification of the program itself
 
@@ -419,5 +475,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
   - the 11 CR examples are covered;
   - no card flag's reader builds an effect kind;
   - `docs/effect-ir-kinds.md` is generated and current;
+  - every card in the catalog has a result in `printed-sweep.json`, and none is wrong;
+  - the 1.12 baseline is empty;
   - Phase 6 began at the gate, not after the last area;
   - the roadmap names this program done and the plan moves to `docs/plans/done/`.
