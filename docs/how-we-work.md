@@ -45,6 +45,20 @@ A plan in `docs/plans/` has these sections, in this order. Leave out a section t
 
 Unchanged from today: one fresh session per slice, a test for the behavior in the repo that owns it, `cr-checker` before an engine rules commit, and a `claude/*` PR. The rules are in [`CLAUDE.md`](../CLAUDE.md).
 
+#### Findings
+
+A finding is anything a session notices that its slice did not set out to change: a bug, a gap against the CR, a stale doc, a check that should exist. The slice's PR does not fix it, so each PR still does only what its slice promised. Each finding goes to exactly one of these:
+
+| Where it goes | When | What the session does |
+|---|---|---|
+| Fix now, in a session of its own | A card marked supported plays wrong in normal use, or a seat can see information it should not (CR 1.21, 10.2.2a) | Proposes a new session for the fix. This is the only kind of finding the maintainer is asked about, because it starts work |
+| Filed | Anything else worth doing | Rules gaps go in the [CR audit](plans/cr-audit-standardization-program.md) findings table under their area, with the source and CR number. Other findings go under "Not yet decided" in the plan that owns that area, or on the [roadmap](roadmap.md) if no plan does |
+| Dropped | Not worth doing, or already covered | Nothing beyond the PR line below |
+
+Every PR lists its findings in a "Found, not fixed" section: each one, where it went, and why. The engine's dead code sweep ([engine #937](https://github.com/nhoople/netrunner-engine/pull/937)) is the model. Its "Kept on purpose" table found four supported currents with no effect in play, which went to a fix-now session.
+
+Why only two kinds of finding get fixed right away: fixing one copy of a procedure turns up the copies next to it, so fixing each finding as it appears does not converge. The CR audit's per-area recipe replaces all the copies with one shared helper. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward.
+
 ### 4. Prove
 
 "The tests pass" is the agents' bar. The maintainer's bar is seeing it work. Every slice ends with one of these, named in its PR:

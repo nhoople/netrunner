@@ -218,7 +218,7 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
-**Triage rule (2026-11-14).** Fix right away, in a separate engine session (one engine writer at a time), only what breaks play: a card marked supported that plays wrong in normal use, or a seat that sees information it shouldn't (CR 1.21, 10.2.2a). File everything else here under its area, with its source and CR number. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward. The reason: fixing one copy of a procedure turns up the copies next to it, and the area recipe replaces all of them with one helper.
+**Triage rule (2026-11-14).** Moved on 2026-11-19 to [how we work, Findings](../how-we-work.md#findings), which applies it to every plan. Rules findings that are not fixed right away are filed in this table. A fix-now engine session still runs alone, since there is one engine writer at a time.
 
 **Open items**
 
