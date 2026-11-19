@@ -45,6 +45,22 @@ A plan in `docs/plans/` has these sections, in this order. Leave out a section t
 
 Unchanged from today: one fresh session per slice, a test for the behavior in the repo that owns it, `cr-checker` before an engine rules commit, and a `claude/*` PR. The rules are in [`CLAUDE.md`](../CLAUDE.md).
 
+#### Model and effort
+
+A session started by another session gets the same model and effort as the one that started it, unless the starter picks lower. It can never pick higher. So a coordinator runs at the highest level any of its slices needs, and picks lower from this table when it starts each slice.
+
+| Work | Model | Effort |
+|---|---|---|
+| Coordinating a plan, grilling, engine rules slices, CR audit areas | Opus | high |
+| Game and UI slices, card data, plans and other docs | Opus | high |
+| `/sync`, the monthly health check, read-only searches and counts | Sonnet | medium |
+
+The Sonnet row is for speed, not cost: that work is mechanical and finishes sooner on a faster model.
+
+- A forked session always keeps the starter's model and effort. Only a fresh session can be started lower.
+- A cloud session uses its cloud environment's settings, not this table.
+- A subagent does not follow its session's effort. Its model and effort come from its definition in `.claude/agents/`, so set both there when they matter. `cr-checker` pins Opus at high.
+
 #### Findings
 
 A finding is anything a session notices that its slice did not set out to change: a bug, a gap against the CR, a stale doc, a check that should exist. The slice's PR does not fix it, so each PR still does only what its slice promised. Each finding goes to exactly one of these:
