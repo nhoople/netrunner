@@ -32,6 +32,8 @@
 
 *Revised 2026-11-19: Phase 6 now waits for the whole program; the [gate](#phase-6-gate) is the program's final state. The second reader (1.16) uses Fable 5.2.*
 
+*Revised 2026-11-20: split sweep S3 into 13 sessions by cycle (S3a–S3m). Started FX-salem, RA-1, RA-2, P1-l, P1-k, S3a and S3b.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -463,6 +465,24 @@ The formats nest, so each batch holds only the cards the earlier batches did not
 | S3 Eternal | 1,403 more | ~36,100 | Eternal, including Random Access Memories. This is the whole catalog of 2,016 cards |
 
 Each batch is split into sessions by cycle, about 60–100 cards each, roughly 25 sessions in all. They run in order S1, S2, S3, beside the areas. A sweep session only reads and reports, so it doesn't collide with an area's engine work.
+
+S3 sessions (cards with no `printed-sweep.json` entry, grouped by the cycle of their earliest printing; counts at cards `v1.147.25`):
+
+| Session | Cycles | Cards |
+|---|---|---|
+| S3a | Core Set | 111 |
+| S3b | Genesis | 119 |
+| S3c | Creation and Control, Honor and Profit | 107 |
+| S3d | Spin | 100 |
+| S3e | Lunar | 120 |
+| S3f | Order and Chaos, Data and Destiny | 110 |
+| S3g | SanSan | 120 |
+| S3h | Mumbad | 114 |
+| S3i | Flashpoint | 100 |
+| S3j | Red Sand | 120 |
+| S3k | Kitara | 120 |
+| S3l | Reign and Reverie, Magnum Opus, System Core 2019, System Update 2021 | 82 |
+| S3m | Cards whose earliest printing is in a pack with no `card-sets.json` entry (Terminal Directive, Revised Core Set, Stalwart, Twenty-Three Seconds) | 80 |
 
 ### Per-session recipe
 
