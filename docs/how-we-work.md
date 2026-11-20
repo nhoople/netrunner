@@ -75,7 +75,7 @@ A finding is anything a session notices that its slice did not set out to change
 | Filed | Anything else worth doing | Rules gaps go in the [CR audit](plans/cr-audit-standardization-program.md) findings table under their area, with the source and CR number. Other findings go under "Not yet decided" in the plan that owns that area, or on the [roadmap](roadmap.md) if no plan does |
 | Dropped | Not worth doing, or already covered | Nothing beyond the PR line below |
 
-Every PR lists its findings in a "Found, not fixed" section: each one, where it went, and why. The engine's dead code sweep ([engine #937](https://github.com/nhoople/netrunner-engine/pull/937)) is the model. Its "Kept on purpose" table found four supported currents with no effect in play, which went to a fix-now session.
+Every PR lists its findings in a "Found, not fixed" section: each one, where it went, and why. Each repo's PR template (`.github/PULL_REQUEST_TEMPLATE.md`) has this heading, next to "Proof" and "Review". The engine's dead code sweep ([engine #937](https://github.com/nhoople/netrunner-engine/pull/937)) is the model. Its "Kept on purpose" table found four supported currents with no effect in play, which went to a fix-now session.
 
 Why only two kinds of finding get fixed right away: fixing one copy of a procedure turns up the copies next to it, so fixing each finding as it appears does not converge. The CR audit's per-area recipe replaces all the copies with one shared helper. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward.
 
