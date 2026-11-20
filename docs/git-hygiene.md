@@ -52,7 +52,7 @@ Do this when the day's work stops, for each of the four repos. Pins stay on the 
 5. Leave the checkout on `master` unless a new task has already started on a branch.
 6. After a wave of merges, prune stale **local** `claude/*` branches whose remotes are gone (`git fetch --prune origin`, then delete local branches whose tips are in `master`).
 
-Then do the same for the meta repo (the `Netrunner` folder itself), with these differences: its branch is `main`; it has no CI and no branch protection, so squash-merge once the PR is open; and `delete_branch_on_merge` is off, so merge with `gh pr merge --squash --delete-branch`. Leave it on `main`.
+Then do the same for the meta repo (the `Netrunner` folder itself), with these differences: its branch is `main`; its one check is `public-check` and it has no branch protection, so squash-merge once `public-check` passes; and `delete_branch_on_merge` is off, so merge with `gh pr merge --squash --delete-branch`. Leave it on `main`.
 
 If the session ends without this pass, the next session runs it before new work.
 
