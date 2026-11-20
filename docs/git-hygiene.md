@@ -46,7 +46,7 @@ Run when a pack reaches **100% clear** (or explicit deferrals documented) and `p
 Do this when the day's work stops, for each of the four repos. Pins stay on the current release tags unless a release in this session was intended (including an engine maintenance release above).
 
 1. If `master` has commits that are not on `origin/master`, move them onto a new `claude/<descriptive-name>` branch. `master` is protected and cannot take a direct push.
-2. Push the `claude/*` branch. Open a pull request if one is not already open, or update the open one. Write the body from the repo's `.github/PULL_REQUEST_TEMPLATE.md`, every heading filled (`n/a` or `none` with a reason is fine). `gh pr create --body` does not load the template.
+2. Push the `claude/*` branch. Open a pull request if one is not already open, or update the open one. Write the body from the repo's `.github/PULL_REQUEST_TEMPLATE.md`, every heading filled (`n/a` or `none` with a reason is fine). `gh pr create --body` does not load the template. In the engine and the game, the `pr-body` check fails a PR whose Proof, Review, or "Found, not fixed" heading is missing or empty; editing the description reruns it.
 3. When that repo's required check is green, squash-merge. GitHub deletes the branch.
 4. Check out `master` and pull. Local `master` then matches GitHub.
 5. Leave the checkout on `master` unless a new task has already started on a branch.
