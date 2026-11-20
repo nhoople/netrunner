@@ -20,6 +20,8 @@
 
 *Revised 2026-11-19: sweep S2 (Standard) done in engine #946, #947 and #949: 388 cards, 271 match, 76 wrong, 41 filed ([S2 results](#s2-results-2026-11-19)). PF-S2 is next, then a fix-now session for icebreaker strength.*
 
+*Revised 2026-11-19: PF-S2 (engine #950, release `v1.147.266`, game #315) closed the six S2 visibility leaks and worked all 76 wrong cards: 21 fixed, 26 moved to their areas, 29 left for paired cut A ([S2 results](#s2-results-2026-11-19)). FX-breakers is next.*
+
 *Revised 2026-11-19: sweep S2a (Ashes, engine #947) and S2b (Borealis, engine #946) done; S2c (Liberation) started. Added [Shared pieces](#shared-pieces) and [Out of scope](#out-of-scope), which the coordinate skill needs for every area brief.*
 
 ## Why
@@ -295,6 +297,14 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 12 Counters and advancement | Cacophony: `remove_power_counter` removes what is there, so sabotage resolves with fewer than 2 counters | sweep S1b (engine #945) | 1.16.11a, 1.16.1 |
 | 13 Search and shuffle | `search_rd_operation_to_top_rd` takes the first operation in R&D, with no Corp choice and no option to find nothing, and leaves a stale faceup flag (Embedded Reporting, Lily Lockwell) | sweep S1b (engine #945) | 8.7.2, 8.7.2e, 1.15.2, 1.21.1a |
 | 13 Search and shuffle | `search_rd_up_to_one_each_subtype_to_hq` takes the first barrier and sentry, with no Corp choice or option to find fewer, and adds them before the shuffle (Tocsin) | sweep S1c (engine #944) | 8.7.2, 8.7.2e, 8.7.3 |
+| 1 Hosting and trash | About 78 `trashCard` calls on Runner cards pass no `by`, so Boi-tatá counts unrecorded Corp trashes and Storgotic Resonator counts unrecorded Runner trashes as the Corp's. `trash_own_program` and `trash_runner_rig_card` are shared by cards where different players trash (Ichi 2.0, SDS Drone Deployment: the Corp; Spec Work, Scavenge, Burke Bugs: the Runner), so they need a per-card field; Ichi 2.0 also lets the Runner choose. Each area's callers pass `by` as they move to its helper | PF-S2 (engine #950) | 1.14.5 |
+| 5 Corp install | Pivot's Threat 3 play-or-install, Epiphany Analytica's install (routed as an HQ install, cost checked twice; Poétrï shares it) and Architect Deployment Test's install-and-rez offer only a new remote; Mitosis installs the first 2 HQ cards with no choice and no "up to". Their visibility leaks were fixed in PF-S2 | sweep S2a, S2b, S2c; PF-S2 (engine #950) | 8.5.2a |
+| 9 Damage and prevention | Edge of World's core damage (`may_pay_credits_for_core_damage_per_ice_protecting_this_server`) sets the click-loss prevention it does not print; PF-S2 removed the same flag from Cerebral Overwriter | PF-S2 (engine #950) | 1.2.1 |
+| 10 Card flags | Inline offers built by flag readers (Brasília Government Grid and similar) are skipped while another choice is open, instead of becoming pending conditional abilities | PF-S2 (engine #950) | 9.6.2 |
+| 11 Turn structure | Breaking (for FX-breakers): Banner's interface ability checks no strength; Hammer's limit counts killer and unprinted breaks; Anvil's no-break flag lives on the card and can outlast the encounter; the declared-breaker break cost never applies Boi-tatá's discount | sweep S2b, S2c; PF-S2 (engine #950) | 3.9.5g, 9.3.6c, 9.10.1 |
+| 11 Turn structure | Regenesis counts the agenda it adds to the score area in `agendaPointsScoredThisTurn`, though that is not scoring | PF-S2 (engine #950) | 1.17.3f |
+| 4 Visibility | Hyoubu Institute: "you reveal" is keyed to the source card's side, not the player who reveals, so Runner cards that make the Corp reveal (Enhanced Vision, Reflection, Shred) are missed; `revealCards` needs the revealing player | PF-S2 cr-checker (engine #950) | 1.14.5a |
+| 13 Search and shuffle | Asmund Pudlat: `search_stack_host_virus_or_weapon` takes the first matches; the Runner cannot choose, take fewer, or fail to find | sweep S2b; PF-S2 (engine #950) | 8.7.1, 8.7.2e |
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
@@ -465,6 +475,7 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
   - Smartware Distributor: a turn-begins conditional ability.
   - The Tungsten Tailor: drop the `muBonus` it does not print.
   - Urtica Cipher: `onAccessRequiresInstalled`.
+  - From S2 (PF-S2, engine #950): Afterimage, Backstitching, Curupira, Devil Charm, Laser Pointer, Malandragem and Physarum Entangler: the bypass as an optional conditional ability met when the encounter begins (Devil Charm also a run-duration weaken). Afshar: a "this ice protects HQ" condition. Amanuensis: a hosted-counter condition on the draw. Boto: the third subroutine repeats the second. Chekist Scion: `onAccessRequiresInstalled`. Daily Quest: an action-phase-only rez flag and its reader. Fencer Fueno: its own "spendable once successful" field. Flip Switch: `jack_out`. Flower Sermon: its paid ability rewritten. Hermes: the Runner adds an installed unrezzed card to HQ. Lobisomem: a code-gate condition on the fully-break trigger. Loot Box: `trash_self` (its engine half is fixed). M.I.C.: every run window, on its server. Mavirus: a paid [trash], the R&D reveal, purge before damage. Midnight-3 Arcology: a mandatory skip. Mindscaping: one mode. Muse: drop `daemonHost`. Nyusha: `first_successful_mark_run`. Pichação: a click-gained-during-a-run-this-turn condition and its op. Stegodon MK IV: a run-begins trigger, once per turn used on the derez. Time Bomb: the counter on the "otherwise" branch only. Unsmiling Tsarevna: printed subroutine order with the draw. Valentina Ferreira Carvalho: a "during your turn" condition and its op.
   - Also for cut A: rename `host_all_programs_from_grip` (Madani picks any number now), add Flagship's `persistent` flag, and IP Enforcement's play cost once confirmed against the printed card (the NSG catalog stores it as null, as it does X; jnet charges X).
 
 ### S2 results (2026-11-19)
@@ -481,6 +492,21 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
 - **Fix-now (breaking).** Paid-ability breaks (`break_encounter_subroutine`, `break_host_subroutine`) check no strength, so a strength-1 Curupira breaks a strength-3 Wall of Static (CR 3.9.5g, 9.3.6c). About 38 breakers break only this way. Decided 2026-11-19: a session of its own right after PF-S2, before area 2. cr-checker's caution: 69 programs carry an `interface` flag on their pump that the printed cards do not, so a gate keyed on that flag would stop them pumping.
 - Arissana Rocha Nahu cannot install trojans or install-on-ice programs. Decided 2026-11-19: it stays with area 6, with the rest of that cluster.
 - The record is `tests/baselines/printed-sweep.json`; each PR's "Found, not fixed" section lists the filed cards by area, and the findings table below has a row per area.
+
+**PF-S2 (engine #950, release `v1.147.266`, game #315).** The fix session worked all 76 wrong cards. The record is `printed-sweep.json`; each fixed card names its test in `tests/sweep-fixes-s2.test.ts`.
+
+| Cycle | Wrong | After PF-S2: fixed / filed / wrong |
+|---|---|---|
+| Ashes (S2a) | 19 | 3 / 8 / 8 |
+| Borealis (S2b) | 27 | 12 / 8 / 7 |
+| Liberation (S2c) | 30 | 6 / 10 / 14 |
+| **Standard** | **76** | **21 / 26 / 29** |
+
+- **Visibility leaks (6), all closed without card JSON.** Vera Ivanovna Shuyskaya asks before revealing the grip; Complete Image and Whistleblower name from the card catalog (`src/effects/cardNames.ts`), not from the game's cards; Architect Deployment Test installs an agenda facedown and reveals it; Pivot and Epiphany Analytica no longer leave a card faceup in HQ. Vera, Complete Image and Whistleblower are fixed; the other three moved to area 5 for their install.
+- **Fixed (21):** Brasília Government Grid, Cerebral Overwriter, Complete Image, Hearts and Minds, Hostile Architecture, Info Bounty, Juli Moreira Lee, Mercury, Nuvem SA, Ob Superheavy Logistics, Pinhole Threading, Pretty Mary da Silva, Regenesis, Stavka, The Twinning, Tsakhia "Bankhar" Gantulga, Vera Ivanovna Shuyskaya, Whistleblower, Yakov Erikovich Avdakov; Pravdivost Consulting and Vladisibirsk City Grid were already fixed by PF-S1's `place_advancements` change and are confirmed by test.
+- **Moved to filed (26):** area 1: Storgotic Resonator (Runner trashes that record no player); area 4: Hyoubu Institute (Runner cards that make the Corp reveal; Corp-ability reveals are fixed); area 5: Architect Deployment Test, Pivot, Epiphany Analytica, Mitosis; area 6: Simulchip; area 10: Daniela Jorge Inácio, Tucana; area 11: Banner, Hammer, Anvil, Boi-tatá (the break path, for FX-breakers), Vasilisa (cost payability); area 12: Big Deal, Akhet, La Costa Grid, Remastered Edition, Cohort Guidance Program, Stoke the Embers, The Holo Man (the placing filter), Shipment from Vladisibirsk (split mode); area 13: Digital Rights Management, Gaslight, Wave, Asmund Pudlat. They are in the findings table.
+- **Left for paired cut A (29):** each needs card JSON, listed with what it needs under [S1 results](#s1-results-2026-11-19).
+- **Fix-now finding:** Salem's Hospitality names from every card in the game, so the Corp sees the Runner's grip and stack titles; Quest Completed's access kind needs a run and blocks stealing. Both are supported Eternal cards; a session was proposed for them.
 
 ## Phase 3: audit and standardize by procedure
 
@@ -594,7 +620,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | ~~P1-j kind and phrase check~~ (done, engine #941) | engine | now, beside P3-1 | 1.12: the kind-to-phrase table, the check against `printed/`, flag-built kinds from the 1.10 map, polarity; baseline; test-only. |
 | PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
 | FX-breakers | engine (+ game, meta pins) | after PF-S2, before P3-2 | The paid-ability break path checks strength (CR 3.9.5g) and the break limits, without the `interface` pump flag stopping printed pumps. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
-| PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
+| PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19); PF-S2 done: engine #950, [S2 results](#s2-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
 | Phase 6 start | game | after the sweep, its fixes, and every area holding a sweep finding | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
 
 ## Decisions for a human
