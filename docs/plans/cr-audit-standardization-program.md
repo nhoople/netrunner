@@ -16,6 +16,8 @@
 
 *Revised 2026-11-19: area 1 (hosting and trash) done: engine #942 (release `v1.147.264`), game #313. Its new findings are filed under areas 2, 5, 6, 9 and 11.*
 
+*Revised 2026-11-19: sweep S1 (Startup) done in engine #943–#945: 164 cards match, 35 wrong, 26 filed. PF-S1 (engine #948, release `v1.147.265`, game #314) fixed 14 wrong cards and the area 1 trash-hook finding, moved 6 to their areas, and left 15 for paired cut A ([S1 results](#s1-results-2026-11-19)). The S1 filed cards are in the findings table.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -219,17 +221,43 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 11 Turn structure | A trace that opens a prompt leaves a pending Tollbooth-style encounter effect unresumed | Security Nexus fix (engine #921) | 10.8, 6.9.3 |
 | 11 Turn structure | Security Nexus is offered at encounter start, but Femme Fatale's encounter trigger can resolve in the wrong order around it | Security Nexus fix (engine #921) | 9.2.8d |
 | 11 Turn structure | Security Nexus's card data still models the ability as unconditional; the encounter-only limit lives in the engine. Make it a conditional ability in the card data | Security Nexus fix (engine #921) | 9.6, 6.9.3a |
-| 11 Turn structure | AU Co.: The Gold Standard in Clones offers "remove 2 power counters" with fewer than 2; it resolves as a no-op. A `choose` option's nested cost sits inside its kind (`remove_co_2_look_rd`), so legality can't see it. Gate the option on the cost (an `if` on the counters, or a cost or condition field on `ChoiceOption`). The paid path also skips the cost-paid checkpoint before the look | playout blockers, cr-checker | 1.16.1, 1.16.11a, 1.16.3 |
+| 11 Turn structure | AU Co.: The Gold Standard in Clones offers "remove 2 power counters" with fewer than 2; it resolves as a no-op. A `choose` option's nested cost sits inside its kind (`remove_co_2_look_rd`), so legality can't see it. Gate the option on the cost (an `if` on the counters, or a cost or condition field on `ChoiceOption`). The paid path also skips the cost-paid checkpoint before the look | playout blockers, cr-checker; confirmed by sweep S1b (engine #945) | 1.16.1, 1.16.11a, 1.16.3 |
 | 11 Turn structure | Nothing is legal at `corp.takeAction` with 3 clicks (Standard seed 118, the same before and after the playout blockers) | playout blockers sweep | 5.2, 5.6.2 |
 | 11 Turn structure | Hired Help's additional cost to run forfeits the agenda; the card says trash it | cr-checker (engine #932) | 1.2.1, 8.2.5 |
 | 11 Turn structure | Service Outage's first-run credit is charged only by the basic run action, not when a run event makes the turn's first run | cr-checker (engine #932) | 6.3.2b |
 | 11 Turn structure | `payStealAdditionalCosts` stops at the first cost that opens a choice, and clicks and credits are spent before the effect costs, so a set of steal costs is not checked as a whole | cr-checker (engine #932) | 1.16.10b |
 | 11 Turn structure | `autoWalk` runs an auto step's `onResolve` again each time the walk is parked on it, and `applyAction` now walks after every action (engine #930). `corp.turnBegins`, `runner.turnBegins` and `run.ends` are guarded; check the other auto steps that can open a choice for the same once-only guard | playout blockers, cr-checker | 9.6.6, 9.2.2 |
-| 11 Turn structure | `candidateRun.ts` offers `break_bioroid_subroutine` (spend [click]: break) on any ice with the bioroid subtype, whether or not that ice prints the ability. Not yet checked against the printed text of every bioroid | N-Pot fix (engine #922) | 1.2.1, 6.5 |
+| 11 Turn structure | `candidateRun.ts` offers `break_bioroid_subroutine` (spend [click]: break) on any ice with the bioroid subtype, whether or not that ice prints the ability. Not yet checked against the printed text of every bioroid. Ansel 2.0 prints lose [click][click]: break up to 2, which is not offered (sweep S1c) | N-Pot fix (engine #922), sweep S1c (engine #944) | 1.2.1, 6.5 |
 | 11 Turn structure | ChiLo City Grid and Spinal Modem have no test for a tied trace (engine #923 fixed ties in `traceSucceeds`) | trace tie fix (engine #923) | 10.8.4 |
 | 11 Turn structure | `corp.turnBegins` has the shape `runner.turnBegins` had before engine #929: `autoWalk` re-runs the whole step after a turn-begin ability's choice, so a Corp "when your turn begins" ability with a choice may be noted again. Not confirmed by a test | Apex fix (engine #929) | 9.6.6 |
 | 13 Search and shuffle | Touch-ups: the card model (`seq[place_advancements, choose_type_shuffle_grip]`) doesn't make the reveal depend on "If you do", and `choose_type_shuffle_grip` offers the Corp a Decline the text doesn't allow. Needs card JSON (paired cut) | Touch-ups fix (engine #929), cr-checker | 1.2.1, 1.15.2 |
 | 10 Card flags | The pack generator scripts in `netrunner-cards-data/scripts/` (Uprising, Midnight Sun, Elevation, and others) still write the shapes cards #298 and #299 replaced; regenerating a pack would undo those fixes. `generate-midnight-sun.py` also still gives Drago Ivanov's ability a click cost; the checked-in data is right | N-Pot, False Lead and Vladisibirsk fixes | — |
+| ~~1 Hosting and trash~~ | ~~`noteFirstCorpCardTrashEachTurn` called `noteRunnerStoleOrTrashedCorpCard` before its `trashedBy` check, so the Corp trashing its own card met the Runner's trigger (Cacophony, Epiphany Analytica); the installed-only trigger shared one first-time record with the any-card one (Aggressive Trendsetting, NBN: Controlling the Message)~~ Fixed in engine #948 | sweep S1b (engine #945) | 1.14.5a, 9.6.5c |
+| 2 Uninstall and run position | Proprionegation: `move_runner_to_archives_outermost` (and `move_runner_to_outermost_attacked`) sets only the attacked server and position. It does not end an encounter in progress, does not go to the approach-ice step (or the movement phase with no ice), and has no Success or Run Ends guard | sweep S1b (engine #945) | 6.2.8b, 6.1.3d, 6.2.8c |
+| 2 Uninstall and run position | Beta Build's return to the top of the stack is inline and leaves hosted counters (its install half is area 6) | sweep S1c (engine #944) | 1.13.13, 1.12.1 |
+| 4 Visibility | An expendable card's "reveal and trash this from HQ" cost never reveals the card (Tocsin and every expendable) | sweep S1c (engine #944) | 1.21.3 |
+| 5 Corp install | `install_hq_card_paying_costs` always makes a new remote and installs there, ice included: no existing server or central root, no like-card trash, no server restrictions (Humanoid Resources, Peer Review, Poétrï Luxury Brands, Scatter Field, Top-Down Solutions). Poétrï's scored half (`install_rd_looked_card_paying_costs`) also routes the R&D card through HQ faceup and pays the cost twice | sweep S1b (engine #945) | 8.5.2a, 8.5.2c |
+| 5 Corp install | `install_hq_card_ignore_costs` and `install_archives_card_ignore_costs` place the card inline: no upgrade in a central root, no new remote for ice, no trash of an agenda or asset already in the root; the HQ variant installs faceup (Off the Books, Project Ingatan, Synapse Global) | sweep S1b (engine #945) | 8.5.2, 8.5.2a, 8.5.6a, 1.21.3 |
+| 5 Corp install | Mercia B4LL4RD: `may_install_ice_from_hq_discount_then_move_source` lists no new remote, and `install_hq_ice_protecting_server_paying_costs` skips the ice-trash option and when-installed triggers | sweep S1b (engine #945) | 8.5.2a, 8.5.6b, 8.5.16f |
+| 5 Corp install | `install_ice_from_hq_ignore_costs` lists only existing servers, never a new remote (Key Performance Indicators) | sweep S1b (engine #945) | 8.5.2a |
+| 5 Corp install | IP Enforcement: `install_runner_score_agenda_on_server` places the agenda inline and faceup, offers no new remote (errors after the tags are removed when there is none), takes it out of the score area before checking the server, and skips the root trash | sweep S1b (engine #945) | 8.5.2, 8.5.2a, 8.5.6a, 1.16.2c |
+| 5 Corp install | `install_archives_card_paying` writes the root and ice lists directly: no root limit, no optional trash, a bare install cost, no new-remote hooks, no new remote for ice (Retirement Plan, Crick) | sweep S1c (engine #944) | 8.5.6a, 4.6.6e, 8.5.6b, 1.16.4a, 8.5.2a |
+| 5 Corp install | Reanimation Protocol (with area 7): `install_and_rez_archives_ice` installs and rezzes inline, with the printed rez cost only, no additional rez costs, no ice trash, and rezzes before the install triggers; the play fails when only the rez is unaffordable | sweep S1c (engine #944) | 8.1.2e, 1.16.4b, 1.16.4c, 8.5.15, 8.5.16c, 8.5.16e |
+| 5 Corp install | Mycoweb: `may_install_from_archives_ignore_costs` offers no new remote for ice (its type filter waits for paired cut A) | sweep S1b (engine #945) | 8.5.2a |
+| 6 Runner install | The effect install helpers (`may_install_from_grip`, `install_from_grip_discount`, `canInstallHeapCard`) drop a program that would exceed free MU instead of letting the Runner trash programs to make room, and drop trojans and install-on-ice cards (Illumination, Magdalene Keino-Chemutai, Scrounge, Topan). Topan also checks the credit pool, not credits available for installs | sweep S1b (engine #945) | 8.5.6c, 3.9.3b, 1.13.6c |
+| 6 Runner install | Beta Build: `install_stack_program_ignore_costs_track` installs inline (no MU check, no install-on-ice limits, no recurring credits, no new object, no `installRunner` bookkeeping); the search has no decline and tracks the program by id | sweep S1c (engine #944) | 8.5.6c, 1.13.6c, 8.7.2b, 8.7.2e, 1.10.5b |
+| 6 Runner install | Mutual Favor: `search_stack_icebreaker_resolve` installs inline (raw credits, no MU check, no install-cost modifiers) and installs without offering the choice | sweep S1a (engine #943) | 8.5.16, 8.5.6c, 9.6.9c |
+| 8 Access | René "Loup" Arcemont: the gain and draw are inline in the pay-trash-cost access path only. Carnivore, virus and other access trashes never trigger it or mark the turn's first trash; it resolves at once and does not check blanking. Fix at the shared access-trash point | sweep S1a (engine #943) | 9.3.2b, 1.19.1, 9.6.2 |
+| 8 Access | Detente: `host_random_hq` takes the last HQ card, `access_random_hq` bypasses `access_card`, and "add 2 hosted cards to HQ" is a cost inside the effect, so the ability is usable with fewer than 2 hosted cards and takes the first two without a choice | sweep S1b (engine #945) | 7.1, 1.16.1 |
+| 10 Card flags | A conditional ability's `condition` is an `if` read at resolution, but a stipulation in the trigger condition must hold when the trigger occurs (Syailendra's "if it has 3 or more hosted advancement counters") | PF-S1 (engine #948) | 9.6.5c, 9.6.5d |
+| 11 Turn structure | A pay option inside `choose` is not gated on being able to pay: with too few credits `lose_credits` takes what there is and the effect still resolves (Byte, PT Untaian; Vasilisa in S2) | sweep S1b (engine #945) | 1.16.11a, 1.16.1 |
+| 11 Turn structure | LEO Construction: the bioroid trash is modelled as part of the effect with a 0-credit cost. Once per turn is recorded before the trash, no checkpoint follows the cost, and a prevented trash would still end the run | sweep S1b (engine #945) | 1.16.9, 1.16.3, 1.16.1b |
+| 11 Turn structure | The basic break action (`breakSubroutine.ts`) never gives The Tungsten Tailor's first-break credit; only `break_encounter_subroutine` does | PF-S1 (engine #948) | 9.3.2b |
+| 11 Turn structure | Aircheck: between its run and the follow-up run the credit pool is locked, but its hosted credits are spendable only as a run's `eventCredits`, so in that window the Runner can pay nothing | PF-S1 cr-checker (engine #948) | 8.6.5, 1.2.1 |
+| ~~12 Counters and advancement~~ | ~~`place_advancements` used the first candidate when there was no pick, and always added a Decline with pick choose~~ Fixed in engine #948 | sweep S1b (engine #945) | 1.15.2, 1.15.2e |
+| 12 Counters and advancement | Cacophony: `remove_power_counter` removes what is there, so sabotage resolves with fewer than 2 counters | sweep S1b (engine #945) | 1.16.11a, 1.16.1 |
+| 13 Search and shuffle | `search_rd_operation_to_top_rd` takes the first operation in R&D, with no Corp choice and no option to find nothing, and leaves a stale faceup flag (Embedded Reporting, Lily Lockwell) | sweep S1b (engine #945) | 8.7.2, 8.7.2e, 1.15.2, 1.21.1a |
+| 13 Search and shuffle | `search_rd_up_to_one_each_subtype_to_hq` takes the first barrier and sentry, with no Corp choice or option to find fewer, and adds them before the shuffle (Tocsin) | sweep S1c (engine #944) | 8.7.2, 8.7.2e, 8.7.3 |
 
 Area 11 was added on 2026-11-14. It takes the two jnet findings that had no area (terminal operation, psi bids) and three found by hand while fixing action counting.
 
@@ -359,7 +387,7 @@ For the sweep sessions to confirm against the printed text, then fix with their 
 - Tri-Maf Contact: gives a tag instead of 3 meat damage (1.12).
 - Hermes: draws instead of adding an unrezzed card to HQ (1.12).
 - Flower Sermon and GlobalSec Security Clearance: reveal instead of look, so the Runner is shown information (1.12).
-- Lionsmane and Flip Switch: end the run instead of jacking out (1.12).
+- Lionsmane and Flip Switch: end the run instead of jacking out (1.12). Lionsmane confirmed by S1c; it waits for paired cut A.
 - Alexa Belsky: trashes the HQ cards it should keep (area 1, cr-checker).
 - Marilyn Campaign: always shuffles itself into R&D; the text says "you may" (area 1, cr-checker).
 - Simulchip: "an installed program has already been trashed this turn" is met by any installed Runner card's trash, by either player (area 1, hand check).
@@ -370,6 +398,37 @@ For the sweep sessions to confirm against the printed text, then fix with their 
 - **A bug in a shared procedure** (install, swap, rez, and so on) goes in that area's row of the findings table above, with the card titles. The area fixes it once when it replaces the copy. It is not fixed card by card first.
 - A fix that needs card JSON rides with the next paired cut, or its own paired cards release if no cut is near.
 - The gate below needs every wrong card fixed. If one area holds most of the shared-procedure findings, run that area earlier.
+
+### S1 results (2026-11-19)
+
+Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. Fix session PF-S1 (engine #948, release `v1.147.265`, game #314) then worked the wrong cards. The record is the engine's `tests/baselines/printed-sweep.json`; a fixed card names its PR and the test that proves it.
+
+| Cycle | Cards | Match | Wrong | Filed | After PF-S1: fixed / filed / wrong |
+|---|---|---|---|---|---|
+| System Gateway (S1a, #943) | 77 | 66 | 9 | 2 | 3 / 0 / 6 |
+| Elevation (S1b, #945) | 82 | 47 | 14 | 21 | 4 / 4 / 6 |
+| Vantage Point (S1c, #944) | 66 | 51 | 12 | 3 | 7 / 2 / 3 |
+| **Startup** | **225** | **164** | **35** | **26** | **14 / 6 / 15** |
+
+- **Fixed (14):** Aircheck, Cookbook, ezaM, Flagship, Lampades, Madani, Mahkota Langit Grid, Malapert Data Vault, Plutus, Ryō "Phoenix" Ōno, Scapegoat, Sipa, Stowaway, Weyland Consortium: Built to Last.
+- **Fixed once in a shared kind:** `place_advancements` (the Corp chooses the target; no Decline), `may_derez_installed` (the ability's controller chooses), `fortify_all_ice` (lasts the run), and the area 1 trash hooks (only a Runner trash meets "the Runner trashes"; the installed variant has its own first-time record). These also fix part of S2 cards (see engine #948, Found, not fixed).
+- **Moved to filed (6):** Key Performance Indicators (area 5), IP Enforcement (area 5), Embedded Reporting (area 13), Tocsin (areas 13 and 4), Ansel 2.0 (area 11), Syailendra (area 10). They are in the findings table.
+- **Left for paired cut A (15):** each needs card JSON. Cut A adds these with the engine pieces they need:
+  - Aggressive Trendsetting and NBN: Controlling the Message: move to the trigger `first_installed_corp_card_trash_each_turn` (engine #948 added it); Aggressive Trendsetting also needs a `runner_turn` condition.
+  - Anthill Excavation Contract: `trashWhenHostedCreditsEmpty`.
+  - Conduit: the counter trigger on the run ending, and X read at the R&D breach (engine), together.
+  - Diviner: a condition on the printed cost of the card the net damage trashed.
+  - Event Horizon: every run window for its [trash] ability.
+  - Fransofia Ward: a conditional ability on encounter, not a paid ability.
+  - Lionsmane: `offer_jack_out` instead of `end_the_run`.
+  - Maglectric Rapid: derez without a Decline once the cost is paid.
+  - Mycoweb: an ice-only install field, and a non-may resolve-subroutine kind.
+  - Ping: a rez-during-a-run-on-this-server condition.
+  - Seamless Launch and Sericulture Expansion: `place_advancements` fields for "not installed this turn" (strict) and any installed card. Akhet, Stoke the Embers, Cohort Guidance Program and Clairvoyant Monitor also print "an installed card".
+  - Smartware Distributor: a turn-begins conditional ability.
+  - The Tungsten Tailor: drop the `muBonus` it does not print.
+  - Urtica Cipher: `onAccessRequiresInstalled`.
+  - Also for cut A: rename `host_all_programs_from_grip` (Madani picks any number now), add Flagship's `persistent` flag, and IP Enforcement's play cost once confirmed against the printed card (the NSG catalog stores it as null, as it does X; jnet charges X).
 
 ## Phase 3: audit and standardize by procedure
 
@@ -482,7 +541,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-5 … P3-9) / after P3-10 (P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
 | ~~P1-j kind and phrase check~~ (done, engine #941) | engine | now, beside P3-1 | 1.12: the kind-to-phrase table, the check against `printed/`, flag-built kinds from the 1.10 map, polarity; baseline; test-only. |
 | PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
-| PF-S1 … PF-S3 sweep fixes | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
+| PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
 | Phase 6 start | game | after the sweep, its fixes, and every area holding a sweep finding | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
 
 ## Decisions for a human
@@ -497,10 +556,11 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | 2026-11-19 | Before the Phase 6 gate, every format is swept and every wrong card is fixed, including the ones an area owns. The gate waits for those areas; run an area early if it holds most of the findings | No player meets a card known to play wrong |
 | 2026-11-19 | The Activity opens all formats at once: Learn to play, Startup, Core Sets, Standard, and Eternal | One launch and one checklist, since every format is clean before the gate |
 | 2026-11-19 | The sweep leaves labels alone | It reads the printed text directly. Labels stay in each area's paired cards release |
+| 2026-11-19 | Keep the plan order for areas 5–13 after the sweep | Nathaniel kept the order. The gate still waits for every area that holds a sweep finding |
 
 ## Not yet decided
 
-- **The order of areas 5–13 after the sweep.** The gate now waits for every area that holds a sweep finding. Once S1–S3 report, decide whether to run any area earlier, and whether the gate moves after most of Phase 3. Blocks: the Phase 6 start row.
+- ~~**The order of areas 5–13 after the sweep.**~~ Decided 2026-11-19: keep the plan order (see Decisions for a human).
 
 ## Verification of the program itself
 
