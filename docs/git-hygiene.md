@@ -92,7 +92,7 @@ If the session ends without this pass, the next session runs it before new work.
 
 ### Ruleset notes
 
-- **`master-protection`:** no deletions, no force-push; require PR; **0** approvals; required check `test` (engine and game) / `validate` (cards) / `transform-validate` (CR).
+- **`master-protection`:** no deletions, no force-push; require PR; **0** approvals; required checks `test` and `pr-body` (engine and game) / `validate` (cards) / `transform-validate` (CR). Bypass: the admin role only in the engine and game; the cards and CR rulesets still list the Cursor app (1210556), which is no longer connected, so GitHub rejects any edit to them until that entry is removed.
 - **`release-tags`:** protects `refs/tags/v*` from deletion and force-push.
 - Agents typically cannot PATCH settings / POST rulesets (403); Nathaniel applies changes. Recreate payloads (if ever needed) live in git history of this doc / prior receipts — not outstanding work.
 
