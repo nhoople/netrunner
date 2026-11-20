@@ -16,7 +16,7 @@ Each piece of work goes through five stages: decide, plan, build, prove, sustain
 |---|---|---|---|---|
 | 1. Decide | Claude interviews the maintainer with the [`grill` skill](../.claude/skills/grill/SKILL.md) until no open question is left unasked | Answers each question, usually by accepting the recommended answer | Look up facts (CR text, cards, current code) before asking, and recommend an answer to every question | The plan's "Decisions for a human" is filled in, and "Not yet decided" holds only what was knowingly put off |
 | 2. Plan | The plan names its slices and the shared pieces they build on | Approves the plan by what it promises, not how it is built | Write the plan in the format below. For engine work, name each shared procedure and the CR rule it follows before any card uses it | The maintainer approves the plan |
-| 3. Build | One slice per session, with tests, `cr-checker` for rules changes, and a PR | Nothing, unless a session stops on a decision | Follow [`CLAUDE.md`](../CLAUDE.md) and [`git-hygiene.md`](git-hygiene.md) | The PR is merged and CI passes |
+| 3. Build | One slice per session, with tests, `cr-checker` for rules changes, `/code-review` for code changes, and a PR | Nothing, unless a session stops on a decision | Follow [`CLAUDE.md`](../CLAUDE.md) and [`git-hygiene.md`](git-hygiene.md) | The PR is merged and CI passes |
 | 4. Prove | The slice is shown working in a way the maintainer can check without reading code | Looks, plays, and accepts or rejects | Show a played match, a screenshot, the verification table, or a test whose name says the behavior in plain words | The maintainer accepts it |
 | 5. Sustain | A mistake that happens twice becomes a check that fails | Says so when correcting the same thing twice | Fix the mistake, then add a test, hook, or lint that fails on it | The check is merged, and the prose rule it replaces is deleted |
 
@@ -44,6 +44,8 @@ A plan in `docs/plans/` has these sections, in this order. Leave out a section t
 ### 3. Build
 
 Unchanged from today: one fresh session per slice, a test for the behavior in the repo that owns it, `cr-checker` before an engine rules commit, and a `claude/*` PR. The rules are in [`CLAUDE.md`](../CLAUDE.md).
+
+A slice that changes code also runs `/code-review` on its diff before opening the PR. The session that wrote the code also wrote its tests, so a misreading can pass both. The review runs in a fresh context and can catch a test that checks the wrong thing. The PR says what the review found and what was fixed.
 
 A session that coordinates a plan starts each slice with the [`coordinate` skill](../.claude/skills/coordinate/SKILL.md). It gives the brief every slice session gets and what to check when the slice reports back.
 
