@@ -40,6 +40,8 @@
 
 *Revised 2026-11-20: RA-2 done (engine #964), P1-l done (engine #965: 31 ported, 19 engine bugs, no disagreements), tool 1.14 first batch (engine #969: 33 identity rulings). Sweeps S3c (#967), S3d (#963), S3e (#968) and S3f (#970) done; engine #966 regenerated the cited-text and subrule baselines after #960. 1,280 of 2,016 cards are swept. Engine master now refuses a PR that is behind master. New open questions are under [Not yet decided](#not-yet-decided).*
 
+*Revised 2026-11-20: area 2 done (engine #971 and #972, releases `v1.147.270` and `v1.147.271`, game #321, meta #316; [results](#area-2-results-2026-11-20)). Sweeps S3h (#974) and S3i (#973) done. FX-pump started.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -66,9 +68,9 @@ This program builds tools that find CR violations across the whole engine. It th
 |---|---|---|---|
 | Hosting | `src/state/procedures/host.ts`: `hostCard`, `unhostCard`, `unhostAllFrom`, the only writers of `hostId` and `hostedCardIds` | 1.13.13, 10.3.1g | Built (area 1) |
 | Trash and discard, both sides | `src/state/procedures/trash.ts`: `trashCard(state, id, { by, cause, faceup, preventable, simultaneousSet })`, `discardCard` | 1.14.5, 4.4.6b, 10.3.1g | Built (area 1) |
-| Run position and redirects | `src/state/runPosition.ts`: `setRunnerPosition`, `moveRunnerInward`, `noteIceUninstalled`, `addOutermostIce` | 6.2.4, 6.2.6, 6.2.7a/c/e | Exists; area 2 routes every position write through it |
-| Uninstall and ice removal | `src/state/procedures/uninstall.ts`: `uninstallCard(id, destination)`, which calls `noteIceUninstalled`, fires `onUninstall`, and releases hosted cards through area 1 | 8.5.10 | Area 2 |
-| Rearrange | `src/state/procedures/rearrange.ts`, with a run guard and position fix-up | 8.3.1, 8.8.2 | Area 2 |
+| Run position and redirects | `src/state/runPosition.ts`: `setRunnerPosition`, `moveRunnerInward`, `noteIceUninstalled`, `addOutermostIce` | 6.2.4, 6.2.6, 6.2.7a/c/e | Built (area 2): every position and attacked-server write goes through it; adds `moveRunnerToOutermost`, `moveRunnerToIce`, `runnerCanMoveToPosition`, `setAttackedServer` |
+| Uninstall and ice removal | `src/state/procedures/uninstall.ts`: `uninstallCard(id, destination)`, which calls `noteIceUninstalled`, fires `onUninstall`, and releases hosted cards through area 1 | 8.5.10, 4.9.2 | Built (area 2): `uninstallCard(state, id, destination)`, `removeCardFromGame`, `ceaseVacantPositions` |
+| Rearrange | `src/state/procedures/rearrange.ts`: `rearrangeIce`, `moveIce`, with a run guard and position fix-up | 8.3.1, 8.3.2, 6.2.7 | Built (area 2); one `rearrange_ice` kind |
 | Swap | `src/state/procedures/swap.ts`: `swapCards(a, b)`, built on the uninstall helper and the three ice-swap helpers | 8.8.1–8.8.4d | Area 3 |
 | What a seat can see | One seat-view filter in the engine (`seatVisibility.ts`, `getPublicView`) that redacts every payload; the game's spectator view built from it | 1.21.1–1.21.6, 10.2.1–10.2.3b | Area 4 |
 | Corp install | `installCorp` with `{ source, destination, costMode, rezAfter, advancements, faceup }` | 8.5.1–8.5.11 | Area 5 |
@@ -328,6 +330,19 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 16 Game setup and end | A Runner who steals their seventh point against Jinteki: Personal Evolution with an empty grip loses: the win is recorded, then the net damage flatlines them; Ayla "Bios" Rahim sets aside after the starting hands and mulligans and never shuffles 2 back | rulings (engine #969) | 1.7.1, 1.6.1a, 1.6.6 |
 | RF (fidelity) | The uniqueness checkpoint treats facedown Box-Es as consoles and trashes them and Mirror; Marilyn Campaign's optional interrupt is applied without asking; the Corp cannot order Hostile Infrastructure and Calvin B4L3Y | P1-l | 8.1.4a, 10.3.1d, 9.6.9c, 9.2.8d |
 | 1.17 tool | The subrule coverage test counts skipped tests as citing their rules | rulings (engine #969) | — |
+| 14 Run flow | Engine phase `"success"` also covers approaching the server (6.9.4g); under Crisium Grid nothing marks the Success Phase, so a move is still allowed | cr-checker, area 2 (engine #971/#972) | 6.9.4g, 6.2.5d, 6.2.8c |
+| 14 Run flow | A move to a position (Proprionegation, Cell Portal, Letheia, Mind Game, Mirāju, Susanoo) does not end an encounter or go to the step 6.2.8 names; "instead of passing" still passes. Position half of the Proprionegation row is done | /code-review, area 2 (engine #971/#972) | 6.2.8a, 6.2.8b |
+| 14 Run flow | Forced-encounter sites (Ganked!, Konjin, set_reencounter_ice, set_nested_encounter_then_resume_source, three reencounter branches in actions/apply.ts) set the Runner's position | area 2 inventory (engine #971/#972) | 6.5.9a |
+| 14 Run flow | Slipstream starts an encounter; its text says approach | cr-checker (engine #971/#972) | 1.2.1, 6.2.8a |
+| 14 Run flow | 7 run objects built outside actions/run.ts left for area 14's run procedure (none writes position/attacked server outside runPosition.ts now) | area 2 inventory (engine #971/#972) | 6.9.1 |
+| 14 Run flow | Existing area 2 run-flow rows (remote deleted mid-encounter, run object into action phase, Rigged Results loop, Backup Plan bypass, pendingStartRun target check) are run flow; still open | plan (engine #971/#972) | 4.6.8e, 6.9.6d, 6.9.1, 6.5.8a, 6.3.2a |
+| 1 Hosting and trash | trashCard ends the host link before the card leaves its zone (order fixed for uninstall), so trashed hosted ice mid-encounter doesn't end the encounter | /code-review (engine #971/#972) | 6.2.7c |
+| 1 Hosting and trash | checkpoints.ts comments cite 9.6.13c for own-move trash abilities; 9.1.8g governs (citation only) | cr-checker, #972 (engine #971/#972) | 9.1.8g |
+| 2 Uninstall and run position | 35 invariant entries with area 2 codes remain: hand-built test states in 13 test files (test-only cleanup) | area 2 evidence (engine #971/#972) | 6.2.1, 6.2.5 |
+| 2 Uninstall and run position | `independentOfSource` keeps an instance alive if the card moves again before it resolves; strict 9.1.8g reads "new location" only. Shared by every user of the flag | cr-checker, #972 (engine #971/#972) | 9.1.8g |
+| 2 Uninstall and run position | ~20 `hostCard(…, { installed: true })` for non-installed cards: unchanged (existing row) | plan (engine #971/#972) | 1.13.2a |
+| 5 Corp install | Root-to-root upgrade moves (moveKinds) and placeKinds agenda move write `root` directly | area 2 inventory (engine #971/#972) | 8.5 |
+| 13 Search and shuffle | Five hand-written non-installed moves to hand/deck (London Library, Replanting, Maya, shuffle into stack, return source to HQ) | /code-review (engine #971/#972) | 1.12.1 |
 | 11 Turn structure | Traces auto-resolve with no Corp spend and no Runner link boost at about 10 `autoResolveTrace` callers (`scoreTraceOffer`, `boostRezTrace`, non-interactive `trace`). Security Nexus is fixed separately; check the rest here | label triage | 10.8.2–10.8.3 |
 | 11 Turn structure | A trace that opens a prompt leaves a pending Tollbooth-style encounter effect unresumed | Security Nexus fix (engine #921) | 10.8, 6.9.3 |
 | 11 Turn structure | Security Nexus is offered at encounter start, but Femme Fatale's encounter trigger can resolve in the wrong order around it | Security Nexus fix (engine #921) | 9.2.8d |
@@ -615,6 +630,8 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
 | S3d (#963) | Spin | 100 | 65 | 29 | 6 |
 | S3e (#968) | Lunar | 120 | 85 | 33 | 2 |
 | S3f (#970) | Order and Chaos, Data and Destiny | 110 | 57 | 40 | 13 |
+| S3h (#974) | Mumbad | 114 | 77 | 26 | 11 |
+| S3i (#973) | Flashpoint | 100 | 62 | 20 | 18 |
 
 - **Wrong, for PF-S3.** S3a: Accelerated Beta Test, Adonis Campaign, Corporate Troubleshooter, Data Raven, Net Shield, Parasite, Rabbit Hole, Sacrificial Construct. S3b: Compromised Employee, Dinosaurus, Cortez Chip, The Helpful AI, Doppelgänger, Midori, Snitch, Edge of World, Eve Campaign, Private Contracts, Faerie, Muresh Bodysuit, Retrieval Run, Test Run.
 - **Filed.** S3a: area 4 Infiltration, Lemuria Codecracker, Forged Activation Orders, Tinkering; area 5 Shipment from MirrorMorph; area 6 The Personal Touch; area 10 Red Herrings; area 11 Snare!, Matrix Analyzer; area 15 Cyberfeeder, The Toolbox. S3b: area 1 Burke Bugs; area 4 Fetal AI; area 7 Chimera; area 14 Jinteki: Replicating Perfection; area 15 Spinal Modem.
@@ -626,6 +643,7 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
   - **Visibility (area 4):** GlobalSec Security Clearance shows the Corp the top of R&D instead of letting it look; Glenn Station's log names a facedown hosted card in the Runner's view.
   - **Game gets stuck:** Paintbrush (no legal Runner action after it), Vovô Ozetti and Konjin and Caprice Nisei loops (P1-l).
 - **PF-S3 is now about 180 cards** and will grow with S3g–S3m. See Not yet decided.
+- **S3i** sends Top Hat, Psychokinesis, Credit Crash, Mind Game and Anson Rose to PF-S3 as fix-now cards, and four log lines that name hidden cards to area 4.
 
 ## Re-audit of the earlier programs, and interaction check
 
@@ -649,7 +667,7 @@ P1-l's run-timing and forced-encounter scenarios are evidence for area 14 and RA
 Risk = how often the procedure runs × how bad a wrong result is × how many paths bypass the helper. Dependencies also matter: trash and hosting sit under swap, uninstall and install.
 
 - **Area 1: Hosting and trash** (done 2026-11-19, [results](#area-1-results-2026-11-19)). Two confirmed bugs (OCA, the stale `hostedCardIds`). No hosting helper, two representations, 21 trash copies plus ~90 inline sites. Every later area calls these.
-- **Area 2: Uninstall, ice removal and run position (8.5.10, ch. 6, 8.3 rearrange).** No uninstall helper; `onUninstall` never fires outside trash; position drift touches every run; Mandatory Seed orphan ice. Needs area 1's hosted release.
+- **Area 2: Uninstall, ice removal and run position (8.5.10, ch. 6, 8.3 rearrange)** (done 2026-11-20, [results](#area-2-results-2026-11-20)). No uninstall helper; `onUninstall` never fires outside trash; position drift touches every run; Mandatory Seed orphan ice. Needs area 1's hosted release.
 - **Area 3: Swap (8.8).** Finish what #893/#894 started: 13 kinds outside the helpers, plus Tāo. Needs the uninstall helper from area 2.
 - **Area 4: Visibility (1.21, 10.2).** Moved up because Phase 6, the Discord Activity, puts hidden information in front of real opponents. Wrong citations and raw state clones.
 - **Area 5: Corp install (8.5).** 42 bypasses; every ice bypass can desync the position (made safe by area 2).
@@ -715,6 +733,21 @@ Done in engine #942 (release `v1.147.264`) and game #313.
 - **CI.** The playout-blocker replays took over 5 s on CI on master too; engine #942 gave them the playout suites' 60 s timeout.
 - **Fix-now findings** (reported to the program session, not fixed here): Alexa Belsky trashes the HQ cards it should keep; Marilyn Campaign always shuffles, though its text says "you may"; Simulchip's "an installed program has already been trashed this turn" is met by any installed Runner card's trash, by either player.
 
+### Area 2 results (2026-11-20)
+
+Done in engine #971 (release `v1.147.270`) and #972 (release `v1.147.271`), game #321 and meta #316.
+
+- **Helpers.** `src/state/procedures/uninstall.ts`: `uninstallCard(state, id, destination)` (hand, deck top/bottom/shuffle, removed from game, score area), `removeCardFromGame` (CR 4.9.2), `ceaseVacantPositions` (10.3.1i, moved out of checkpoints.ts). `src/state/procedures/rearrange.ts`: `rearrangeIce` (8.3.1, 8.3.2 swaps, 8.3.2a; Runner follows encountered ice 6.2.7d, else keeps position 6.2.7b/e) and `moveIce` (6.2.2a/b, 6.2.7a, 6.2.7d). `src/state/runPosition.ts` gains `moveRunnerToOutermost` (6.2.8b), `moveRunnerToIce` (6.2.8a), `runnerCanMoveToPosition` (6.2.8c), `setAttackedServer`, `notePositionsCeased`, `followEncounteredIce`. `removeCardFromCurrentZone` records `turn.hostsUninstalled` so 10.3.1g trashes cards hosted on a host that went installed → score area.
+- **Routed.** ~35 uninstall sites, the three rearrange kinds (now one `rearrange_ice`), the ice moves (Bullfrog, Sand Storm, Tributary, Formicary, Builder), every redirect (Mind Game, Susanoo, AgInfusion, Proprionegation, Cell Portal, Letheia, Mirāju, Baker, Copycat, Slipstream, Maintenance Access, Omar, nested/queued breaches). Four trash sites no longer pre-remove the card.
+- **Write guard.** `position` 4 → 0 and `attackedServerId` 18 → 0 outside runPosition.ts; `ice` 47 → 31 (rest are installs, area 5, and swaps, area 3); `installed` 67 → 49; `removedFromGame` 53 → 23; `root` 44 → 39.
+- **Baselines.** Invariant entries with area 2 codes 88 → 35 (all 35 left are hand-built test states in 13 test files). Playout seeds 11 → 10 (core seed 14). Area 2 uncited subrules (1.17) 39 → 23.
+- **IR.** `rearrange_ice` replaces `rearrange_server_ice`, `escher_rearrange_pick_server`, `escher_rearrange_server_ice` and the two MSR continuations (all engine-built; no card JSON change). Kinds 1,532 → 1,528. `set_skip_breach` is now live (left the dead list). Nothing for paired cut A.
+- **Mutation score** (three helpers): 85.40% at first draft, 93.43% at close. No survivor changes a CR-cited outcome (`docs/mutation-scores.md`).
+- **CR examples.** None of the 12 uncovered examples is area 2's.
+- **Hand check** (game #321): run through Jua bouncing Muertos Gang Member; on v1.147.271 the Corp is asked and rezzes Ice Wall free; invariants clean. On v1.147.270 the panel showed the uninstall ability CANCELLED, which led to #972 (CR 9.1.8g).
+- **Behavior changes.** MSR keeps per-server ice counts (cr-checker confirmed CR 8.3.2); Mind Game no position instead of −1; Susanoo now moves position; AgInfusion outermost not innermost; Baker/Maintenance Access approach the server not its ice; rearrange labels/log hide unrezzed ice titles; uninstalled cards lose counters (1.17.5, 1.13.13).
+- **Process.** #971 named a Muertos Gang Member test that only checked a log line; the hand check caught the bug, fixed in #972 (CR 9.1.8g). A proof test that fails on the old code should assert state, not a log line.
+
 ### Phase 6 gate
 
 *Added 2026-11-12. Revised 2026-11-19: every format is clean before the gate, and all formats open at once. Revised again 2026-11-19: Phase 6 waits for the whole program.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), starts when this program is done: every item in the final state under [Verification of the program itself](#verification-of-the-program-itself) is true. In particular:
@@ -754,7 +787,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | P1-i kind reference | engine | P1-a | 1.11: generate `docs/effect-ir-kinds.md` from `ir.ts`, add the stale-file test, and link it from `effect-ir.md`; test-only. |
 | P2 guardrails | engine | after P1 | AST write guard with baseline replacing the regex guard; kind liveness and state-change coverage replacing the mention rule; engine-built kind names; the shrink-only kind and flag counts; the citation-topic test made failing after cr-checker's review. |
 | PB playout blockers | engine (+ game, meta pins) | after P2, before P3-1 | Fix clusters B1 and B2 from the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15) table: CR first, cr-checker on the diff, tests that cite the rule, seeds fixture entries removed, one maintenance release, pins. |
-| P3-1 … P3-16 | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; 14 runs after 4 and before 5; 16 may run alongside 8 and 9; 15, 12, 13 and 11 run in that order after 9; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
+| P3-1 … P3-16 (P3-1 done: engine #942; P3-2 done: engine #971, #972) | engine (+ cards, game) | areas 8 and 9 may run alongside 5–7; 14 runs after 4 and before 5; 16 may run alongside 8 and 9; 15, 12, 13 and 11 run in that order after 9; area 10 goes last; the rest go in order | The per-area recipe on the area's row: inventory, evidence, cr-checker, shared helper, IR merge (aliases until the paired cut), tests citing CR, one maintenance release, pins. |
 | Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-14, P3-5 … P3-9, P3-16) / after P3-10 (P3-15, P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
 | ~~P1-j kind and phrase check~~ (done, engine #941) | engine | now, beside P3-1 | 1.12: the kind-to-phrase table, the check against `printed/`, flag-built kinds from the 1.10 map, polarity; baseline; test-only. |
 | ~~P1-k section map~~ (done, engine #956) | engine (tests only) | beside any session that writes another repo; before areas 14–16 start | 1.13: the owner table for every CR section at the pin, the test that fails on a missing section, the shrink-only `none` baseline, and citation counts per section. Test-only. |
