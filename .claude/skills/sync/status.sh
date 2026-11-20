@@ -44,6 +44,18 @@ report "$root/netrunner-cards-data" netrunner-cards-data master
 report "$root/netrunner-comprehensive-rules-data" netrunner-comprehensive-rules-data master
 report "$root/netrunner-game" netrunner-game master
 
+echo "== upstream reference clones (../upstream, read-only)"
+up="$root/../upstream"
+if [ -d "$up" ]; then
+  for d in "$up"/*/; do
+    git -C "$d" rev-parse --git-dir >/dev/null 2>&1 || continue
+    git -C "$d" fetch -q origin 2>/dev/null || { echo "   $(basename "$d"): fetch failed"; continue; }
+    echo "   $(basename "$d"): behind $(git -C "$d" rev-list --count 'HEAD..@{u}' 2>/dev/null || echo '?')"
+  done
+else
+  echo "   none (no ../upstream folder)"
+fi
+
 echo "== pins"
 python3 -I - "$root" <<'EOF'
 import json, sys, subprocess
