@@ -52,7 +52,7 @@ Do this when the day's work stops, for each of the four repos. Pins stay on the 
 5. Leave the checkout on `master` unless a new task has already started on a branch.
 6. After a wave of merges, prune stale **local** `claude/*` branches whose remotes are gone (`git fetch --prune origin`, then delete local branches whose tips are in `master`).
 
-Then do the same for the meta repo (the `Netrunner` folder itself), with these differences: its branch is `main`; its one check is `public-check` and it has no branch protection, so squash-merge once `public-check` passes; and `delete_branch_on_merge` is off, so merge with `gh pr merge --squash --delete-branch`. Leave it on `main`.
+Then do the same for the meta repo (the `Netrunner` folder itself), with these differences: its branch is `main`; its ruleset `main-protection` requires a PR and the `public-check` check, so squash-merge once `public-check` passes; and `delete_branch_on_merge` is off, so merge with `gh pr merge --squash --delete-branch`. Leave it on `main`.
 
 If the session ends without this pass, the next session runs it before new work.
 
@@ -93,7 +93,8 @@ If the session ends without this pass, the next session runs it before new work.
 ### Ruleset notes
 
 - **`master-protection`:** no deletions, no force-push; require PR; **0** approvals; required checks `test` and `pr-body` (engine and game) / `validate` (cards) / `transform-validate` (CR).- **`release-tags`:** protects `refs/tags/v*` from deletion and force-push.
-- **Bypass:** only the admin role, in all eight rulesets. A bypass for an app that is no longer connected makes GitHub reject every edit to that ruleset; the stale Cursor app entry was removed from all of them on 2026-11-19 for that reason.
+- **Meta repo `main-protection`:** the same rules on `main` (no deletions, no force-push, require PR, **0** approvals), with required check `public-check`. No tag ruleset: the meta repo has no releases.
+- **Bypass:** only the admin role, in all nine rulesets. A bypass for an app that is no longer connected makes GitHub reject every edit to that ruleset; the stale Cursor app entry was removed from all of them on 2026-11-19 for that reason.
 - Agents typically cannot PATCH settings / POST rulesets (403); Nathaniel applies changes. Recreate payloads (if ever needed) live in git history of this doc / prior receipts — not outstanding work.
 
 ## CI gate
