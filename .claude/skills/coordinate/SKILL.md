@@ -1,6 +1,6 @@
 ---
 name: coordinate
-description: Brief and check the slice sessions of a plan in docs/plans/. Gives the template every brief to a fresh slice session must fill in (slice, shared pieces, done, proof, findings, scope, stop rule, who else is writing), the model and effort to start it with, and what to verify when a slice reports back. Use when a session coordinates a plan, starts a session for a slice, or checks a slice's result.
+description: Brief and check the slice sessions of a plan in docs/plans/. Gives the template every brief to a fresh slice session must fill in (slice, shared pieces, done, proof, review, findings, scope, stop rule, who else is writing), the model and effort to start it with, and what to verify when a slice reports back. Use when a session coordinates a plan, starts a session for a slice, or checks a slice's result.
 ---
 
 # /coordinate
@@ -43,6 +43,13 @@ Proof: <the proof from the plan's "Tests" for this slice: a played match or
 part of one, a before-and-after screenshot or recording, or a test named for
 the behavior in plain words>. Name it in the PR.
 
+Review: <"code" if the slice changes code or tests in engine src/, the game,
+or a cards script; "none" for docs, plan, or card-data-only slices>. For a
+code slice, run /code-review on the diff before opening the PR (high for
+engine src/, medium otherwise). It reviews in a fresh context, so it can
+catch a test that checks the wrong thing. Fix what it confirms, and give the
+PR a "Review" line: the level, what it found, and what you fixed or why not.
+
 Found, not fixed: the PR has this section, listing each finding, where it
 went, and why, per the Findings table in docs/how-we-work.md. Only a
 fix-now finding gets a proposed session.
@@ -64,6 +71,7 @@ Its report is a claim, not proof. Check before telling Nathaniel the slice is do
 
 - The PR is merged, and its required check passed (`gh pr view <n> --json state,statusCheckRollup`).
 - The PR names the proof the brief asked for.
+- If the brief asked for a code review, the PR has its "Review" line, and nothing it confirmed is left unfixed without a reason.
 - The PR has a "Found, not fixed" section, and each filed finding is where the PR says.
 - If engine `src/` changed, the release tag, game pin, and meta pin table line up (`bash .claude/skills/sync/status.sh` prints this).
 - The plan marks the slice done.
