@@ -34,7 +34,11 @@ From the status report's pins section:
 - **Game pins behind the latest engine or cards tag**, or **engine pins behind the latest cards or CR tag:** report it. Bump only when a release in this session intended it.
 - Never move a pin to `master`; pins name release tags.
 
-## 4. Finish
+## 4. Upstream reference clones
 
-- Every checkout on its default branch (`main` for meta, `master` for the four), level with origin, clean.
+If the status report lists clones under `../upstream` (beside the workspace folder) that are behind, pull them: `for d in ../upstream/*/; do git -C "$d" pull --ff-only -q; done`. They are read-only references, so there is nothing to ship. If a pull is not a fast-forward, report it and leave that clone alone.
+
+## 5. Finish
+
+- Every checkout on its default branch (`main` for meta, `master` for the four), level with origin, clean, and the upstream clones pulled.
 - Report per repo in a few lines: what merged (PR links), what was released, anything left and why.

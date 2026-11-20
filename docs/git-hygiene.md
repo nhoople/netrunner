@@ -54,6 +54,8 @@ Do this when the day's work stops, for each of the four repos. Pins stay on the 
 
 Then do the same for the meta repo (the `Netrunner` folder itself), with these differences: its branch is `main`; its ruleset `main-protection` requires a PR and the `public-check` check, so squash-merge once `public-check` passes; and `delete_branch_on_merge` is off, so merge with `gh pr merge --squash --delete-branch`. Leave it on `main`.
 
+Last, if the read-only upstream reference clones sit beside the workspace folder (`../upstream`), fast-forward each one so the next session reads current code. Nothing builds against them, so this ships nothing.
+
 If the session ends without this pass, the next session runs it before new work.
 
 ## `claude/*` branch lifecycle
