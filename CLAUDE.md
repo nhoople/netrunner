@@ -1,6 +1,6 @@
 # Netrunner workspace
 
-This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/agents/`. It is public: keep secrets, local paths, and personal notes out of it. `notes.md` stays local (gitignored).
+This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/agents/`. It is public: keep secrets, local paths, and personal notes out of it. Its `Public check` workflow fails a PR that adds a local path, an email address, or a secret. `notes.md` stays local (gitignored).
 
 Inside it are four separate git repositories, gitignored by the meta repo (not submodules):
 
@@ -62,6 +62,8 @@ Before committing in any of those repos:
 - Add or update a test there for the behavior. A game test does not cover an engine rules change.
 - Run that repo's tests and leave them passing. Engine: `npm test` in `netrunner-engine` (the affected file first, then the suite for a rules change). Cards: the cards CI validate script. Game: `npm test`.
 - If a change needs card data the engine pin does not have yet, the engine suite still has to pass against the pinned catalog.
+
+A `PreToolUse` hook (`.claude/hooks/commit-nudge.mjs`) reminds a session of this, and of `cr-checker`, when it commits engine or game source with no test file, or engine source before running `cr-checker`.
 
 ## Effect IR names
 

@@ -1,0 +1,20 @@
+name: Public check
+
+# This repo is public. Fail a PR that adds a local path, an email address,
+# or something shaped like a secret. See .github/scripts/check-public.sh.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check added lines
+        run: bash .github/scripts/check-public.sh "origin/${{ github.base_ref }}"
