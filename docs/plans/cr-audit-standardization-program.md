@@ -18,6 +18,8 @@
 
 *Revised 2026-11-19: sweep S1 (Startup) done in engine #943–#945: 164 cards match, 35 wrong, 26 filed. PF-S1 (engine #948, release `v1.147.265`, game #314) fixed 14 wrong cards and the area 1 trash-hook finding, moved 6 to their areas, and left 15 for paired cut A ([S1 results](#s1-results-2026-11-19)). The S1 filed cards are in the findings table.*
 
+*Revised 2026-11-19: sweep S2a (Ashes, engine #947) and S2b (Borealis, engine #946) done; S2c (Liberation) started. Added [Shared pieces](#shared-pieces) and [Out of scope](#out-of-scope), which the coordinate skill needs for every area brief.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -35,6 +37,30 @@ This program builds tools that find CR violations across the whole engine. It th
 | A CR-cited engine | Phase 1 tools, the Phase 2 guards, and the shared helpers of areas 1–9 |
 | A documented card format | The flag inventory (1.10), the generated kind reference (1.11), the count guard (Phase 2), the kind merges in each area, and area 10 |
 | Discord-native play | Area 4 (visibility), the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate), and the [Phase 6 gate](#phase-6-gate), which starts the Activity once every format is clean |
+
+## Shared pieces
+
+*Added 2026-11-19.* Each area builds one helper for its procedure, and every later slice calls it instead of writing its own. A slice that needs a piece its area has not built yet stops and says so; it does not write a local copy. The names and CR rules come from the [Areas](#areas) table and the area results.
+
+| Procedure | Owner | CR | State |
+|---|---|---|---|
+| Hosting | `src/state/procedures/host.ts`: `hostCard`, `unhostCard`, `unhostAllFrom`, the only writers of `hostId` and `hostedCardIds` | 1.13.13, 10.3.1g | Built (area 1) |
+| Trash and discard, both sides | `src/state/procedures/trash.ts`: `trashCard(state, id, { by, cause, faceup, preventable, simultaneousSet })`, `discardCard` | 1.14.5, 4.4.6b, 10.3.1g | Built (area 1) |
+| Run position and redirects | `src/state/runPosition.ts`: `setRunnerPosition`, `moveRunnerInward`, `noteIceUninstalled`, `addOutermostIce` | 6.2.4, 6.2.6, 6.2.7a/c/e | Exists; area 2 routes every position write through it |
+| Uninstall and ice removal | `src/state/procedures/uninstall.ts`: `uninstallCard(id, destination)`, which calls `noteIceUninstalled`, fires `onUninstall`, and releases hosted cards through area 1 | 8.5.10 | Area 2 |
+| Rearrange | `src/state/procedures/rearrange.ts`, with a run guard and position fix-up | 8.3.1, 8.8.2 | Area 2 |
+| Swap | `src/state/procedures/swap.ts`: `swapCards(a, b)`, built on the uninstall helper and the three ice-swap helpers | 8.8.1–8.8.4d | Area 3 |
+| What a seat can see | One seat-view filter in the engine (`seatVisibility.ts`, `getPublicView`) that redacts every payload; the game's spectator view built from it | 1.21.1–1.21.6, 10.2.1–10.2.3b | Area 4 |
+| Corp install | `installCorp` with `{ source, destination, costMode, rezAfter, advancements, faceup }` | 8.5.1–8.5.11 | Area 5 |
+| Runner install | `installRunner` with the same options, MU and console limits | 8.5 | Area 6 |
+| Rez and derez | `src/state/procedures/rez.ts`: `rezCard(id, { costMode })`, `derezCard(id)` | rez and derez rules in ch. 8 (area 7 cites them) | Area 7 |
+| Access | the `access_card` kind | 7.1–7.5 | Area 8 |
+| Damage and prevention | `dealDamage` / `resolveDamage`; one prevent helper for the `prevent_*` kinds | damage and prevention rules in ch. 10 (area 9 cites them) | Damage exists; prevention is area 9 |
+| Counters and advancement | `src/state/procedures/counters.ts`: `placeCounters(id, type, n)`, `removeCounters` | ch. 1 and 8 (area 12 cites them) | Area 12 |
+| Search, shuffle and deck order | `src/state/procedures/deck.ts`: one search and one shuffle helper on the game's seeded random | area 13 cites them | Area 13 |
+| Actions, breaking, play costs | `src/state/procedures/action.ts`, which records an action once with its type; one break helper; play costs charged in one place | 5.1–5.7, 6.5, 9.8.5, 8.6.2, 1.16 | Area 11 |
+
+Tools every slice uses: the `lookup` skill for CR and card text, the `cr-checker` agent, `expectStateDelta` (`tests/kind-coverage.ts`) for state assertions, the invariants in `src/debug/invariants.ts`, the Phase 1 baselines in `tests/baselines/`, and the game's verification table (V3 positions, V5 fixture export) for hand checks.
 
 ## Inventory (engine `v1.147.251`, cards `v1.147.22`)
 
@@ -430,6 +456,18 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
   - Urtica Cipher: `onAccessRequiresInstalled`.
   - Also for cut A: rename `host_all_programs_from_grip` (Madani picks any number now), add Flagship's `persistent` flag, and IP Enforcement's play cost once confirmed against the printed card (the NSG catalog stores it as null, as it does X; jnet charges X).
 
+### S2 progress (2026-11-19)
+
+| Cycle | Cards | Match | Wrong | Filed |
+|---|---|---|---|---|
+| Ashes (S2a, #947) | 130 | 93 | 19 | 18 |
+| Borealis (S2b, #946) | 128 | 95 | 27 | 6 |
+| Liberation (S2c) | 130 | running | | |
+
+- **Fix-now (visibility).** Four wrong cards show a seat information it should not see (CR 10.2.2a, 10.2.2b): Vera Ivanovna Shuyskaya shows the Corp the grip before any reveal; Complete Image shows the Corp the titles in the Runner's grip and stack; Whistleblower shows the Runner every card title in HQ and R&D; Architect Deployment Test installs an agenda faceup (8.5.2). Both sweep PRs recorded them as wrong and left the call to the coordinator. Decided 2026-11-19: PF-S2 starts right after S2c and fixes these four first.
+- PF-S1's shared fix to `place_advancements` (the Corp chooses) may already cover part of the S2 `place_advancements` cards (Big Deal, Pravdivost Consulting, Shipment from Vladisibirsk, Vasilisa, Vladisibirsk City Grid). PF-S2 re-checks each before changing them.
+- The record is `tests/baselines/printed-sweep.json`; each PR's "Found, not fixed" section lists the filed cards by area.
+
 ## Phase 3: audit and standardize by procedure
 
 ### Order and why
@@ -556,11 +594,20 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | 2026-11-19 | Before the Phase 6 gate, every format is swept and every wrong card is fixed, including the ones an area owns. The gate waits for those areas; run an area early if it holds most of the findings | No player meets a card known to play wrong |
 | 2026-11-19 | The Activity opens all formats at once: Learn to play, Startup, Core Sets, Standard, and Eternal | One launch and one checklist, since every format is clean before the gate |
 | 2026-11-19 | The sweep leaves labels alone | It reads the printed text directly. Labels stay in each area's paired cards release |
+| 2026-11-19 | The four S2 visibility leaks (Vera Ivanovna Shuyskaya, Complete Image, Whistleblower, Architect Deployment Test) are fixed first in PF-S2, which starts right after S2c, not in a session of their own | The engine has one writer at a time, so no session could start sooner; one session and one release (CR 10.2.2a) |
 | 2026-11-19 | Keep the plan order for areas 5–13 after the sweep | Nathaniel kept the order. The gate still waits for every area that holds a sweep finding |
 
 ## Not yet decided
 
 - ~~**The order of areas 5–13 after the sweep.**~~ Decided 2026-11-19: keep the plan order (see Decisions for a human).
+
+## Out of scope
+
+- Phase 6 itself. The Discord Activity is [`discord-activity.md`](discord-activity.md); this plan only decides when it may start.
+- Fixing a shared procedure card by card before its area runs (see [Fixes](#fixes)).
+- Labels outside an area's paired cut, and card JSON outside the three paired cuts or a paired cards release.
+- New card support, and UI beyond the verification table's hand checks.
+- Changing the release model: the repos stay separate and consume each other by tag.
 
 ## Verification of the program itself
 
