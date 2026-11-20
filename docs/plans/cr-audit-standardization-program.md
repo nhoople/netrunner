@@ -18,6 +18,8 @@
 
 *Revised 2026-11-19: sweep S1 (Startup) done in engine #943–#945: 164 cards match, 35 wrong, 26 filed. PF-S1 (engine #948, release `v1.147.265`, game #314) fixed 14 wrong cards and the area 1 trash-hook finding, moved 6 to their areas, and left 15 for paired cut A ([S1 results](#s1-results-2026-11-19)). The S1 filed cards are in the findings table.*
 
+*Revised 2026-11-19: sweep S2 (Standard) done in engine #946, #947 and #949: 388 cards, 271 match, 76 wrong, 41 filed ([S2 results](#s2-results-2026-11-19)). PF-S2 is next, then a fix-now session for icebreaker strength.*
+
 *Revised 2026-11-19: sweep S2a (Ashes, engine #947) and S2b (Borealis, engine #946) done; S2c (Liberation) started. Added [Shared pieces](#shared-pieces) and [Out of scope](#out-of-scope), which the coordinate skill needs for every area brief.*
 
 ## Why
@@ -211,6 +213,15 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 5 Corp install | The install-time trash in `installCorp.ts` passes no `faceup`, so a card the Runner is looking at goes faceup; the region-limit path already keeps the installed face | cr-checker (engine #942) | 8.5.7 |
 | 6 Runner install | The memory-limit trash at checkpoint 10.3.1e records no player; the Runner carries it out | cr-checker (engine #942) | 3.9.3c, 1.14.5a |
 | 9 Damage and prevention | No test observes Director Haas's pending record (`controller`, `mandatory`, `independentOfSource`); its ability resolves in the same instruction. 7 surviving mutants in `procedures/trash.ts` | Stryker (engine #942) | 9.6.12 |
+| 3 Swap | Cordyceps and Tatu-Bola write the ice arrays directly, outside the swap helpers | sweep S2a, S2c (engine #947, #949) | 8.8 |
+| 4 Visibility | `mustRevealWhenAccessedFromRd` only writes a log line; nothing records a reveal (Ganked!, Increased Drop Rates, Behold!) | sweep S2a, S2c | 1.21 |
+| 5 Corp install | Effect installs through inline copies or `may_install_from_hq_paying_costs`, which always makes a new remote, skips trashing a card already in the root, or skips install triggers: Kakurenbo, Red Level Clearance, Secure and Protect, Vaporframe Fabricator, Digital Rights Management, Architect Deployment Test, A Teia, Active Policing, Eminent Domain, Greasing the Palm, Janaína "JK" Dumont Kindelán, Warm Reception | sweep S2a, S2c | 8.5 |
+| 6 Runner install | Effect installs drop programs over free MU, trojans and install-on-ice cards: Into the Depths, Rigging Up, Spark of Inspiration, World Tree, Gachapon, Self-modifying Code, The Artist, Rejig, Simulchip, Arissana Rocha Nahu, Bahia Bands, Privileged Access, The Price, Window of Opportunity | sweep S2a–S2c | 8.5, MU rules |
+| 10 Card flags | The "not rezzed and not persistent, skip" test at 12 sites treats an unrezzed persistent card as active; persistence applies only to a rezzed card the Runner trashes (Daniela Jorge Inácio, Tucana) | sweep S2c | 9.12.5a |
+| 11 Turn structure | Paid-ability breaks check no strength, and the paid-break path skips Hammer's break limit (Audrey v2, Curupira, Lobisomem, Living Mural, Slap Vandal, Umbrella, Banner). Fix-now session after PF-S2 | sweep S2c | 3.9.5g, 9.3.6c |
+| 11 Turn structure | Additional costs are not checked for payability before the effect: End of the Line plays with no tags, Vasilisa places its counter unpaid | sweep S2b | 1.16.10b, 1.16.11a |
+| 12 Counters and advancement | `place_advancements` candidate lists keep only agendas and advanceable cards, but placing counters is not advancing (Big Deal, Akhet, La Costa Grid, Remastered Edition, Sericulture Expansion, Cohort Guidance Program, Stoke the Embers, The Holo Man); no split mode for "a total of" (Shipment from Vladisibirsk) | sweep S2a–S2c | 1.18.2 |
+| 13 Search and shuffle | `search_rd_type_to_hq` takes the first match and does not shuffle on a miss (Gaslight, Wave, Fast Track, Levy University, Executive Boot Camp, Digital Rights Management) | sweep S2a, S2b | 8.7.2, 8.7.3 |
 | 11 Turn structure | An ended current is trashed at the checkpoint after the new current resolves, not at the 8.6.7e checkpoint before it | cr-checker (engine #942) | 8.6.7d–f, 3.5.1b |
 | 11 Turn structure | Lockdowns are trashed in the turn-begin step just before the checkpoint, not during it | cr-checker (engine #942) | 3.5.1c |
 | 3 Swap | Mutation score 32% (61% of covered). Removing the hosted-card trash, the swap checkpoint's install handling, or any legality gate in `canSwapIntoPlaceOf` survives | Stryker | 8.8.4b, 8.8.2 |
@@ -456,17 +467,20 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
   - Urtica Cipher: `onAccessRequiresInstalled`.
   - Also for cut A: rename `host_all_programs_from_grip` (Madani picks any number now), add Flagship's `persistent` flag, and IP Enforcement's play cost once confirmed against the printed card (the NSG catalog stores it as null, as it does X; jnet charges X).
 
-### S2 progress (2026-11-19)
+### S2 results (2026-11-19)
 
 | Cycle | Cards | Match | Wrong | Filed |
 |---|---|---|---|---|
 | Ashes (S2a, #947) | 130 | 93 | 19 | 18 |
 | Borealis (S2b, #946) | 128 | 95 | 27 | 6 |
-| Liberation (S2c) | 130 | running | | |
+| Liberation (S2c, #949) | 130 | 83 | 30 | 17 |
+| **Standard** | **388** | **271** | **76** | **41** |
 
-- **Fix-now (visibility).** Four wrong cards show a seat information it should not see (CR 10.2.2a, 10.2.2b): Vera Ivanovna Shuyskaya shows the Corp the grip before any reveal; Complete Image shows the Corp the titles in the Runner's grip and stack; Whistleblower shows the Runner every card title in HQ and R&D; Architect Deployment Test installs an agenda faceup (8.5.2). Both sweep PRs recorded them as wrong and left the call to the coordinator. Decided 2026-11-19: PF-S2 starts right after S2c and fixes these four first.
+- **Fix-now (visibility).** Six wrong cards show a seat information it should not see (CR 10.2.2a, 10.2.2b): Vera Ivanovna Shuyskaya shows the Corp the grip before any reveal; Complete Image shows the Corp the titles in the Runner's grip and stack; Whistleblower shows the Runner every card title in HQ and R&D; Architect Deployment Test installs an agenda faceup (8.5.2); Pivot leaves the card it found faceup in HQ, and Epiphany Analytica does the same when its install is refused (1.21.3, 1.21.6). The sweep PRs recorded them as wrong and left the call to the coordinator. Decided 2026-11-19: PF-S2 starts right after S2c and fixes these six first.
 - PF-S1's shared fix to `place_advancements` (the Corp chooses) may already cover part of the S2 `place_advancements` cards (Big Deal, Pravdivost Consulting, Shipment from Vladisibirsk, Vasilisa, Vladisibirsk City Grid). PF-S2 re-checks each before changing them.
-- The record is `tests/baselines/printed-sweep.json`; each PR's "Found, not fixed" section lists the filed cards by area.
+- **Fix-now (breaking).** Paid-ability breaks (`break_encounter_subroutine`, `break_host_subroutine`) check no strength, so a strength-1 Curupira breaks a strength-3 Wall of Static (CR 3.9.5g, 9.3.6c). About 38 breakers break only this way. Decided 2026-11-19: a session of its own right after PF-S2, before area 2. cr-checker's caution: 69 programs carry an `interface` flag on their pump that the printed cards do not, so a gate keyed on that flag would stop them pumping.
+- Arissana Rocha Nahu cannot install trojans or install-on-ice programs. Decided 2026-11-19: it stays with area 6, with the rest of that cluster.
+- The record is `tests/baselines/printed-sweep.json`; each PR's "Found, not fixed" section lists the filed cards by area, and the findings table below has a row per area.
 
 ## Phase 3: audit and standardize by procedure
 
@@ -579,6 +593,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | Paired cut A / B / C | cards + engine + game + meta | after P3-4 / after P3-9 (P3-5 … P3-9) / after P3-10 (P3-12, P3-13, P3-11, P3-10) | Rewrite card JSON to the merged kinds, add the areas' labels, drop the aliases, paired release, pins. |
 | ~~P1-j kind and phrase check~~ (done, engine #941) | engine | now, beside P3-1 | 1.12: the kind-to-phrase table, the check against `printed/`, flag-built kinds from the 1.10 map, polarity; baseline; test-only. |
 | PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
+| FX-breakers | engine (+ game, meta pins) | after PF-S2, before P3-2 | The paid-ability break path checks strength (CR 3.9.5g) and the break limits, without the `interface` pump flag stopping printed pumps. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
 | Phase 6 start | game | after the sweep, its fixes, and every area holding a sweep finding | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
 
@@ -595,6 +610,8 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | 2026-11-19 | The Activity opens all formats at once: Learn to play, Startup, Core Sets, Standard, and Eternal | One launch and one checklist, since every format is clean before the gate |
 | 2026-11-19 | The sweep leaves labels alone | It reads the printed text directly. Labels stay in each area's paired cards release |
 | 2026-11-19 | The four S2 visibility leaks (Vera Ivanovna Shuyskaya, Complete Image, Whistleblower, Architect Deployment Test) are fixed first in PF-S2, which starts right after S2c, not in a session of their own | The engine has one writer at a time, so no session could start sooner; one session and one release (CR 10.2.2a) |
+| 2026-11-19 | Paid-ability icebreakers that ignore strength get a fix-now session of their own right after PF-S2, before area 2 | A supported card plays wrong in normal use, and area 11 runs late; PF-S2 is already about 76 cards (CR 3.9.5g) |
+| 2026-11-19 | Pivot and Epiphany Analytica join the visibility leaks PF-S2 fixes first; Arissana Rocha Nahu stays with area 6 | Same class as the four already decided (CR 10.2.2a); Arissana is one copy of the Runner install cluster area 6 replaces |
 | 2026-11-19 | Keep the plan order for areas 5–13 after the sweep | Nathaniel kept the order. The gate still waits for every area that holds a sweep finding |
 
 ## Not yet decided
