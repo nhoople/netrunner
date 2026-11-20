@@ -49,9 +49,10 @@ up="$root/../upstream"
 if [ -d "$up" ]; then
   for d in "$up"/*/; do
     git -C "$d" rev-parse --git-dir >/dev/null 2>&1 || continue
-    git -C "$d" fetch -q origin 2>/dev/null || { echo "   $(basename "$d"): fetch failed"; continue; }
-    echo "   $(basename "$d"): behind $(git -C "$d" rev-list --count 'HEAD..@{u}' 2>/dev/null || echo '?')"
+    git -C "$d" fetch -q origin 2>/dev/null || echo "   $(basename "$d"): fetch failed"
   done
+  # What the fetched changes bring in, and whether they touch our cards or decks.
+  python3 -I "$root/.claude/skills/sync/upstream_report.py" "$root"
 else
   echo "   none (no ../upstream folder)"
 fi

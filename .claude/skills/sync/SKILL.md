@@ -36,7 +36,10 @@ From the status report's pins section:
 
 ## 4. Upstream reference clones
 
-If the status report lists clones under `../upstream` (beside the workspace folder) that are behind, pull them: `for d in ../upstream/*/; do git -C "$d" pull --ff-only -q; done`. They are read-only references, so there is nothing to ship. If a pull is not a fast-forward, report it and leave that clone alone.
+The status report's upstream section (`upstream_report.py`) says what the clones under `../upstream` (beside the workspace folder) would bring in and whether it touches our work: jinteki card definitions or card tests for cards in our catalog, jinteki core rules files, how far the cards repo's NSG catalog pin is behind and which catalog files differ, and NetrunnerDB deck legality or format files. It compares each clone with what was fetched, so read it before pulling.
+
+- Report what it flags to Nathaniel as findings ("Found, not fixed" in `docs/how-we-work.md`): which of our cards to check against the engine, and whether the catalog pin should move. Do not fix them or move a pin in a sync; offer a separate session for a card check.
+- Then pull the clones: `for d in ../upstream/*/; do git -C "$d" pull --ff-only -q; done`. They are read-only references, so there is nothing to ship. If a pull is not a fast-forward, report it and leave that clone alone.
 
 ## 5. Finish
 
