@@ -28,6 +28,10 @@
 
 *Revised 2026-11-19: added the CR section coverage map (1.13) and its [first pass](#cr-section-owners-first-pass-2026-11-19): 24 CR sections, plus three deck-construction characteristics, had no area and no earlier program. They get areas 14 (run flow), 15 (keywords and credits) and 16 (game setup and end), and the Phase 6 gate waits for them. Added the [re-audit of the earlier programs and the interaction check](#re-audit-of-the-earlier-programs-and-interaction-check), which start now beside area 2.*
 
+*Revised 2026-11-19: added six checks that reduce what the audit can still miss: official rulings as tests (1.14), the timing walk in the playouts (1.15), a second reader on another model (1.16), subrule citation coverage (1.17), ability fire coverage (1.18), and the cited-rule change check (1.19).*
+
+*Revised 2026-11-19: Phase 6 now waits for the whole program; the [gate](#phase-6-gate) is the program's final state. The second reader (1.16) uses Fable 5.2.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -44,7 +48,7 @@ This program builds tools that find CR violations across the whole engine. It th
 |---|---|
 | A CR-cited engine | Phase 1 tools, the Phase 2 guards, and the shared helpers of areas 1–9 |
 | A documented card format | The flag inventory (1.10), the generated kind reference (1.11), the count guard (Phase 2), the kind merges in each area, and area 10 |
-| Discord-native play | Area 4 (visibility), the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate), and the [Phase 6 gate](#phase-6-gate), which starts the Activity once every format is clean |
+| Discord-native play | Area 4 (visibility), the [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate), and the [Phase 6 gate](#phase-6-gate), which starts the Activity once the whole program is done |
 
 ## Shared pieces
 
@@ -197,8 +201,16 @@ They are ordered by expected bugs found per hour. Each tool writes a baseline JS
 | 1.11 | **Generated kind reference.** `scripts/build-kind-reference.mjs` writes `docs/effect-ir-kinds.md` in the engine from `KNOWN_PRIMITIVE_KINDS` and the `Effect` type in `src/effects/ir.ts`: each kind, its fields, how many cards use it, and whether a card or the engine builds it. A test fails when the file is stale, the way `scripts/jnet-status.mjs --write` guards its generated block. `docs/effect-ir.md` links to it | S | `ir.ts`, the IR walk in `one-off-kind-coverage` | Nothing on its own. It makes the card format readable without the engine source, and each area's kind merges show up as a shorter file | Test-only |
 | 1.12 | **Kind and phrase check.** *Added 2026-11-19. Done in engine #941 (test-only): the baseline `tests/baselines/printed-phrases.json` holds 14 cards and 15 hits, and 706 of 905 kinds are paired with a phrase.* `tests/printed-phrases.test.ts` pairs effect kinds with the phrases their printed text should hold (`deal_net_damage` and "net damage", `end_the_run` and "end the run", `gain_credits` and "gain"), and checks each card's kinds against `vendor/cards-data/printed/<id>.json`. It includes the kinds a card flag's reader builds, from the 1.10 map, so a flag can't hide a kind the way Tāo's did. It also flags polarity ("if you do" against "if you do not"). Report and a shrink-only baseline `tests/baselines/printed-phrases.json`. It generalizes the [stale-text audit](done/stale-text-audit.md) | S | 1.10, `vendor/cards-data/printed` | Wrong models whose kind names an effect the card never prints, and guards each card the sweep checks against a later regression | Test-only |
 | 1.13 | **CR section coverage map.** *Added 2026-11-19.* `tests/cr-section-owners.test.ts` reads every section (`n.n`) at the pin from `vendor/cr-data/nodes.json`, and an owner table in `tests/cr-section-owners.json`. Each section has one owner: an area, an earlier program (`fidelity` or `standardization`, both in `docs/plans/done/`), `reference` (definitions with no procedure of their own), or `none`. A section split between owners lists its subrules (8.5 Corp install to area 5, Runner install to area 6, uninstall to area 2). The test fails when a section at the pin is missing from the table, so a CR pin bump shows its new sections. Sections marked `none` go in a shrink-only baseline. The generated table also counts, per section, the `src/` citations and the tests that cite it, from the 1.5 map. It does not check interactions between cards or whether a reading of a rule is right | S | 1.5, 1.6, `vendor/cr-data` | Rules that no area and no earlier program audits; the [first pass](#cr-section-owners-first-pass-2026-11-19) found 24 sections | Test-only |
+| 1.14 | **Official rulings as tests.** *Added 2026-11-19.* `tests/rulings.test.ts` lists every ruling at the cards pin (`vendor/cards-data/rulings/`: 275 rulings on 134 cards at cards `v1.147.25`) and the `it()` that cites it by card and ruling number. Uncited rulings go in a shrink-only baseline `tests/baselines/rulings.json`. A ruling the engine plays wrong is a finding filed under its area, the way the sweep works, not a fix in the tool's session. Only three engine tests mention a ruling today | M–L, in batches | 1.6's pattern, `vendor/cards-data/rulings` | Misreadings and card interactions that the rules body has already answered | Test-only |
+| 1.15 | **Timing walk in the playouts.** *Added 2026-11-19.* During the seeded playouts (1.3), the apply hook records each step of the timing graph (`src/timing/graph.ts`, `machine.ts`) the engine passes through. A checker compares each turn, run, breach and access with the chapter 11 chart that `tests/timing-chart.test.ts` already reads: steps in chart order, none skipped unless an ability skips it (6.1.3), and at a step marked (P), (R) or (S) the matching window is offered when the player can use it. Failures go in the playout baseline. Today the chart is checked against the graph and in hand-built tests; this checks the order the engine really follows with every card in the pools | M | 1.3, `timing-chart.test.ts`, `src/debug/applyHook.ts` | Skipped or misplaced windows and steps across every card in play (Panic Button and Mamba's narrow windows are this kind) | Test-only; engine maintenance if `src/debug/` changes |
+| 1.16 | **Second reader on another model.** *Added 2026-11-19.* A session on a model other than the one that wrote the fix gets only the CR text, the printed text, the rulings and a board position (a V5 fixture), never the engine code or tests, and writes the expected outcome to `tests/second-reader/<batch>.json` with the model's name. A test runs the engine on each position and compares. Each difference goes to cr-checker; one the CR leaves open goes on the disagreement list for Nathaniel. Batches: the CR examples (1.6), the rulings (1.14), the jinteki scenarios (P1-l), then each area's hand checks | M per batch | 1.6, 1.14, P1-l, the V5 fixture export | A rule read the same wrong way by the agent that wrote the fix and by cr-checker | Test-only |
+| 1.17 | **Subrule citation coverage.** *Added 2026-11-19.* `tests/cr-subrule-coverage.test.ts` lists every rule below section level at the pin, other than examples, and the `it()` titles that cite it. Uncited subrules go in a shrink-only baseline, grouped by the owner from 1.13, so each area's evidence step reads its own list. It is 1.6 one level finer | S | 1.6, 1.13 | Rules with an owner but no test, such as 6.3.2a before engine #932 | Test-only |
+| 1.18 | **Ability fire coverage.** *Added 2026-11-19.* The playouts record each card ability (by its 9.3 record) that resolves. `tests/generated/ability-fire-coverage.json` lists, per supported card, the abilities that never fired across the seeded playouts; they go in a shrink-only baseline, and each area's evidence step reads its cards' entries and adds a hand-built test for each | S–M | 1.3, the 9.3 records | Abilities no test and no game ever runs | Test-only |
+| 1.19 | **Cited-rule change check.** *Added 2026-11-19.* `tests/cr-cited-text.test.ts` keeps the text of every rule node that `src/` or a test cites at the pin, in `tests/baselines/cr-cited-text.json`. On a CR pin bump, each cited rule whose text changed fails until someone re-reads the code and tests that cite it and updates the entry with a note. It automates the engine's `docs/cr-pin-bump-checklist.md`; 1.13 already catches new sections | S | 1.5, 1.13 | Changed wording in a rule the engine already follows | Test-only |
 
 Order 1.1 → 1.2 → 1.3 → 1.4 → 1.5a → 1.6 → 1.7 → 1.5b → 1.8 → 1.9. 1.1 comes first because 1.3 and 1.7 need it. 1.2, 1.4, 1.5 and 1.6 don't depend on each other or on 1.1 and can run in parallel. 1.10 runs beside 1.2, which reads its map. 1.11 depends on nothing and can run at any point in Phase 1. 1.12 was added after Phase 1 closed. It depends only on 1.10 and runs now, beside area 1. 1.13 was added on the same day. It depends on nothing new and runs before the areas it adds start.
+
+1.14–1.19 were added on 2026-11-19 after 1.13. 1.17 and 1.19 can run at any time. 1.14 and 1.18 run beside the areas. 1.15 runs before area 14, whose evidence step reads it. 1.16 runs after 1.14 and P1-l, since their cases are its first batches.
 
 ### CR section owners, first pass (2026-11-19)
 
@@ -478,7 +490,7 @@ For the sweep sessions to confirm against the printed text, then fix with their 
 - **A card's own mistake** (a wrong amount, a missing condition, the wrong kind for that card) is fixed in one engine session per batch, after the batch's sweep sessions. That session follows the normal engine rules: CR first, cr-checker on the diff, a test that cites the rule, one maintenance release, pins.
 - **A bug in a shared procedure** (install, swap, rez, and so on) goes in that area's row of the findings table above, with the card titles. The area fixes it once when it replaces the copy. It is not fixed card by card first.
 - A fix that needs card JSON rides with the next paired cut, or its own paired cards release if no cut is near.
-- The gate below needs every wrong card fixed. If one area holds most of the shared-procedure findings, run that area earlier.
+- The gate below needs every wrong card fixed, and the whole program done.
 
 ### S1 results (2026-11-19)
 
@@ -633,17 +645,14 @@ Done in engine #942 (release `v1.147.264`) and game #313.
 
 ### Phase 6 gate
 
-*Added 2026-11-12. Revised 2026-11-19: every format is clean before the gate, and all formats open at once.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), does not wait for the whole program. It starts when all of these are true:
+*Added 2026-11-12. Revised 2026-11-19: every format is clean before the gate, and all formats open at once. Revised again 2026-11-19: Phase 6 waits for the whole program.* Phase 6, the Discord Activity ([`discord-activity.md`](discord-activity.md)), starts when this program is done: every item in the final state under [Verification of the program itself](#verification-of-the-program-itself) is true. In particular:
 
-- Phase 1 and Phase 2 are done, and so are the [playout blockers](#playout-blockers-after-phase-2-before-area-1--done-2026-11-15).
-- Areas 1–4 are done and paired cut A has shipped. Area 4 is the one that puts hidden information in front of real opponents.
-- Areas 14–16 are done (decided 2026-11-19): every game has runs, many cards use the keywords, and the Activity starts games and checks decks.
-- RA-1 and RA-2 have reported and RF has shipped, which happens before cut A.
-- The [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate) has checked all three batches, and every card it found wrong is fixed, in every format. That includes the shared-procedure findings, so every area that holds one is done.
-- The 1.12 baseline holds no card the sweep marked as matching.
+- Every phase, area (1–16), fix session (PF-S1 … PF-S3, RF) and paired cut (A, B, C) is done.
+- The [printed-text sweep](#printed-text-sweep-beside-phase-3-before-the-phase-6-gate) has checked all three batches, and every card it found wrong is fixed, in every format.
+- Every CR section has an owner (1.13), every ruling has a test (1.14), the timing walk (1.15) runs clean, and every second-reader difference (1.16) is resolved or decided.
 - The seeded playouts (1.3) and the visibility fuzz (1.7) run clean on the Learn to play lists and on the Startup, Core Sets, Standard, and Eternal pools.
 
-The Activity then opens with Learn to play, Startup, Core Sets, Standard, and Eternal at once. The remaining areas continue beside Phase 6, one writer per repo at a time.
+The Activity then opens with Learn to play, Startup, Core Sets, Standard, and Eternal at once. The [product UI plan](product-ui.md) does not wait for the gate.
 
 ### Exit criteria per area
 
@@ -680,10 +689,16 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | RA-1, RA-2 re-audit | engine (tests and baseline only) | now, beside area 2, like the sweep | The [re-audit](#re-audit-of-the-earlier-programs-and-interaction-check) of timing (RA-1) and continuous effects (RA-2): inventory, baseline evidence, cr-checker on each path, tests citing the rule. Findings, no fixes. |
 | RF re-audit fixes | engine (+ game, meta pins) | after RA-1 and RA-2; one writer per repo, so between areas | Fix what RA-1 and RA-2 found that the CR settles; file copied procedures under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
 | P1-l interactions | engine (tests and baseline only) | now, beside area 2 | Classify the 51 unclassified jinteki scenarios under tool 1.8: port the settled ones, file engine bugs under their area, list disagreements for Nathaniel. |
+| P1-m rulings | engine (tests and baseline only) | beside the areas; in batches by card type | 1.14: a test per ruling citing the card and ruling, the shrink-only baseline, findings filed under their area. No fixes. |
+| P1-n timing walk | engine (tests; `src/debug/` if needed) | before area 14 | 1.15: record the timing steps in the playouts, check each turn, run, breach and access against the chapter 11 chart, baseline the failures. |
+| P1-o second reader | engine (tests only) | after P1-m and P1-l; on Fable 5.2 | 1.16: expected outcomes written blind from the CR, printed text and rulings; the comparison test; differences to cr-checker, open ones to Nathaniel. |
+| P1-p subrule coverage | engine (tests and baseline only) | any time after P1-k | 1.17: every subrule and the tests citing it, the shrink-only baseline grouped by owner. |
+| P1-q ability coverage | engine (tests and baseline only) | beside the areas | 1.18: record resolved abilities in the playouts, the never-fired baseline per card. |
+| P1-r cited-rule check | engine (tests and baseline only) | any time | 1.19: the cited-rule text baseline and the test that fails on changed wording. |
 | PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
 | ~~FX-breakers~~ (done: engine #953, release `v1.147.267`, game #318) | engine (+ game, meta pins) | after PF-S2, before P3-2 | The paid-ability break path checks strength (CR 3.9.5g) and the break limits, without the `interface` pump flag stopping printed pumps. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19); PF-S2 done: engine #950, [S2 results](#s2-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
-| Phase 6 start | game | after the sweep, its fixes, and every area holding a sweep finding | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
+| Phase 6 start | game | after the whole program | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into tasks for all formats at once. |
 
 ## Decisions for a human
 
@@ -706,6 +721,9 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | 2026-11-19 | Area 14 runs after area 4 and before area 5, with its card JSON in paired cut B. Area 15 runs after area 9 and before area 12, with its card JSON in cut C. Area 16 runs beside areas 8 and 9, with its card JSON in cut B | Area 14 needs area 2's position helpers; tags and bad publicity meet damage and prevention; area 16 writes the game's deck rules and the engine's setup and win checks, not a procedure another area replaces |
 | 2026-11-19 | The Phase 6 gate waits for areas 14–16 | Every game has runs, many supported cards give tags or use the keywords, and the Activity starts games and checks decks |
 | 2026-11-19 | RA-1, RA-2 and P1-l start now, beside area 2. RF follows them, between areas, before paired cut A | They write only tests and baselines, as the sweep does; every later area builds on timing |
+| 2026-11-19 | Add tools 1.14–1.19: rulings as tests, the timing walk, a second reader on another model, subrule coverage, ability fire coverage, and the cited-rule change check | They reduce what the audit can still miss: a shared misreading, untried card interactions, rules or abilities with no test, and changed CR wording |
+| 2026-11-19 | The second reader (1.16) runs on Fable 5.2 | A different model from the one that writes the engine sessions (Opus 5.5), with no new account |
+| 2026-11-19 | Phase 6 waits for the whole program: the gate is the final state under Verification of the program itself. This replaces the earlier gate, which opened after areas 1–4, 14–16, the sweep's areas and RF while the rest continued beside Phase 6 | Nathaniel's call: no player meets the engine before the full audit is done |
 | 2026-11-19 | Keep the plan order for areas 5–13 after the sweep | Nathaniel kept the order. The gate still waits for every area that holds a sweep finding |
 
 ## Not yet decided
@@ -716,6 +734,8 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 - ~~**Whether the Phase 6 gate waits for areas 14–16.**~~ Decided 2026-11-19.
 - ~~**Whether to re-audit the sections the earlier programs own.**~~ Decided 2026-11-19: re-audit them (see Decisions for a human).
 - ~~**When RA-1, RA-2 and P1-l run.**~~ Decided 2026-11-19.
+- ~~**Which model the second reader (1.16) uses.**~~ Decided 2026-11-19: Fable 5.2.
+- ~~**Whether the Phase 6 gate waits for these checks.**~~ Decided 2026-11-19: Phase 6 waits for the whole program.
 
 ## Out of scope
 
@@ -742,6 +762,10 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
   - every CR section at the pin has an owner in tool 1.13's table, and none is `none`;
   - RA-1 and RA-2 have reported and RF has fixed every finding the CR settles;
   - every jinteki scenario is classified, and each disagreement has a decision;
+  - the rulings baseline (1.14) is empty, and the timing walk (1.15) runs clean in the playouts;
+  - every second-reader difference (1.16) is resolved or decided;
+  - the subrule (1.17) and ability fire (1.18) baselines hold only entries with a dated reason;
+  - the cited-rule text baseline (1.19) matches the CR pin;
   - the 1.12 baseline is empty;
-  - Phase 6 began at the gate, not after the last area;
+  - Phase 6 has not started before this list is true;
   - the roadmap names this program done and the plan moves to `docs/plans/done/`.
