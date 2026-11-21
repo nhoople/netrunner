@@ -71,13 +71,13 @@ A finding is anything a session notices that its slice did not set out to change
 
 | Where it goes | When | What the session does |
 |---|---|---|
-| Fix now, in a session of its own | A card marked supported plays wrong in normal use, or a seat can see information it should not (CR 1.21, 10.2.2a) | Proposes a new session for the fix. This is the only kind of finding the maintainer is asked about, because it starts work |
+| Fix now, in a session of its own | One of three: (1) it skews the checks the work relies on: a bug that most games or many tests meet, so the test games, baselines or comparison tests record wrong results or hide other bugs (a shared run, timing or legal-move procedure, or a crash); (2) a seat can see information it should not (CR 1.21, 10.2.2a) in a build anyone plays, including the product UI work; (3) once players use a build (Phase 6 on), a card marked supported plays wrong in normal use. Before Phase 6, a single card that plays wrong is filed under its area, however wrong it plays | Proposes a new session for the fix. This is the only kind of finding the maintainer is asked about, because it starts work |
 | Filed | Anything else worth doing | Rules gaps go in the [CR audit](plans/cr-audit-standardization-program.md) findings table under their area, with the source and CR number. Other findings go under "Not yet decided" in the plan that owns that area, or on the [roadmap](roadmap.md) if no plan does |
 | Dropped | Not worth doing, or already covered | Nothing beyond the PR line below |
 
 Every PR lists its findings in a "Found, not fixed" section: each one, where it went, and why. Each repo's PR template (`.github/PULL_REQUEST_TEMPLATE.md`) has this heading, next to "Proof" and "Review". The engine's dead code sweep ([engine #937](https://github.com/nhoople/netrunner-engine/pull/937)) is the model. Its "Kept on purpose" table found four supported currents with no effect in play, which went to a fix-now session.
 
-Why only two kinds of finding get fixed right away: fixing one copy of a procedure turns up the copies next to it, so fixing each finding as it appears does not converge. The CR audit's per-area recipe replaces all the copies with one shared helper. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward.
+Why so few findings get fixed right away: fixing one copy of a procedure turns up the copies next to it, so fixing each finding as it appears does not converge. Each early fix also costs a release and pins, jumps the queue, and is often rewritten when its area lands. Until players use a build, a wrong card harms no one, so only a bug that misleads the checks or leaks hidden information is worth that cost (narrowed 2026-11-21). The CR audit's per-area recipe replaces all the copies with one shared helper. When an area lands, compare how many of its findings were filed with how many were fixed. The filed rate should drop afterward.
 
 ### 4. Prove
 
