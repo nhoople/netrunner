@@ -48,6 +48,8 @@
 
 *Revised 2026-11-21: the printed-text sweep has read the whole catalog. S3l (#982) and S3m (#981) done: all 2,016 cards have a result in `printed-sweep.json`: 1,348 match, 359 wrong, 259 filed, 50 fixed. PF-S3a–f fix the wrong ones. P1-m batch 3 and P1-q started.*
 
+*Revised 2026-11-21: a fix-now visibility leak at the approach-server step (Formicary-class ice) and three gaps in the game's visibility check are in the findings table under area 4. When the leak is fixed is under [Not yet decided](#not-yet-decided).*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -324,6 +326,8 @@ Phase 1 is done. All tools are on master: engine #898–#907 (release `v1.147.25
 | 1 Hosting and trash | Labor Rights is trashed instead of removed from the game, so Aniccam draws off it | P1-l (engine #965) | 1.2.1 |
 | 2 Uninstall and run position | Saker's "add this program to your grip" cost leaves it in both the grip and the rig; Susanoo-no-Mikoto lets the Runner pass Archives' outermost ice; Archangel leaves the bounced card's hosted cards installed | P1-l, sweep S3f | 4.1.2b, 6.2.8b, 1.13.13 |
 | 4 Visibility | Slash and Burn Agriculture's reveal-as-cost does not reveal (Hyoubu Institute never gains) | P1-l | 1.21.3 |
+| 4 Visibility | **Fix-now.** After the Runner approaches the server (6.9.4g), the engine stops at `run.approachServerPaw` whenever an unrezzed ice on any server has a `formicaryApproachAnyServer` ability, read from the facedown card (`src/timing/graph.ts`, the `run.approachServer` next step). The current step is open information in every seat's view, and the game's `approach_server_ice` stop makes the Corp pause there, so the Runner learns a facedown ice is Formicary-class. Smallest fix: decide the step from open information only (for example, any unrezzed ice installed), with a test that the step is the same with and without a facedown Formicary-class ice | UI design session's game check (2026-11-21), confirmed on engine `v1.147.273` | 10.2.2b, 10.2.3a |
+| 4 Visibility | Gaps in the game's random-play visibility check (`src/match.test.ts`): it flags only plays whose intent names a hidden card id, not plays on open cards whose legality depends on hidden cards (a cost paid from HQ); at 3 seeds × 2 formats × 120 steps it never reaches Formicary; no test checks that a seat with pending mandatory abilities is never passed automatically | UI design session's game check (2026-11-21); for area 4 or P1-e | 10.2.2, 9.2.8e, 9.2.9f |
 | 5 Corp install | No Corp install onto a host card, so Full Immersion RecStudio cannot host assets | P1-l | 1.13.6a |
 | 6 Runner install | Djinn hosted on Leprechaun is refused; Masterwork's Boomerang never asks which ice | P1-l | 1.13.5 |
 | 7 Rez and derez | Tithonium's forfeit is modeled as a 9-credit discount, so Reina Roja's +1 is still charged | rulings (engine #969) | 1.16.2 |
@@ -870,6 +874,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 
 ## Not yet decided
 
+- **When to fix the Formicary-class leak at the approach-server step.** The Runner can tell a facedown ice is Formicary-class because the run stops at a step only that ice causes (findings table, area 4; CR 10.2.2b). Phase 6 waits for the whole program, so no opponent meets it first. Recommended: fold it into RF-1b, which already fixes the run timing steps in the same file and runs after RF-2; the other choices are a short FX session right after FX-legal-moves, or area 4.
 - ~~**Icebreaker pump (fix-now?).**~~ Decided 2026-11-20: FX-pump runs right after area 2. 34 supported breakers cannot raise strength, because the engine never reads their pump fields. Recommended: one fix-now engine session right after area 2, which builds the pump from the fields for every breaker (CR 3.9.5), instead of waiting for PF-S3 or area 11.
 - ~~**Encounter-length effects that survive a run ending (fix-now?).**~~ Decided 2026-11-20: RF runs after FX-pump, before area 3. RA-2: pumps and ice weakening carry into later runs whenever a subroutine ends the run. Recommended: RF runs right after area 2, before area 3, and fixes this first.
 - ~~**Splitting PF-S3.**~~ Decided 2026-11-20: one fix session per two S3 sweep sessions. About 180 wrong cards so far, likely 300 or more by the end of S3. Recommended: one fix session per two S3 sweep sessions, started as their sweeps land, not one session at the end.
