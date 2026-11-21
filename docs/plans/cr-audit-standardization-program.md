@@ -62,6 +62,8 @@
 
 *Revised 2026-11-21: RF-1b started, with the two general fix-now run bugs first; P1-o part 2 (CR chapters 2–10, Fable 5.2) started.*
 
+*Revised 2026-11-21: "fix-now" is narrowed to bugs that skew the audit's checks and to visibility leaks; single-card misplays go to their area or PF-S3 (see Decisions for a human).*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -929,6 +931,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | 2026-11-21 | FX-small: one short engine session before RF-2 fixes the Formicary-class approach-step leak (area 4) and the Archives basic trash (area 8) | The engine `src/` slot was free and each fix is a few lines and a test; folding them into later areas would leave a known leak in the engine for weeks |
 | 2026-11-21 | RF-1b also fixes two general fix-now run bugs first: resolved subroutines read as broken (Mason Bellamy) and subroutines resolving after an encounter ability ends the run (Tollbooth). Single-card fix-now bugs (LLDS Energy Regulator, The Future Perfect, rulings batches 3 and 4) stay under their areas | Both are shared run procedures that many ice and cards meet, and RF-1b is the next engine `src/` writer; single-card bugs are what the areas and PF-S3 fix |
 | 2026-11-21 | Accept the `NO_ZONE` invariant baseline entry engine #990 added for Accelerated Beta Test's looked-at cards | It is the same zone-list gap the Federal Fundraising row and the CR 1.12.3.ex1 test already record; area 13 fixes the class and shrinks the baseline |
+| 2026-11-21 | Narrow "fix-now" (`docs/how-we-work.md`, Findings): fix early only a bug that skews the audit's checks (one most games or many tests meet) or a seat-visibility leak in a build anyone plays. Before Phase 6, a single card that plays wrong goes to its area or PF-S3, however wrong. The **Fix-now** marks already in the findings table stay as a reading aid; the coordinator applies the new rule when it orders work | Phase 6 waits for the whole program, so no player meets a wrong card first, and each early fix costs a release, jumps the queue and is often rewritten by its area. Fixing early still pays when a bug makes the test games, timing walk, rulings and second-reader tests record wrong results, or when the product UI work plays the game |
 
 ## Not yet decided
 
