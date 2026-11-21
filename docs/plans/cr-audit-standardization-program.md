@@ -46,6 +46,8 @@
 
 *Revised 2026-11-20: RF-1 done (engine #980, release `v1.147.273`, game #323): 9 of RA-1's 11 RF tests and most cr-checker rows fixed, the 9.2.8a nested window built; the rest is RF-1b. Sweeps S3j (#978) and S3k (#977) done (1,854 of 2,016 cards). Rulings batch 2 (#979): 97 more rulings tested, 146 left. FX-legal-moves added and started; S3l and S3m started.*
 
+*Revised 2026-11-21: the printed-text sweep has read the whole catalog. S3l (#982) and S3m (#981) done: all 2,016 cards have a result in `printed-sweep.json`: 1,348 match, 359 wrong, 259 filed, 50 fixed. PF-S3a–f fix the wrong ones. P1-m batch 3 and P1-q started.*
+
 ## Why
 
 Much of the engine was written card by card. A card that needed a procedure (swap, install, trash, host) often got its own copy of that procedure instead of a call to a shared one. The copies skip parts of the CR, and their tests check what the code does, not what the CR says. Engine #893 and #894 fixed three such swap copies. The inventory below shows the same pattern in every zone-moving procedure.
@@ -646,6 +648,8 @@ Sweep sessions S1a–S1c (engine #943, #945, #944) read all 225 Startup cards. F
 | S3g (#975) | SanSan | 120 | 89 | 13 | 18 |
 | S3j (#978) | Red Sand | 120 | 60 | 40 | 20 |
 | S3k (#977) | Kitara | 120 | 80 | 28 | 12 |
+| S3l (#982) | Reign and Reverie, Magnum Opus | 66 | 33 | 9 | 24 |
+| S3m (#981) | Terminal Directive, Revised Core, Stalwart, Twenty-Three Seconds and the rest | 96 | 62 | 25 | 9 |
 
 - **Wrong, for PF-S3.** S3a: Accelerated Beta Test, Adonis Campaign, Corporate Troubleshooter, Data Raven, Net Shield, Parasite, Rabbit Hole, Sacrificial Construct. S3b: Compromised Employee, Dinosaurus, Cortez Chip, The Helpful AI, Doppelgänger, Midori, Snitch, Edge of World, Eve Campaign, Private Contracts, Faerie, Muresh Bodysuit, Retrieval Run, Test Run.
 - **Filed.** S3a: area 4 Infiltration, Lemuria Codecracker, Forged Activation Orders, Tinkering; area 5 Shipment from MirrorMorph; area 6 The Personal Touch; area 10 Red Herrings; area 11 Snare!, Matrix Analyzer; area 15 Cyberfeeder, The Toolbox. S3b: area 1 Burke Bugs; area 4 Fetal AI; area 7 Chimera; area 14 Jinteki: Replicating Perfection; area 15 Spinal Modem.
@@ -814,7 +818,7 @@ Each phase and area runs in its own session. A session ends with its PR merged, 
 | ~~P1-p subrule coverage~~ (done, engine #962) | engine (tests and baseline only) | any time after P1-k | 1.17: every subrule and the tests citing it, the shrink-only baseline grouped by owner. |
 | P1-q ability coverage | engine (tests and baseline only) | beside the areas | 1.18: record resolved abilities in the playouts, the never-fired baseline per card. |
 | ~~P1-r cited-rule check~~ (done, engine #961) | engine (tests and baseline only) | any time | 1.19: the cited-rule text baseline and the test that fails on changed wording. |
-| PS-S1 … PS-S3 sweep | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
+| ~~PS-S1 … PS-S3 sweep~~ (done 2026-11-21: every card has a result) | engine (tests and baseline only) | beside the areas; S1, then S2, then S3; one cycle per session | The [per-session recipe](#per-session-recipe): read each card's printed text against its IR, cr-checker on wrong or unsure abilities, record results in `printed-sweep.json`, list every card in the PR, shrink the 1.12 baseline. No fixes. |
 | ~~FX-breakers~~ (done: engine #953, release `v1.147.267`, game #318) | engine (+ game, meta pins) | after PF-S2, before P3-2 | The paid-ability break path checks strength (CR 3.9.5g) and the break limits, without the `interface` pump flag stopping printed pumps. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | ~~FX-salem~~ (done: engine #957, release `v1.147.269`, game #320, meta #310) | engine (+ game, meta pins) | after FX-breakers, before P3-2 | Fix-now from PF-S2 (engine #950, Found, not fixed). Salem's Hospitality (`name_reveal_trash_grip_copies`) names from every card in the game, so the Corp's list shows the titles in the Runner's grip and stack (CR 10.2.2a): name from `catalogCardNames`, as PF-S2 did for Complete Image. Quest Completed uses `access_one_root_other_server`, which needs an active run and blocks stealing and trashing; the card is played outside a run and prints neither (CR 1.2.1, ch. 7). Check the kind's other users (Pinhole Threading) before changing it. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
 | PF-S1 … PF-S3 sweep fixes (PF-S1 done: engine #948, [S1 results](#s1-results-2026-11-19); PF-S2 done: engine #950, [S2 results](#s2-results-2026-11-19)) | engine (+ cards, game, meta pins) | after that batch's sweep sessions; one writer per repo, so between areas | Fix the batch's card-own mistakes; file shared-procedure bugs under their area. CR first, cr-checker on the diff, tests citing the rule, one maintenance release, pins. |
