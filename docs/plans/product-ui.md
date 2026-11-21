@@ -117,6 +117,7 @@ Order: U0 → auto-pass leak fix (see [Decisions](#decisions-for-a-human)) → U
 - U0's host changes get tests in `src/match.test.ts`, including that an anchor never names a card the seat may not see.
 - The visibility fuzz (audit tool 1.7, session P1-e) sweeps every seat snapshot. Any field this plan adds must be inside that sweep before the slice merges.
 - Each slice ends with one full Learn to play match played by hand through `/play/`, both seats, with what broke written into the PR.
+- Each slice's PR also carries a `play-check` contact sheet (every seat, phone and desktop, at each turn, run, access, and the end), and a `seat-view-checker` report on the diff.
 
 ## Working beside the audit
 
