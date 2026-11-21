@@ -52,6 +52,11 @@ Before changing engine behavior, what a seat can see, or how the table presents 
 - Do not hide information that rule says that seat may see, and do not reveal information it says they may not.
 - If the pinned engine disagrees with the CR, say so. Do not paper over it in the table, and do not bump the pin unless a release is intended.
 - Before committing an engine rules change, run the `cr-checker` agent on the diff and address what it reports.
+- Before committing a `netrunner-game` change to a seat snapshot, the product client, or automatic passing, run the `seat-view-checker` agent on the diff and address what it reports.
+
+## Product UI proof
+
+Use the `play-check` skill (`node .claude/skills/play-check/play-check.mjs`) to play a match and save `/play/` screenshots for every seat at phone and desktop widths. It is the screenshot proof for a UI slice. It does not replace the played match by hand in the browser pane, which checks clicking, dragging, and the primary button.
 
 ## Tests before updating a repo
 
