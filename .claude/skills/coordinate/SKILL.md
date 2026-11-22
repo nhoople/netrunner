@@ -27,8 +27,9 @@ A slice session starts with only `CLAUDE.md` and your brief. No persona, memory,
 Slice: <plan link>, slice <id>: <name>. Repo(s): <which>.
 <What the slice delivers, in your own words, from its row in the plan.>
 
-Read first: the plan's sections for this slice, and in docs/how-we-work.md
-the Build, Findings, and Prove sections. Those rules apply as written.
+Read first: the plan's sections for this slice, and docs/how-we-work.md
+whole, with the Read tool, not a shell command. Its Build, Findings, and
+Prove sections apply as written.
 
 Shared pieces: <each piece from the plan's "Shared pieces" this slice uses:
 the one function, module, screen, or model that owns it, and its CR rule for
