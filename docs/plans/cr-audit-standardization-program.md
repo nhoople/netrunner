@@ -1,5 +1,7 @@
 # CR audit and standardization program
 
+*Paused 2026-11-22 for the [repository layout plan](repo-layout.md): PF-S3d finishes, then no session here starts until that plan's slice X merges. That plan moves `src/state/procedures/` into one folder per area and updates the paths below when it does.*
+
 *Drafted 2026-11-11 from an inventory of engine `v1.147.251` (master `aec05b54`), cards `v1.147.22`, and CR `v26.03`. Current versions are in the [pin table](../../README.md). The brief named `v1.147.250` as the floor, but the pin is already `v1.147.251` (the Midori choice-key fix, engine #895).*
 
 *Revised 2026-11-12: added the card flag inventory (1.10), the generated kind reference (1.11), two Phase 2 guards, area 10, and the Phase 6 gate.*
