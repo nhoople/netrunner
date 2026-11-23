@@ -24,15 +24,20 @@ const REQUIRED = ['Where it stands', 'Waiting on you', 'Done'];
 
 // Markdown to plain text, for labels.
 export function plain(s) {
+  // Code spans are set aside first, so asterisks inside them (`src/**/*.ts`) survive.
+  const code = [];
   return s
+    .replace(/`([^`]*)`/g, (_, c) => `\u0000${code.push(c) - 1}\u0000`)
     .replace(/~~/g, '')
     .replace(/\*\*|__/g, '')
     .replace(/(^|[^*])\*([^*]+)\*/g, '$1$2')
-    .replace(/`([^`]*)`/g, '$1')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\s+/g, ' ')
+    .replace(/\u0000(\d+)\u0000/g, (_, i) => code[i])
     .trim();
 }
+
+const FENCE = /^\s*(```|~~~)/;
 
 function splitRow(line) {
   const cells = line.trim().replace(/^\|/, '').replace(/\|$/, '').split(/(?<!\\)\|/);
@@ -40,14 +45,19 @@ function splitRow(line) {
 }
 
 // Sections by "## " heading; each holds its lines, with "### " groups kept inline.
+// Headings inside code fences are text. A name used twice is listed in out.duplicates.
 function sections(text) {
   const out = new Map();
+  out.duplicates = [];
   let name = null;
+  let fenced = false;
   for (const line of text.split('\n')) {
-    const h = /^## (.+?)\s*$/.exec(line);
+    if (FENCE.test(line)) fenced = !fenced;
+    const h = !fenced && /^## (.+?)\s*$/.exec(line);
     if (h) {
       name = h[1];
-      out.set(name, []);
+      if (out.has(name)) out.duplicates.push(name);
+      else out.set(name, []);
     } else if (name) out.get(name).push(line);
   }
   return out;
@@ -58,7 +68,13 @@ function tables(lines, defaultGroup) {
   const found = [];
   let group = defaultGroup;
   let i = 0;
+  let fenced = false;
   while (i < lines.length) {
+    if (FENCE.test(lines[i])) fenced = !fenced;
+    if (fenced) {
+      i++;
+      continue;
+    }
     const h = /^### (.+?)\s*$/.exec(lines[i]);
     if (h) group = plain(h[1]);
     if (/^\|/.test(lines[i]) && i + 1 < lines.length && /^\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
@@ -89,6 +105,7 @@ export function readPlan(file) {
   const title = plain((/^# (.+)$/m.exec(text) || [, slug])[1]);
   const secs = sections(text);
 
+  for (const name of secs.duplicates) problems.push(`two "## ${name}" sections; give one another name`);
   for (const name of REQUIRED) {
     if (!secs.has(name)) problems.push(`no "## ${name}" section`);
   }
@@ -127,7 +144,12 @@ export function readPlan(file) {
   const wait = secs.get('Waiting on you');
   if (wait) {
     const body = wait.join('\n').trim();
-    const items = body.split('\n').filter((l) => /^- /.test(l));
+    // A bullet runs on through its indented continuation lines.
+    const items = [];
+    for (const l of body.split('\n')) {
+      if (/^- /.test(l)) items.push(l);
+      else if (items.length && /^\s+\S/.test(l)) items[items.length - 1] += ' ' + l.trim();
+    }
     if (!items.length && body !== 'Nothing.') problems.push('"Waiting on you" holds bullets, or the one word "Nothing."');
     for (const item of items) {
       if (/~~/.test(item)) problems.push('"Waiting on you" has a crossed-out item; move the answer to "Decisions for a human" and delete it here');
@@ -136,7 +158,8 @@ export function readPlan(file) {
         problems.push(`"Waiting on you" item does not start with a bold question: ${item.slice(0, 60)}`);
         continue;
       }
-      const rec = /Recommended: ([^.]*(?:\.[^ ][^.]*)*)\./.exec(q[2]);
+      // The answer runs from "Recommended:" to the sentence end before "Blocks:", or to the end.
+      const rec = /Recommended: (.+?)[.!?]?(?=\s+Blocks:|\s*$)/.exec(q[2]);
       if (!rec) problems.push(`"Waiting on you" item has no "Recommended: …." answer: ${plain(q[1]).slice(0, 60)}`);
       waiting.push({ plan: slug, question: plain(q[1]), detail: plain(q[2]), recommended: rec ? plain(rec[1]) : '' });
     }
@@ -219,6 +242,13 @@ export function readPlans(dir) {
 
 function main() {
   const args = process.argv.slice(2);
+  for (const flag of ['--plans', '--out']) {
+    const at = args.indexOf(flag);
+    if (at >= 0 && !args[at + 1]) {
+      console.error(`${flag} needs a folder after it. Usage is at the top of plan-status.mjs.`);
+      process.exit(2);
+    }
+  }
   const pi = args.indexOf('--plans');
   const dir = pi >= 0 ? resolve(args[pi + 1]) : join(root, 'docs/plans');
   const plans = readPlans(dir);

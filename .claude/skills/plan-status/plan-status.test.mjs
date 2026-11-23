@@ -111,3 +111,26 @@ test('findings can live in docs/plans/<plan>/findings.md', () => {
   const [p] = readPlans(dir);
   assert.deepEqual([p.findings.open, p.findings.dropped], [1, 1]);
 });
+
+test('a wrapped "Waiting on you" bullet keeps its continuation lines', () => {
+  const p = plan(GOOD.replace('- **Which colour?** It sets the board. Recommended: blue. Blocks: S2.',
+    '- **Which colour?** It sets the board\n  and the cards. Recommended: blue, e.g. navy. Blocks: S2.'));
+  assert.deepEqual(p.problems, []);
+  assert.equal(p.waiting[0].recommended, 'blue, e.g. navy');
+  assert.match(p.waiting[0].detail, /and the cards/);
+});
+
+test('asterisks inside code spans survive', () => {
+  const p = plan(GOOD.replace('S1 is done. S2 is next.', 'S1 moved `src/**/*.ts`. S2 is next.'));
+  assert.equal(p.summary, 'S1 moved src/**/*.ts. S2 is next.');
+});
+
+test('headings and tables inside a code fence are text', () => {
+  const p = plan(GOOD.replace('## Done', '```markdown\n## Slices\n\n| ID | Status |\n|---|---|\n| Z | nonsense |\n```\n\n## Done'));
+  assert.deepEqual(p.problems, []);
+  assert.equal(p.slices.length, 2);
+});
+
+test('two sections with the same name fail', () => {
+  assert.match(problems(GOOD.replace('## Done', '## Findings\n\nMore.\n\n## Done')), /two "## Findings"/);
+});

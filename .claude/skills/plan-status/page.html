@@ -165,7 +165,7 @@
     el.replaceChildren(...w.data.map((r, i) => h('article', { class: 'ps-ask' },
       h('span', { class: 'ps-ask-plan' }, titles[r.plan] || r.plan),
       h('span', { class: 'ps-ask-q', 'data-source': 'waiting', 'data-field': 'question', 'data-row': i }, r.question),
-      h('span', { class: 'ps-ask-detail' }, r.detail.replace(/\s*Recommended:[^.]*\.\s*/, ' ').trim()),
+      h('span', { class: 'ps-ask-detail' }, r.detail.replace(/\s*Recommended: .+?[.!?]?(?=\s+Blocks:|\s*$)/, '').trim()),
       r.recommended ? h('span', { class: 'ps-ask-rec' }, h('span', {}, 'Recommended: '), r.recommended + '.') : null,
     )));
   });
