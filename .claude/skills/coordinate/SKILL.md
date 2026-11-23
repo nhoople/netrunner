@@ -14,6 +14,7 @@ A slice session starts with only `CLAUDE.md` and your brief. No persona, memory,
 1. Read the plan. The slice must be listed under "Slices", and every slice the plan's order puts before it must be merged.
 2. If the plan lacks something the brief needs (a "Shared pieces" section for engine work, a "Done", the slice's proof), fix the plan first. That is stage 2, and Nathaniel approves it.
 3. Check which slice sessions are still running (`list_sessions` with `linked: true`) and which repos they write. Two sessions never write the same repo at once. Wait, or pick a slice that writes a different repo.
+4. When the session starts, set the slice's Status to `running` in the plan and rewrite "Where it stands". The coordinator edits the plan; slice sessions do not.
 
 ## Starting the session
 
@@ -75,7 +76,7 @@ Its report is a claim, not proof. Check before telling Nathaniel the slice is do
 - If the brief asked for a code review, the PR has its "Review" line, and nothing it confirmed is left unfixed without a reason.
 - The PR has a "Found, not fixed" section, and each filed finding is where the PR says.
 - If engine `src/` changed, the release tag, game pin, and meta pin table line up (`bash .claude/skills/sync/status.sh` prints this).
-- The plan marks the slice done.
+- The plan records it: the slice's row says `done` and names its PRs; each filed finding is a row in the plan's Findings table marked `open`, and each it fixed is marked `fixed`; "Where it stands" is rewritten; any question for Nathaniel is a bullet under "Waiting on you" with a recommended answer. `node .claude/skills/plan-status/plan-status.mjs --check` passes.
 
 Then give Nathaniel the proof to accept or reject, and put any fix-now finding to him. A gap in the list above goes back to the same session.
 

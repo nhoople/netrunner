@@ -1,0 +1,258 @@
+<meta name="dash-one-writer">
+<style>
+  /* Layout: one column. What waits on Nathaniel first, then a card per plan with its slices as pills, then open findings. */
+  .ps { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+  .ps-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .ps-takeaway { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); max-width: 70ch; }
+  .ps-takeaway b, .ps-num { font-variant-numeric: tabular-nums; color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .ps-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); min-width: 0; }
+  .ps-section h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .ps-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 70ch; }
+
+  .ps-asks { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .ps-ask { background: var(--color-panel); border: 1px solid var(--color-border-line); border-left: 3px solid var(--color-warn); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+  .ps-ask-plan { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .ps-ask-q { font-weight: var(--cds-font-weight-medium); }
+  .ps-ask-detail { color: var(--color-fg-muted); max-width: 75ch; }
+  .ps-ask-rec { font-size: var(--cds-font-size-body); }
+  .ps-ask-rec span { color: var(--color-fg-muted); }
+  .ps-none { color: var(--color-fg-muted); margin: 0; }
+
+  .ps-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); list-style: none; margin: 0; padding: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ps-legend li { display: flex; align-items: center; gap: var(--cds-gap-xs); }
+  .ps-swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+  .ps-plans { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+  .ps-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-md); min-width: 0; }
+  .ps-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cds-gap-sm) var(--cds-gap-md); }
+  .ps-card-head h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); text-wrap: balance; }
+  .ps-state { font-size: var(--cds-font-size-caption); padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; text-transform: lowercase; }
+  .ps-state[data-s="active"] { color: var(--color-ok); }
+  .ps-state[data-s="paused"] { color: var(--color-warn); }
+  .ps-state[data-s="not started"], .ps-state[data-s="done"] { color: var(--color-fg-muted); }
+  .ps-updated { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ps-open { margin-left: auto; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ps-summary { margin: 0; max-width: 75ch; }
+  .ps-facts { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-lg); margin: 0; color: var(--color-fg-muted); }
+  .ps-bar { height: 6px; border-radius: 3px; background: var(--cds-chart-grid); overflow: hidden; display: flex; }
+  .ps-bar span { display: block; height: 100%; }
+  .ps-group { display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+  .ps-group-name { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .ps-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ps-pill { font: inherit; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; line-height: 1.2; padding: 3px 8px; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; }
+  .ps-pill:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .ps-pill[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-fg); }
+  .ps-s-done { background: var(--color-ok); color: var(--color-bg); }
+  .ps-s-running { background: var(--color-warn); color: var(--color-bg); }
+  .ps-s-next { background: transparent; border-color: var(--color-fg); color: var(--color-fg); }
+  .ps-s-todo { background: var(--color-bg); border-color: var(--color-border-line); color: var(--color-fg-muted); }
+  .ps-s-dropped { background: transparent; color: var(--color-fg-muted); text-decoration: line-through; }
+  .ps-detail { margin: 0; min-height: 1.4em; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ps-detail b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+
+  .ps-rows { display: grid; grid-template-columns: minmax(8rem, max-content) 1fr; gap: 6px var(--cds-gap-md); align-items: center; font-size: var(--cds-font-size-caption); }
+  .ps-rows .ps-label { color: var(--color-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ps-rows .ps-track { display: flex; align-items: center; gap: var(--cds-gap-sm); min-width: 0; }
+  .ps-rows .ps-fill { height: 12px; border-radius: 3px; display: flex; overflow: hidden; flex: 0 0 auto; min-width: 2px; }
+  .ps-rows .ps-fill span { display: block; height: 100%; }
+  .ps-rows .ps-count { color: var(--color-fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ps-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  @media (max-width: 480px) { .ps-rows { grid-template-columns: 1fr; gap: 2px; } .ps-rows .ps-track { margin-bottom: 6px; } }
+</style>
+
+<div class="ps">
+  <header id="top">
+    <h1 class="ps-title">Netrunner plan status</h1>
+    <p class="ps-takeaway" data-draw="takeaway">—</p>
+  </header>
+
+  <section id="waiting" class="ps-section">
+    <h2>Waiting on you</h2>
+    <p class="ps-note">Questions from the plans that you can answer now, each with the answer the agents recommend.</p>
+    <div class="ps-asks" data-draw="waiting" data-source="waiting"></div>
+  </section>
+
+  <section id="plans" class="ps-section">
+    <h2>Plans</h2>
+    <ul class="ps-legend" aria-label="Slice status colors">
+      <li><span class="ps-swatch ps-s-done"></span>done</li>
+      <li><span class="ps-swatch ps-s-running"></span>running</li>
+      <li><span class="ps-swatch ps-s-next"></span>next</li>
+      <li><span class="ps-swatch ps-s-todo"></span>to do</li>
+    </ul>
+    <p class="ps-note">Each pill is one slice, in the order the plan runs them. Tap one to see its name and pull requests.</p>
+    <div class="ps-plans" data-draw="plans" data-source="plans slices"></div>
+  </section>
+
+  <section id="findings" class="ps-section">
+    <h2>Findings by area</h2>
+    <p class="ps-note">Problems the slices found and filed instead of fixing on the spot. Each area fixes its own when its turn comes, so open findings are expected until then.</p>
+    <div class="ps-rows" data-draw="findings" data-source="findings findings-other"></div>
+  </section>
+
+  <p class="ps-foot">Drawn from the plans in <code>docs/plans</code> on the meta repo's main branch by the plan-status script. Refreshed by /sync at the end of each working session.</p>
+</div>
+
+<script>
+  // Every dataset is one key of the same plan-status.json.
+  for (const key of ['plans', 'slices', 'waiting', 'findings']) {
+    dash.loader(key, {
+      description: 'Takes the "' + key + '" list out of plan-status.json.',
+      fn: ({ answer }) => {
+        const rows = answer[key] || [];
+        return { data: rows, columns: rows.length ? Object.keys(rows[0]) : [], meta: answer.meta };
+      },
+    });
+  }
+
+  dash.calc('findings-other', {
+    inputs: ['findings'],
+    title: 'Findings in small groups',
+    description: 'Groups with fewer than three findings, summed into one row.',
+    fn: (findings) => {
+      const small = findings.filter((r) => r.open + r.fixed + r.dropped < 3);
+      return [{ group: 'Other (' + small.length + ' small groups)', other: 'yes',
+        open: small.reduce((a, r) => a + r.open, 0), fixed: small.reduce((a, r) => a + r.fixed, 0), dropped: small.reduce((a, r) => a + r.dropped, 0) }];
+    },
+  });
+
+  window.psEl = function (tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === null || v === undefined || v === false) continue;
+      el.setAttribute(k, v === true ? '' : String(v));
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) el.append(kid);
+    return el;
+  };
+  const h = window.psEl;
+  const ORDER = { active: 0, paused: 1, 'not started': 2, done: 3 };
+  const PILL = { done: 'ps-s-done', running: 'ps-s-running', next: 'ps-s-next', 'to do': 'ps-s-todo', dropped: 'ps-s-dropped' };
+  const repo = 'https://github.com/nhoople/netrunner/blob/main/';
+  const num = (source, field, where, value) =>
+    h('b', { class: 'ps-num', 'data-source': source, 'data-field': field, 'data-where': where }, String(value));
+  const plural = (n, one, many) => (n === 1 ? one : many);
+  // A plan whose slice tables have no name column writes "D1 docs": the first word is the id.
+  const label = (r) => (r.name ? r.id : r.id.split(' ')[0]);
+  const name = (r) => r.name || r.id.split(' ').slice(1).join(' ');
+
+  dash.draw('takeaway', (el) => {
+    const p = dash.data('plans');
+    if (p.status !== 'ok') { el.replaceChildren('—'); return; }
+    const rows = p.data;
+    const asks = rows.reduce((a, r) => a + r.waiting, 0);
+    const slices = rows.reduce((a, r) => a + r.slices, 0);
+    const done = rows.reduce((a, r) => a + r.done, 0);
+    const running = rows.reduce((a, r) => a + r.running, 0);
+    const by = {};
+    for (const r of rows) by[r.status] = (by[r.status] || 0) + 1;
+    const states = Object.keys(ORDER).filter((s) => by[s]).map((s) => by[s] + ' ' + s).join(', ');
+    el.replaceChildren(
+      asks ? h('b', {}, String(asks)) : 'No',
+      ' ' + plural(asks, 'question waits', 'questions wait') + ' on you. ',
+      h('b', {}, String(rows.length)), ' plans (' + states + '); ',
+      h('b', {}, String(done)), ' of ', h('b', {}, String(slices)), ' slices done',
+      running ? [', ', h('b', {}, String(running)), ' running now.'] : ', none running now.',
+    );
+  });
+
+  dash.draw('waiting', (el) => {
+    const w = dash.data('waiting');
+    const p = dash.data('plans');
+    if (w.status !== 'ok') { el.replaceChildren(w.status === 'error' ? h('p', { class: 'ps-none' }, 'The questions did not load.') : '—'); return; }
+    if (!w.data.length) { el.replaceChildren(h('p', { class: 'ps-none' }, 'Nothing is waiting on you.')); return; }
+    const titles = Object.fromEntries((p.status === 'ok' ? p.data : []).map((r) => [r.plan, r.title]));
+    el.replaceChildren(...w.data.map((r, i) => h('article', { class: 'ps-ask' },
+      h('span', { class: 'ps-ask-plan' }, titles[r.plan] || r.plan),
+      h('span', { class: 'ps-ask-q', 'data-source': 'waiting', 'data-field': 'question', 'data-row': i }, r.question),
+      h('span', { class: 'ps-ask-detail' }, r.detail.replace(/\s*Recommended:[^.]*\.\s*/, ' ').trim()),
+      r.recommended ? h('span', { class: 'ps-ask-rec' }, h('span', {}, 'Recommended: '), r.recommended + '.') : null,
+    )));
+  });
+
+  dash.draw('plans', (el) => {
+    const p = dash.data('plans');
+    const s = dash.data('slices');
+    if (p.status !== 'ok' || s.status !== 'ok') {
+      el.replaceChildren(p.status === 'error' || s.status === 'error' ? h('p', { class: 'ps-none' }, 'The plans did not load.') : '—');
+      return;
+    }
+    const plans = [...p.data].sort((a, b) => (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || a.title.localeCompare(b.title));
+    el.replaceChildren(...plans.map((plan) => {
+      const where = 'plan=' + plan.plan;
+      const mine = s.data.filter((r) => r.plan === plan.plan);
+      const groups = [];
+      for (const r of mine) {
+        let g = groups.find((x) => x.name === r.group);
+        if (!g) groups.push((g = { name: r.group, rows: [] }));
+        g.rows.push(r);
+      }
+      const detail = h('p', { class: 'ps-detail', 'aria-live': 'polite' }, mine.length ? 'Tap a slice for its name and pull requests.' : 'No slices yet.');
+      const pills = [];
+      const show = (r, btn) => {
+        for (const b of pills) b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        detail.replaceChildren(h('b', {}, label(r)), name(r) ? ' · ' + name(r) : '', ' · ' + r.status, r.pr ? ' · ' + r.pr : '');
+      };
+      const count = (st) => mine.filter((r) => r.status === st).length;
+      const total = mine.length || 1;
+      const bar = h('div', { class: 'ps-bar', role: 'img', 'aria-label': plan.done + ' of ' + plan.slices + ' slices done' },
+        h('span', { style: 'width:' + (100 * count('done') / total) + '%;background:var(--color-ok)' }),
+        h('span', { style: 'width:' + (100 * count('running') / total) + '%;background:var(--color-warn)' }));
+      return h('article', { class: 'ps-card', id: 'plan-' + plan.plan },
+        h('div', { class: 'ps-card-head' },
+          h('h3', {}, plan.title),
+          h('span', { class: 'ps-state', 'data-s': plan.status, 'data-source': 'plans', 'data-field': 'status', 'data-where': where }, plan.status),
+          h('span', { class: 'ps-updated' }, 'updated ' + plan.updated),
+          h('a', { class: 'ps-open', href: repo + 'docs/plans/' + plan.plan + '.md', target: '_blank', rel: 'noopener' }, 'Open the plan')),
+        h('p', { class: 'ps-summary' }, plan.summary),
+        h('p', { class: 'ps-facts' },
+          h('span', {}, num('plans', 'done', where, plan.done), ' of ', num('plans', 'slices', where, plan.slices), ' slices done'),
+          plan.running ? h('span', {}, num('plans', 'running', where, plan.running), ' running') : null,
+          plan.waiting ? h('span', {}, num('plans', 'waiting', where, plan.waiting), ' ' + plural(plan.waiting, 'question', 'questions') + ' for you') : null,
+          plan.findingsOpen + plan.findingsFixed ? h('span', {}, num('plans', 'findingsOpen', where, plan.findingsOpen), ' findings open, ', num('plans', 'findingsFixed', where, plan.findingsFixed), ' fixed') : null),
+        mine.length ? bar : null,
+        ...groups.map((g) => h('div', { class: 'ps-group' },
+          groups.length > 1 || g.name !== 'Slices' ? h('span', { class: 'ps-group-name' }, g.name) : null,
+          h('div', { class: 'ps-pills' }, ...g.rows.map((r) => {
+            const b = h('button', { type: 'button', class: 'ps-pill ' + (PILL[r.status] || 'ps-s-todo'), 'aria-pressed': 'false',
+              'aria-label': label(r) + (name(r) ? ', ' + name(r) : '') + ': ' + r.status }, label(r));
+            b.addEventListener('click', () => show(r, b));
+            pills.push(b);
+            return b;
+          })))),
+        mine.length ? detail : null);
+    }));
+  });
+
+  dash.draw('findings', (el) => {
+    const f = dash.data('findings');
+    if (f.status !== 'ok') { el.replaceChildren(f.status === 'error' ? h('p', { class: 'ps-none' }, 'The findings did not load.') : '—'); return; }
+    if (!f.data.length) { el.replaceChildren(h('p', { class: 'ps-none' }, 'No plan has filed findings.')); return; }
+    // Groups with fewer than three findings are summed into one row, so the areas stay readable.
+    const big = f.data.filter((r) => r.open + r.fixed + r.dropped >= 3);
+    const small = f.data.filter((r) => r.open + r.fixed + r.dropped < 3);
+    const rows = [...big].sort((a, b) => b.open - a.open || b.fixed - a.fixed);
+    if (small.length) {
+      rows.push(dash.data('findings-other').status === 'ok' ? dash.data('findings-other').data[0] : { group: 'Other', open: 0, fixed: 0, dropped: 0 });
+    }
+    const max = Math.max(...rows.map((r) => r.open + r.fixed + r.dropped), 1);
+    const enc = (v) => String(v).replace(/%/g, '%25').replace(/&/g, '%26').replace(/=/g, '%3D');
+    el.replaceChildren(...rows.flatMap((r) => {
+      const src = r.other ? 'findings-other' : 'findings';
+      const where = r.other ? 'other=yes' : 'plan=' + enc(r.plan) + '&group=' + enc(r.group);
+      const all = r.open + r.fixed + r.dropped || 1;
+      const w = (n) => (100 * n / all) + '%';
+      return [
+        h('span', { class: 'ps-label', title: r.group }, r.group),
+        h('span', { class: 'ps-track' },
+          h('span', { class: 'ps-fill', role: 'img', 'aria-label': r.open + ' open, ' + r.fixed + ' fixed',
+            style: 'width:calc((100% - 8rem) * ' + ((r.open + r.fixed + r.dropped) / max) + ')' },
+            h('span', { style: 'width:' + w(r.open) + ';background:' + dash.colors[0] }),
+            h('span', { style: 'width:' + w(r.fixed) + ';background:var(--color-ok)' })),
+          h('span', { class: 'ps-count' },
+            h('b', { class: 'ps-num', 'data-source': src, 'data-field': 'open', 'data-where': where }, String(r.open)), ' open',
+            r.fixed ? [', ', h('span', { 'data-source': src, 'data-field': 'fixed', 'data-where': where }, String(r.fixed)), ' fixed'] : '')),
+      ];
+    }));
+  });
+</script>

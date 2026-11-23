@@ -41,7 +41,11 @@ The status report's upstream section (`upstream_report.py`) says what the clones
 - Report what it flags to Nathaniel as findings ("Found, not fixed" in `docs/how-we-work.md`): which of our cards to check against the engine, and whether the catalog pin should move. Do not fix them or move a pin in a sync; offer a separate session for a card check.
 - Then pull the clones: `for d in ../upstream/*/; do git -C "$d" pull --ff-only -q; done`. They are read-only references, so there is nothing to ship. If a pull is not a fast-forward, report it and leave that clone alone.
 
-## 5. Finish
+## 5. Plan status page
+
+After the meta repo is level with origin, refresh Nathaniel's pinned plan status page from the plans on `main`, as the [`plan-status` skill](../plan-status/SKILL.md) says under "Refresh the page". Its address is in `notes.md`. If the page can't be updated (no `notes.md` entry, or the Artifact tools refuse), say so in the report and go on.
+
+## 6. Finish
 
 - Every checkout on its default branch (`main` for meta, `master` for the four), level with origin, clean, and the upstream clones pulled.
-- Report per repo in a few lines: what merged (PR links), what was released, anything left and why.
+- Report per repo in a few lines: what merged (PR links), what was released, anything left and why, and whether the plan status page was refreshed.

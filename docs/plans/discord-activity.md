@@ -1,8 +1,18 @@
 # Discord Activity (Phase 6)
 
-The design for the next product phase, moved here from the [roadmap](../roadmap.md). Status: not started. Turn this into tasks before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program. The board the Activity serves is built by the [product UI plan](product-ui.md).
+The design for the next product phase, moved here from the [roadmap](../roadmap.md). Turn this into slices before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program. The board the Activity serves is built by the [product UI plan](product-ui.md).
 
 The product is a Discord Activity on one Lightsail host (see Hosting below). Discord is the account and the only player conversation. Account checks the Discord user. Matchmaking checks the format and deals through a game container. That container sends only that seat's snapshot. The engine never sees a Discord user. A restart replays the applied-intent log, and matchmaking returns the same Discord user to the same seat.
+
+## Where it stands
+
+**Status:** not started. Updated 2026-11-22.
+
+This is a design, not yet split into slices. Building starts at the CR audit's [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate), when that whole program is done; the slices are written then, starting with the `grill` skill.
+
+## Waiting on you
+
+Nothing.
 
 ## Hosting
 
@@ -63,4 +73,6 @@ For Core Sets, Startup, Standard, and Eternal, the host checks both decks agains
 
 **Challenge** is how the first match starts. Both players have already chosen the format, the deck, and whether to allow spectators. One sends a request. The other accepts. The host deals when the decks are opposite sides and both pass. The two players talk in Discord.
 
-**Exit:** Two Discord users play a match in an Activity. Each sees only their seat. Talk is Discord. A restart returns the same Discord user to the same seat. Challenge deals a format-checked match.
+## Done
+
+Two Discord users play a match in an Activity. Each sees only their seat. Talk is Discord. A restart returns the same Discord user to the same seat. Challenge deals a format-checked match. Then this plan moves to `docs/plans/done/`.

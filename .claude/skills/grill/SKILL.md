@@ -38,5 +38,5 @@ After he answers, recompute the frontier: settled answers unblock the questions 
 The grilling is done when the frontier is empty: every branch visited, nothing silently assumed. Then:
 
 1. Summarize the decisions in a few lines and ask him to confirm that this is the shared understanding.
-2. On his yes, write them into the plan: each under "Decisions for a human" with the date and reason, and anything knowingly put off under "Not yet decided", with the slice it blocks. If the plan lacks a "Shared pieces" section and the answers name one, add it. The plan format is in `docs/how-we-work.md`.
+2. On his yes, write them into the plan: each under "Decisions for a human" with the date and reason, and anything knowingly put off under "Not yet decided", with the slice it blocks. Delete each answered bullet from "Waiting on you" and "Not yet decided"; do not cross it out. If the plan lacks a "Shared pieces" section and the answers name one, add it. The plan format is in `docs/how-we-work.md`.
 3. Do not start building. Building is stage 3, in its own session.
