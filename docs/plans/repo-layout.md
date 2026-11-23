@@ -1,0 +1,113 @@
+# Repository layout
+
+*Drafted 2026-11-22 from a read of all five repositories and a grill with Nathaniel. Current versions are in the [pin table](../../README.md). Status: not started. The [CR audit](cr-audit-standardization-program.md) pauses for it (see [Pause and resume](#pause-and-resume)).*
+
+## Why
+
+Agents find their way through `CLAUDE.md`, each repo's `AGENTS.md` and README, and the folder layout. The layout has drifted, and parts of it were never organized:
+
+- **Oversized engine files.** `effects/ir.ts` is 8,740 lines, `state/types.ts` 6,321 and `timing/graph.ts` 6,088. Four more files are over 4,000, including a catch-all named `effects/kinds/otherKinds.ts`. An agent reads about 2,000 lines at a time, so it never sees these whole. They are also still growing: `ir.ts` was 8,459 lines in the [2026-11-18 health check](../health.md).
+- **Flat folders with names no one can guess.** `src/state/` holds 100 files in one folder. The 43 files in `effects/primitives/` are each named after three verbs (`trashGiveSwap.ts`). Five files are named after a card or pack (`fenris.ts`, `gamenet.ts`, `sansanValHooks.ts`, `azInstallDiscount.ts`, `msKeywords.ts`), against the naming rule in `CLAUDE.md`. Two different files are both called `breachReplacement.ts`.
+- **Tests with no rule for where they go.** The engine has 312 test files in one folder, grouped only by name prefix. The game keeps tests in four places.
+- **Card data mixed by purpose.** The engine's rules files, the printed text the table shows, format legality, rulings and the dataset's own bookkeeping all sit side by side in `data/`.
+- **Docs that disagree with the folders.** `CLAUDE.md` and the engine's `AGENTS.md` give different setup commands. The engine README's layout leaves out `src/state/`, and the game README doesn't describe its own folders.
+
+### What it serves
+
+The CR audit's remaining areas (3–16) each rewrite one procedure across the engine. When each area's code, hooks and effect kinds sit in one folder named after it, an area session starts where its work is instead of searching 100 files. The same holds for every later card, rule and screen change.
+
+## Shared pieces
+
+| Piece | What it is | Used by |
+|---|---|---|
+| Area folder names | One folder per game procedure inside the engine's `state/` and `effects/`, named after the CR audit's areas (hosting and trash, uninstall and position, swap, visibility, install, rez, access, damage and prevention, counters, search and deck, turn and actions, card flags, run, keywords and credits, setup and end). Slice E0 fixes the exact names and records them here before anything moves | Every engine move slice, the engine test move, and the CR audit when it resumes: each area's shared helper lives in its own folder, not in `state/procedures/` |
+| No-change proof | A move changes no behavior. The full engine suite passes, and the golden transcripts and playouts come out identical before and after | Every move PR in every repo |
+| Size check | An engine test that fails when a `src/` file passes 2,000 lines. Today's oversized files go on a shrink-only baseline | Built in E0; every later engine change |
+| Layout map check | Each repo's README has a "Layout" section naming every folder. A test fails on a folder the map doesn't list | Built in each repo's own slice |
+| Test placement | In the engine and the game, tests live in `tests/`, in folders that mirror the code folders, plus one folder per kind of check (CR examples, rulings, blanked cards, …). Browser tests go in `tests/browser/`. A test fails on a new test file in the top `tests/` folder | E-tests and G1 |
+| Card data groups | `data/rules/` (what the engine runs: one rules file per card, `pool.json`, the schema, and the word lists cards are checked against), `data/print/` (what the card shows: printed text, printings, sets, cycles, layouts), `data/formats/` (formats, card pools, restrictions, rotations), `data/rulings/`. Bookkeeping (`manifests/`, the supported/unsupported allowlist, the catalog pin) leaves `data/` | C2, and the engine, game and `lookup` skill changes in X |
+
+## Slices
+
+One PR per move, each merged as a single commit, so GitHub's Revert button undoes exactly that move. A slice is one session and may open several move PRs in a row.
+
+| Slice | Repo | Runs | What it does |
+|---|---|---|---|
+| D1 docs | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
+| C1 cards tools | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
+| R1 rules data tools | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
+| G1 game | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
+| E0 engine checks and names | engine (tests only) | after PF-S3d merges | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
+| E1 `effects/ir.ts` | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
+| E2 `state/types.ts` | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
+| E3 `state/` by procedure | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
+| E4 `effects/` by procedure | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
+| E5 the rest | engine | after E4 | Split every file still on the size baseline below the limit: `timing/graph.ts`, `legality/checkpoints.ts`, `cards/load.ts`, `actions/apply.ts`, `state/costs.ts`, `effects/eval.ts`, and any other E0 lists. Give the two `breachReplacement.ts` files distinct names. Remove the pointer files left by E1 and E2 by updating their importers. The size baseline should then be empty |
+| E-tests | engine (tests only) | after E5, when no other session writes engine tests | Move all engine tests into folders that mirror the new code folders, in one go. Regenerate the baselines that record test file paths (about ten in `tests/baselines/`), update the mutation-test globs in `stryker/`, and add the test placement check. Write `tests/README.md` |
+| C2 card data | cards | after C1 and E-tests | Regroup `data/` into the card data groups. Move the bookkeeping out. Update the schema's `$id`, the validators, the generators and the README's "Consume the data" table. Not tagged until X |
+| X paired cut | engine, cards, game, meta | after C2 and G1 | Engine, game and the `lookup` skill read the new card data paths. Tag cards and engine `v1.148.0` together. The game moves to both pins, its tests pass and a `play-check` match is attached. Update the pin table, the [health log](../health.md) and the path references in meta docs, including the CR audit plan's Shared pieces table. Lift the pause |
+
+## Pause and resume
+
+PF-S3d, running when this plan was written, finishes and merges as normal. After that, no CR audit session starts until slice X is merged. A fix-now finding (see [how we work](../how-we-work.md#findings)) during the pause is the open question below.
+
+Safe point (filled in by E0): the last engine, cards and game releases before E1. Until X lands, the game stays on them. If X causes a problem, the game's pins go back to the safe point in one PR.
+
+## Decisions for a human
+
+| # | Decision | Date | Reason |
+|---|---|---|---|
+| 1 | A full reorganization of all five repositories, not only the engine's worst files | 2026-11-22 | Nathaniel asked for a full, organized reorg rather than the minimum |
+| 2 | Pause the CR audit, do the reorg, then resume | 2026-11-22 | The oversized files are the ones the audit edits most (the most-changed `src/` files this month), and only one session writes engine code at a time. Moving them while the audit runs would collide with every area |
+| 3 | One PR per move, no behavior change, proven by identical tests, recorded games and playouts. One engine release at the end, with the game tested before its pin moves, and the pre-reorg versions recorded as the safe point | 2026-11-22 | Safest and easiest to undo: each move reverts on its own, and the game never runs a half-moved engine |
+| 4 | An engine `src/` file over 2,000 lines fails the tests, with a shrink-only baseline for today's files | 2026-11-22 | About what an agent reads at once. Without a check the files grow back |
+| 5 | Engine tests move into folders in one go, when no other session writes engine tests. Agents pick the folder names, listed in `tests/README.md`. A new test in the top folder fails | 2026-11-22 | A gradual move leaves a mixed layout for months |
+| 6 | Proof is numbers: before and after tables of the largest engine files, top-folder test files going from 312 to 0 with the same number of tests passing, and the next health check | 2026-11-22 | Nathaniel can check them without reading code |
+| 7 | PF-S3d finishes, then the audit pauses, and its plan says so | 2026-11-22 | Stopping it midway wastes its work |
+| 8 | The engine keeps its top-level split (actions, legality, timing, effects, state). Inside `state/` and `effects/`, files are grouped by game procedure under the CR audit's area names. Each area's shared helper lives in its area folder, not in `state/procedures/`. Card-named and three-verb files are renamed for what they do | 2026-11-22 | When the audit resumes, each area's code is in one place |
+| 9 | The two data repos get the same tool layout (`scripts/`, `tests/`). The rules data repo's published data stays put, and its `source/` is renamed | 2026-11-22 | Moving published data breaks consumers for no gain to agents. Superseded for the cards repo's data by 13 |
+| 10 | The game follows the engine's test rule, groups its `src/` into folders, and keeps `public/` | 2026-11-22 | One rule for both code repos. `public/` paths are web addresses |
+| 11 | Order: doc fixes first. Cards, rules data and game reorgs alongside each other. The engine one move at a time, in parallel with them | 2026-11-22 | The engine is the long part, and nothing else needs to wait for it |
+| 12 | Each repo's README lists every folder, and a test fails on a folder it doesn't list | 2026-11-22 | The engine's map went stale without a check |
+| 13 | The cards repo's `data/` is regrouped by who uses it: rules, print, formats, rulings. Bookkeeping leaves `data/` | 2026-11-22 | Nathaniel noted some data is for the screen and some for the engine. Each kind of work then has its own folder |
+| 14 | Each card's rules file stays one file, keeping title, faction and influence | 2026-11-22 | The engine uses them too. Two files per card that must agree is the copying the CR audit removes |
+| 15 | The new layout ships as an explicit manual cut: cards and engine both at `v1.148.0`, the same release as decision 3's | 2026-11-22 | One version number then means "new layout". Old tags keep the old layout, so anything pinned to them keeps working |
+| 16 | Keep each repo's `AGENTS.md` as the one home of that repo's setup and test commands. `CLAUDE.md` points to it, and a one-line `CLAUDE.md` in each repo loads it | 2026-11-22 | They are the only guidance an outside agent or a single-repo cloud session gets. One copy can't drift |
+
+## Not yet decided
+
+| Question | Blocks |
+|---|---|
+| Whether a fix-now finding (a bug that skews the checks, or a hidden-information leak) waits for slice X, or takes the engine's turn between two move PRs | Nothing yet. A slice that meets one stops and grills it |
+
+## Tests
+
+| Slice | Must test | Proof Nathaniel sees |
+|---|---|---|
+| D1 | Each repo's `CLAUDE.md` loads its `AGENTS.md`. The meta `Public check` still passes | The setup command in `CLAUDE.md` and the engine's `AGENTS.md` now agree |
+| C1, R1 | The repo's CI validate jobs pass unchanged. The layout map check | The folder list in each README, and the check failing on a made-up folder |
+| G1 | `npm test`, the browser tests and `play-check` pass. Layout map and test placement checks | Test locations going from four places to one, with the same test count |
+| E0 | The size check fails on a file over 2,000 lines. The layout map check | The size baseline: today's oversized files and their line counts |
+| E1–E5 | The no-change proof on every move PR | A before and after table of the five largest engine files in each PR |
+| E-tests | Same test count before and after. The test placement check | Top-folder test files going from 312 to 0 |
+| C2 | The cards validators pass on the new paths | The new `data/` folder list |
+| X | The game's tests and a `play-check` match on `v1.148.0` | The `play-check` contact sheet, and the next health check row |
+
+## Out of scope
+
+- Changing what any code does. A move that needs a behavior change stops and files it as a finding.
+- Merging repositories, workspaces, or any change to the release-by-tag model.
+- Moving the rules data repo's published `data/` and `nodes/`.
+- Splitting a card's rules file.
+- Moving `netrunner-game/public/`.
+- Restyling the meta repo's `docs/` beyond the doc fixes.
+
+## Done
+
+- No engine `src/` file is over 2,000 lines, and the size baseline is empty.
+- Engine `state/` and `effects/` code sits in area folders. No file is named after a card or pack.
+- No test file is in the top `tests/` folder of the engine or the game.
+- The cards repo's `data/` holds only the four groups.
+- Every repo's README layout lists every folder, and its check passes.
+- Cards and engine are at `v1.148.0`. The game and the pin table point to them.
+- The CR audit plan's paths name the area folders, and the audit has resumed.
