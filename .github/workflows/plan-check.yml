@@ -1,0 +1,25 @@
+name: Plan check
+
+# Plans in docs/plans follow the format in docs/how-we-work.md (Plan):
+# "Where it stands" and "Waiting on you" first, a Status column on every
+# slice and finding, no crossed-out questions, no "*Revised" history lines.
+# See .claude/skills/plan-status/.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  plan-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - name: Test the plan check
+        run: node --test .claude/skills/plan-status/plan-status.test.mjs
+      - name: Check the plans
+        run: node .claude/skills/plan-status/plan-status.mjs --check

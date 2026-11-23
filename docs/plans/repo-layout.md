@@ -1,6 +1,16 @@
 # Repository layout
 
-*Drafted 2026-11-22 from a read of all five repositories and a grill with Nathaniel. Current versions are in the [pin table](../../README.md). Status: not started. The [CR audit](cr-audit-standardization-program.md) pauses for it (see [Pause and resume](#pause-and-resume)).*
+*Drafted 2026-11-22 from a read of all five repositories and a grill with Nathaniel. Current versions are in the [pin table](../../README.md).*
+
+## Where it stands
+
+**Status:** not started. Updated 2026-11-22.
+
+No slice has started. D1, the doc fixes, is next and can start any time. The engine slices start with E0, after the CR audit's FX-expose merges (no sooner than 2026-11-26). The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
+
+## Waiting on you
+
+Nothing.
 
 ## Why
 
@@ -31,21 +41,21 @@ The CR audit's remaining areas (3–16) each rewrite one procedure across the en
 
 One PR per move, each merged as a single commit, so GitHub's Revert button undoes exactly that move. A slice is one session and may open several move PRs in a row.
 
-| Slice | Repo | Runs | What it does |
-|---|---|---|---|
-| D1 docs | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
-| C1 cards tools | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
-| R1 rules data tools | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
-| G1 game | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
-| E0 engine checks and names | engine (tests only) | after FX-expose merges | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
-| E1 `effects/ir.ts` | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
-| E2 `state/types.ts` | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
-| E3 `state/` by procedure | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
-| E4 `effects/` by procedure | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
-| E5 the rest | engine | after E4 | Split every file still on the size baseline below the limit: `timing/graph.ts`, `legality/checkpoints.ts`, `cards/load.ts`, `actions/apply.ts`, `state/costs.ts`, `effects/eval.ts`, and any other E0 lists. Give the two `breachReplacement.ts` files distinct names. Remove the pointer files left by E1 and E2 by updating their importers. The size baseline should then be empty |
-| E-tests | engine (tests only) | after E5, when no other session writes engine tests | Move all engine tests into folders that mirror the new code folders, in one go. Regenerate the baselines that record test file paths (about ten in `tests/baselines/`), update the mutation-test globs in `stryker/`, and add the test placement check. Write `tests/README.md` |
-| C2 card data | cards | after C1 and E-tests | Regroup `data/` into the card data groups. Move the bookkeeping out. Update the schema's `$id`, the validators, the generators and the README's "Consume the data" table. Not tagged until X |
-| X paired cut | engine, cards, game, meta | after C2 and G1 | Engine, game and the `lookup` skill read the new card data paths. Tag cards and engine `v1.148.0` together. The game moves to both pins, its tests pass and a `play-check` match is attached. Update the pin table, the [health log](../health.md) and the path references in meta docs, including the CR audit plan's Shared pieces table. Lift the pause |
+| Slice | Status | PR | Repo | Runs | What it does |
+|---|---|---|---|---|---|
+| D1 docs | next |  | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
+| C1 cards tools | to do |  | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
+| R1 rules data tools | to do |  | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
+| G1 game | to do |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
+| E0 engine checks and names | to do |  | engine (tests only) | after FX-expose merges | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
+| E1 `effects/ir.ts` | to do |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
+| E2 `state/types.ts` | to do |  | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
+| E3 `state/` by procedure | to do |  | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
+| E4 `effects/` by procedure | to do |  | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
+| E5 the rest | to do |  | engine | after E4 | Split every file still on the size baseline below the limit: `timing/graph.ts`, `legality/checkpoints.ts`, `cards/load.ts`, `actions/apply.ts`, `state/costs.ts`, `effects/eval.ts`, and any other E0 lists. Give the two `breachReplacement.ts` files distinct names. Remove the pointer files left by E1 and E2 by updating their importers. The size baseline should then be empty |
+| E-tests | to do |  | engine (tests only) | after E5, when no other session writes engine tests | Move all engine tests into folders that mirror the new code folders, in one go. Regenerate the baselines that record test file paths (about ten in `tests/baselines/`), update the mutation-test globs in `stryker/`, and add the test placement check. Write `tests/README.md` |
+| C2 card data | to do |  | cards | after C1 and E-tests | Regroup `data/` into the card data groups. Move the bookkeeping out. Update the schema's `$id`, the validators, the generators and the README's "Consume the data" table. Not tagged until X |
+| X paired cut | to do |  | engine, cards, game, meta | after C2 and G1 | Engine, game and the `lookup` skill read the new card data paths. Tag cards and engine `v1.148.0` together. The game moves to both pins, its tests pass and a `play-check` match is attached. Update the pin table, the [health log](../health.md) and the path references in meta docs, including the CR audit plan's Shared pieces table. Lift the pause |
 
 ## Pause and resume
 

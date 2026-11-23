@@ -28,18 +28,23 @@ An open question that a subagent can settle alone (a CR reading, a code search, 
 
 ### 2. Plan
 
-A plan in `docs/plans/` has these sections, in this order. Leave out a section that has nothing in it, except "Done".
+A plan in `docs/plans/` has these sections, in this order. Leave out a section that has nothing in it, except "Where it stands", "Waiting on you" and "Done".
 
 | Section | Holds |
 |---|---|
+| Where it stands | First, a line `**Status:** <status>. Updated YYYY-MM-DD.`, where the status is `not started`, `active`, `paused` or `done`. Then one short paragraph (120 words at most): what is running, what is next, and what it waits for. Rewrite it each time; do not add to it. History is in the git log and the PRs |
+| Waiting on you | The questions the maintainer can answer now, one bullet each: the question in bold, what it is about, `Recommended: <answer>.`, and the slice it blocks. "Nothing." when there are none. Once answered, the answer goes to "Decisions for a human" and the bullet is deleted |
 | Why | The problem and what it serves |
 | Shared pieces | For engine work: each procedure the slices share, the one function that owns it, and the CR rule it follows. For product work: each screen or model the slices share. Slices call these; they do not copy them |
-| Slices | Each unit of work, sized for one session, and the order they run in |
+| Slices | Each unit of work, sized for one session, and the order they run in. One or more tables, grouped under `###` headings if there are many, each with a `Status` column (`done`, `running`, `next`, `to do`, `dropped`) and a `PR` column. A done slice names its PRs; what it found goes in its PR and the Findings table, not in the plan |
+| Findings | What the slices found and did not fix, one row each, with a `Status` column (`open`, `fixed`, `dropped`). A plan with many keeps them in `docs/plans/<plan>/findings.md` instead; the [CR audit's](plans/cr-audit-standardization-program/findings.md) is the model |
 | Decisions for a human | Each decision made, its date, and the reason, with CR citations where they apply |
-| Not yet decided | Questions known to be open but not yet sharp enough to answer, and which slice they block. A slice that reaches one stops and grills it |
+| Not yet decided | Questions known to be open but not yet sharp enough to answer, and which slice they block. A slice that reaches one stops and grills it. A decided one is deleted here, not crossed out |
 | Tests | What each slice must test, and the proof the maintainer will see |
 | Out of scope | What this plan will not do, so a session does not drift into it |
-| Done | What is true when the plan is finished. Then the plan moves to `docs/plans/done/` |
+| Done | What is true when the plan is finished. Then the plan, and its folder if it has one, moves to `docs/plans/done/` |
+
+The [`plan-status` script](../.claude/skills/plan-status/plan-status.mjs) reads these sections. The meta repo's `Plan check` fails a PR whose plan breaks the format, so a plan can't drift back into a diary. The same script draws the maintainer's view of where every plan stands: the progress visual in chat, and the pinned status page that `/sync` refreshes. A plan that gets too long for one read can move finished slices' results to `docs/plans/<plan>/results.md`.
 
 ### 3. Build
 
@@ -72,7 +77,7 @@ A finding is anything a session notices that its slice did not set out to change
 | Where it goes | When | What the session does |
 |---|---|---|
 | Fix now, in a session of its own | One of three: (1) it skews the checks the work relies on: a bug that most games or many tests meet, so the test games, baselines or comparison tests record wrong results or hide other bugs (a shared run, timing or legal-move procedure, or a crash); (2) a seat can see information it should not (CR 1.21, 10.2.2a) in a build anyone plays, including the product UI work; (3) once players use a build (Phase 6 on), a card marked supported plays wrong in normal use. Before Phase 6, a single card that plays wrong is filed under its area, however wrong it plays | Proposes a new session for the fix. This is the only kind of finding the maintainer is asked about, because it starts work |
-| Filed | Anything else worth doing | Rules gaps go in the [CR audit](plans/cr-audit-standardization-program.md) findings table under their area, with the source and CR number. Other findings go under "Not yet decided" in the plan that owns that area, or on the [roadmap](roadmap.md) if no plan does |
+| Filed | Anything else worth doing | Rules gaps go in the [CR audit findings table](plans/cr-audit-standardization-program/findings.md) under their area, with the source and CR number, as `open`. Other findings go in the Findings table of the plan that owns that area, or on the [roadmap](roadmap.md) if no plan does |
 | Dropped | Not worth doing, or already covered | Nothing beyond the PR line below |
 
 Every PR lists its findings in a "Found, not fixed" section: each one, where it went, and why. Each repo's PR template (`.github/PULL_REQUEST_TEMPLATE.md`) has this heading, next to "Proof" and "Review". The engine's dead code sweep ([engine #937](https://github.com/nhoople/netrunner-engine/pull/937)) is the model. Its "Kept on purpose" table found four supported currents with no effect in play, which went to a fix-now session.

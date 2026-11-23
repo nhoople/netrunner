@@ -40,7 +40,8 @@ Project docs live in `docs/` (roadmap, git hygiene, audits). Current versions li
 
 Work follows the loop in `docs/how-we-work.md`: decide, plan, build, prove, sustain. Nathaniel is not a software engineer, so he decides and accepts, and agents build and check.
 
-- A new plan in `docs/plans/` starts with the `grill` skill and uses the plan format in that doc, including "Shared pieces" and "Not yet decided". Move a plan to `docs/plans/done/` when its "Done" is true.
+- A new plan in `docs/plans/` starts with the `grill` skill and uses the plan format in that doc, including "Shared pieces". The meta repo's `Plan check` fails a plan that breaks the format. Move a plan to `docs/plans/done/` when its "Done" is true.
+- When Nathaniel asks where things stand, use the `plan-status` skill: it draws each plan's progress from the plans themselves.
 - Each slice ends with proof he can see without reading code, named in its PR.
 - When he corrects the same mistake twice, fix it and add a check that fails on it, then delete the rule here that the check replaces.
 
