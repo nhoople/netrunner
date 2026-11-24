@@ -1,14 +1,14 @@
 # Discord Activity (Phase 6)
 
-The design for the next product phase, moved here from the [roadmap](../roadmap.md). Turn this into slices before building. Building starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program. The board the Activity serves is built by the [product UI plan](product-ui.md).
+The design for the next product phase, moved here from the [roadmap](../roadmap.md). Turn this into slices before building. Building starts after the [product UI plan](product-ui.md), which builds the board the Activity serves and itself starts at the [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate) of the CR audit program (decided 2026-11-23 in that plan).
 
 The product is a Discord Activity on one Lightsail host (see Hosting below). Discord is the account and the only player conversation. Account checks the Discord user. Matchmaking checks the format and deals through a game container. That container sends only that seat's snapshot. The engine never sees a Discord user. A restart replays the applied-intent log, and matchmaking returns the same Discord user to the same seat.
 
 ## Where it stands
 
-**Status:** not started. Updated 2026-11-22.
+**Status:** not started. Updated 2026-11-23.
 
-This is a design, not yet split into slices. Building starts at the CR audit's [Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate), when that whole program is done; the slices are written then, starting with the `grill` skill.
+This is a design, not yet split into slices. Building starts after the [product UI plan](product-ui.md) is done, which itself waits for the whole CR audit program ([Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate)). The slices are written then, starting with the `grill` skill.
 
 ## Waiting on you
 

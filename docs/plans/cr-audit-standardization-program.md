@@ -495,7 +495,7 @@ Each area follows the [per-area recipe](#the-per-area-recipe-applies-to-every-ar
 
 | ID | Session | Status | PR | Repo(s) | Runs | What it does |
 |---|---|---|---|---|---|---|
-| Phase 6 | Phase 6 start | to do | | game | after the whole program | Check the [Phase 6 gate](#phase-6-gate), then turn `discord-activity.md` into slices for all formats at once. |
+| Phase 6 | Phase 6 start | to do | | game | after the whole program | Check the [Phase 6 gate](#phase-6-gate), then hand over to the [product UI plan](product-ui.md) at U1. `discord-activity.md` is turned into slices, for all formats at once, after that plan is done (decided 2026-11-23). |
 
 ## Decisions for a human
 
