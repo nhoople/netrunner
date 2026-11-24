@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "game",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "start",
+        "--prefix",
+        "netrunner-game"
+      ],
+      "port": 8787
+    }
+  ]
+}
