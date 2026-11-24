@@ -10,6 +10,7 @@ U0 (game #302) and the automatic-passing leak fix (engine #934, game #304) are d
 
 ## Waiting on you
 
+- **Grill this plan before U1 starts.** It has not been grilled since the how-we-work loop was adopted on 2026-11-18. The grill settles: the "Shared pieces" section the plan format asks for (card view, target highlighting, piles, how the seat snapshot becomes the client's model); the printed-text question below; the board layout, reopened on 2026-11-20 even though the flat top-down board and the Arena reference model are marked decided, with mockups to compare; and which design plugin (UI Design Review, Axe Accessibility, frontend-design, Design) each slice uses. Recommended: run `/grill` on this plan before U1 starts. Blocks: U1.
 - **Printed text: send it with every update, or fetch it once per card?** U0 measured it (game #302): printed text is about 9% of each seat update and repeats for every copy of a card. Fetching it once per card, by its code, and caching it in the client sends less and reveals nothing new, because a seat only asks for cards it has already been shown (CR 10.2.2a). Recommended: fetch once per card and cache it. Blocks: U4, whose card zoom shows printed text.
 
 ## Why
