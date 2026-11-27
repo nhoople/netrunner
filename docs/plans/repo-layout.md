@@ -102,6 +102,7 @@ Safe point (from E0): engine `v1.147.288`, cards `v1.147.29`, CR data `v26.03`, 
 | 18 | FX-faceup, a visibility leak FX-expose found (an accessed card stays faceup after the breach, CR 7.3.1a), also runs before E0 | 2026-11-27 | The same reason as 17; Nathaniel chose it on 2026-11-27 |
 | 19 | No third fix-now slice before E0: the Snare! HQ access leak is filed under the CR audit's area 4, and D1 starts | 2026-11-27 | Nathaniel's choice on 2026-11-27 |
 | 20 | Corp install (area 5) and Runner install (area 6) share one `install/` area folder | 2026-11-27 | Nathaniel's choice, as E0 recommended: CR 8.5 is one section, and `installCorp` and `installRunner` take the same options, so one folder keeps one procedure in one place. The mutation-test keys in `stryker/areas.mjs` stay `corp-install` and `runner-install`; they are config keys, not paths |
+| 21 | Amends decision 3 for the move slices E3, E4 and E5: each move PR gets a local typecheck and GitHub CI (the full suite), not the full no-change proof. Each slice records one "before" digest on master and, after its last move, runs the full no-change proof once (the seeded playouts byte-identical, the golden transcripts unchanged, the same test names with the same status). If it differs, the session bisects across the move commits and reports the move. Each move stays its own PR and squash commit | 2026-11-27 | Nathaniel's choice: the full proof takes about 40 minutes per move on this computer, roughly 10 hours for E3 alone. A move changes only paths, CI still runs every test on each PR, and each move can still be reverted alone |
 
 ## Not yet decided
 
@@ -115,7 +116,7 @@ Safe point (from E0): engine `v1.147.288`, cards `v1.147.29`, CR data `v26.03`, 
 | C1, R1 | The repo's CI validate jobs pass unchanged. The layout map check | The folder list in each README, and the check failing on a made-up folder |
 | G1 | `npm test`, the browser tests and `play-check` pass. Layout map and test placement checks | Test locations going from four places to one, with the same test count |
 | E0 | The size check fails on a file over 2,000 lines. The layout map check | The size baseline: today's oversized files and their line counts |
-| E1–E5 | The no-change proof on every move PR | A before and after table of the five largest engine files in each PR |
+| E1–E5 | E1 and E2: the no-change proof on every move PR. E3–E5: a typecheck and CI on every move PR, and the full no-change proof once at the end of each slice (decision 21) | A before and after table of the five largest engine files in each PR, and each slice's final no-change proof |
 | E-tests | Same test count before and after. The test placement check | Top-folder test files going from 312 to 0 |
 | C2 | The cards validators pass on the new paths | The new `data/` folder list |
 | X | The game's tests and a `play-check` match on `v1.148.0` | The `play-check` contact sheet, and the next health check row |
