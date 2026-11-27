@@ -19,9 +19,9 @@ const REPOS = {
     crChecker: true,
   },
   "netrunner-game": {
-    isSource: (f) => f.startsWith("src/") && !/\.test\.tsx?$/.test(f),
-    isTest: (f) => /\.test\.tsx?$/.test(f),
-    testHint: "Game: a test in src/*.test.ts, then `npm test`. A game test does not cover an engine rules change.",
+    isSource: (f) => f.startsWith("src/"),
+    isTest: (f) => f.startsWith("tests/"),
+    testHint: "Game: a test under tests/, in the folder that mirrors the src/ folder, then `npm test`. A game test does not cover an engine rules change.",
     crChecker: false,
   },
 };

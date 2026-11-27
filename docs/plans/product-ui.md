@@ -127,6 +127,13 @@ Sizes: **S** ≈ half a session, **M** ≈ one session, **L** ≈ two or three. 
 
 Order: U0 → AP → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 starts after the repository layout plan and the CR audit program are done. U1 and U2 together are the first point at which a turn is playable without the list. U4 can move ahead of U3 if a played match shows missing zones hurt more than the run view.
 
+## Findings
+
+| Finding | Source | Status |
+|---|---|---|
+| axe-core reports `scrollable-region-focusable` (serious) on `.servers` at phone width: the server row scrolls but cannot take keyboard focus. It was there before the layout move, which changed no client code | layout G1 (game #343, `play-check`) | open |
+| `tests/client/board.test.ts` was never typechecked (the client tsconfig excluded it and the root one covered only `src/`). It has 3 type errors; the root tsconfig still excludes `tests/client`, with a comment | layout G1 (game #341) | open |
+
 ## Decisions for a human
 
 - **Automatic passing can leak information.** *Decided 2026-11-15.* `cr-checker` found that the CR allows automatic passing when Pass is a seat's only option (CR 9.2.7f), and allows stops, "pass until something happens", and a hold-priority toggle that a seat sets for itself (CR 9.2.4b, 9.2.4c). It does not allow the host's current test. `settleEmptyWindows` treats a window as empty from the engine's legal plays, and some of those depend on facedown cards: approach-ice `rez_ice` and `rez_asset` are offered only when affordable, and scoring is offered only for an agenda that can be scored. So whether the game pauses tells the Runner a rez cost, a card type, or a scorable agenda (CR 10.2.2a, 10.2.2b). *Fixed 2026-11-16:* engine `v1.147.261` (nhoople/netrunner-engine#934) no longer skips the second seat's priority based on hidden cards, and the host passes a window only on open information (nhoople/netrunner-game#304). The fix ran as its own session right after U0 and before U1: judge "nothing to decide" only from what the opponent can see, with a test for each of the three tells. U2 then builds on that, and must:
@@ -150,7 +157,7 @@ Order: U0 → AP → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 starts aft
 
 ## Tests
 
-- Each slice adds tests for its board-model logic in `client/src/*.test.ts`, in the style of `board.test.ts`: a snapshot in, a model out.
+- Each slice adds tests for its board-model logic in `tests/client/*.test.ts`, in the style of `board.test.ts`: a snapshot in, a model out.
 - U0's host changes get tests in `src/match.test.ts`, including that an anchor never names a card the seat may not see.
 - The visibility fuzz (audit tool 1.7, session P1-e) sweeps every seat snapshot. Any field this plan adds must be inside that sweep before the slice merges.
 - Each slice ends with one full Learn to play match played by hand through `/play/`, both seats, with what broke written into the PR.

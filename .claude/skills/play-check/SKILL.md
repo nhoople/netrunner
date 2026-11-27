@@ -20,7 +20,7 @@ A run takes about two minutes with the accessibility pass (about half a minute w
 
 ## What it does
 
-1. Starts the game host on a free port with an empty match folder, the way `browser/fixture.ts` does, and creates a match with `POST /matches`.
+1. Starts the game host on a free port with an empty match folder, the way `tests/browser/fixture.ts` does, and creates a match with `POST /matches`.
 2. Opens `/play/` for each seat in Chromium. The pages only watch.
 3. Plays the match over the host's WebSocket protocol, sending only intents from a seat's own `legal` list. The `weighted` policy favors the default entry, runs, installs, and plays, so a short match still shows runs and accesses.
 4. At each checkpoint it screenshots every seat at every width, and runs axe-core on that page with the WCAG 2.2 A and AA rules (contrast, names and labels, roles, target size). axe-core is open source and needs no account; it comes from the game's `@axe-core/playwright` dev dependency.

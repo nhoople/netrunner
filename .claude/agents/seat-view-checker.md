@@ -1,6 +1,6 @@
 ---
 name: seat-view-checker
-description: Read-only check that a netrunner-game change shows each seat exactly what it may see. Use before committing or merging a change to the seat snapshot (src/match.ts, src/legal-anchors.ts, anything that adds a wire field), to the product client (client/src), or to automatic passing, stops, or any behavior that depends on hidden cards. Give it the branch, PR, or diff. It returns a verdict per finding with the CR rule, the file and line, and the smallest fix. It never edits files.
+description: Read-only check that a netrunner-game change shows each seat exactly what it may see. Use before committing or merging a change to the seat snapshot (src/match/match.ts, src/match/legal-anchors.ts, anything that adds a wire field), to the product client (client/src), or to automatic passing, stops, or any behavior that depends on hidden cards. Give it the branch, PR, or diff. It returns a verdict per finding with the CR rule, the file and line, and the smallest fix. It never edits files.
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: high
@@ -12,9 +12,9 @@ Each Bash call starts fresh, so begin each one with `cd` to the workspace root (
 
 ## Where visibility is decided
 
-- `src/match.ts`: `seatView`, `spectatorView`, and the snapshot builder decide what each role is sent. `getPublicView` is the engine's seat view. Only the `debug` role receives `debug`.
-- `src/legal-anchors.ts`: an anchor or target may name a card id only when that id is not a secret for the seat.
-- `src/visibility-fuzz.ts` and `test/baselines/visibility-leaks.json`: the fuzz that sweeps every snapshot, and its known-leak baseline.
+- `src/match/match.ts`: `seatView`, `spectatorView`, and the snapshot builder decide what each role is sent. `getPublicView` is the engine's seat view. Only the `debug` role receives `debug`.
+- `src/match/legal-anchors.ts`: an anchor or target may name a card id only when that id is not a secret for the seat.
+- `src/visibility/visibility-fuzz.ts` and `tests/baselines/visibility-leaks.json`: the fuzz that sweeps every snapshot, and its known-leak baseline.
 - `client/src/`: the product client. It may draw only what its own snapshot holds.
 - `public/table.html` and the debug and log pages are the verification table. They are not the product. Check them only if the change touches them.
 
