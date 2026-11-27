@@ -6,7 +6,7 @@
 
 **Status:** active. Updated 2026-11-27.
 
-D1 is done: each repo's `AGENTS.md` now holds its setup and test commands, a one-line `CLAUDE.md` in each repo loads it, and the meta `CLAUDE.md` points there, which fixed the engine setup line. C1 and R1 are done: the cards repo has its tools in `scripts/` (pack generators in `scripts/generate/`) and tests in `tests/`, the rules data repo's `source/` is now `upstream/`, and both READMEs list every folder with a check that fails on one they leave out. G1 and E0 are running. E1 follows E0; C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)); the Snare! HQ access leak is filed under its area 4 (decision 19).
+D1, C1, R1 and E0 are done. Every repo's README now lists its folders, with a check that fails on one it leaves out, and the engine has a check that fails when a `src/` file passes 2,000 lines, with its 11 oversized files on a shrink-only baseline. E0 named the area folders (see Shared pieces); Nathaniel chose one `install/` folder for Corp and Runner install. G1 is running in the game (two of its moves merged). E1 is next for the engine and waits for Nathaniel's go. C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
 
 ## Waiting on you
 
@@ -30,7 +30,7 @@ The CR audit's remaining areas (3–16) each rewrite one procedure across the en
 
 | Piece | What it is | Used by |
 |---|---|---|
-| Area folder names | One folder per game procedure inside the engine's `state/` and `effects/`, named after the CR audit's areas (hosting and trash, uninstall and position, swap, visibility, install, rez, access, damage and prevention, counters, search and deck, turn and actions, card flags, run, keywords and credits, setup and end). Slice E0 fixes the exact names and records them here before anything moves | Every engine move slice, the engine test move, and the CR audit when it resumes: each area's shared helper lives in its own folder, not in `state/procedures/` |
+| Area folder names | One folder per game procedure inside the engine's `state/` and `effects/`, named after the CR audit's areas (hosting and trash, uninstall and position, swap, visibility, install, rez, access, damage and prevention, counters, search and deck, turn and actions, card flags, run, keywords and credits, setup and end). Fixed by E0 (engine #1012), camelCase like `src/` file names: `hostingAndTrash`, `uninstallAndPosition`, `swap`, `visibility`, `install` (areas 5 and 6 together, decision 20), `rez`, `access`, `damageAndPrevention`, `cardFlags`, `turnAndActions`, `counters`, `searchAndDeck`, `run`, `keywordsAndCredits`, `setupAndEnd`. Where files that belong to no area go is under Not yet decided | Every engine move slice, the engine test move, and the CR audit when it resumes: each area's shared helper lives in its own folder, not in `state/procedures/` |
 | No-change proof | A move changes no behavior. The full engine suite passes, and the golden transcripts and playouts come out identical before and after | Every move PR in every repo |
 | Size check | An engine test that fails when a `src/` file passes 2,000 lines. Today's oversized files go on a shrink-only baseline | Built in E0; every later engine change |
 | Layout map check | Each repo's README has a "Layout" section naming every folder. A test fails on a folder the map doesn't list | Built in each repo's own slice |
@@ -47,8 +47,8 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | C1 cards tools | done | cards #313, #314, #315, #316 | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
 | R1 rules data tools | done | CR data #14, #15 | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
 | G1 game | running |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
-| E0 engine checks and names | running |  | engine (tests only) | after D1, beside C1, R1 and G1 | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
-| E1 `effects/ir.ts` | to do |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
+| E0 engine checks and names | done | engine #1012 | engine (tests only) | after D1, beside C1, R1 and G1 | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
+| E1 `effects/ir.ts` | next |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
 | E2 `state/types.ts` | to do |  | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
 | E3 `state/` by procedure | to do |  | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
 | E4 `effects/` by procedure | to do |  | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
@@ -61,8 +61,9 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 
 | Finding | Source | Goes to | Status |
 |---|---|---|---|
-| The engine, game and CR data READMEs repeat setup commands for people. They agree with `AGENTS.md` today, except that the CR data README installs only `requirements.txt`, not `requirements-dev.txt` (`ruff`). R1 fixed the CR data README (CR data #15); the engine and game READMEs wait on E0 and G1 | D1 (meta #384) | Each repo's README rewrite: R1 (CR data), G1 (game), E0 (engine) | open |
+| The engine, game and CR data READMEs repeat setup commands for people. They agree with `AGENTS.md` today, except that the CR data README installs only `requirements.txt`, not `requirements-dev.txt` (`ruff`). R1 fixed the CR data README (CR data #15) and E0 the engine's (engine #1012); the game README waits on G1 | D1 (meta #384) | Each repo's README rewrite: R1 (CR data), G1 (game), E0 (engine) | open |
 | ~~The cards and CR data PR templates list test commands without the `ruff` format check CI runs~~ Fixed in cards #313 and CR data #15 | D1 (meta #384) | C1 (cards), R1 (CR data) | fixed |
+| About 20 `src/state/` files (continuous effects, triggers, replacements, pending choices, and shared ones such as `ids`, `rng`, `zones`) and generic `effects/` files belong to no CR audit area, so E3 and E4 have no folder rule for them | E0 (engine #1012) | Not yet decided; E3 settles it before its first move | open |
 | The engine's `docs/cr-adherence-gate.md` (line 84) still names the cards script `validate-cards.py`, now `validate_cards.py` | C1 (cards #315) | The next engine slice after E0 (E1), a one-line doc fix | open |
 | `data/nsg-catalog-pin.json`'s notes still say "generate-*.py" | C1 (cards #314) | C2 | open |
 | The cards README's Layout rows for `data/<side>/<type>/` accept any new folder under a side | C1 (cards #316) | C2, which regroups `data/` | open |
@@ -71,7 +72,7 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 
 PF-S3d finished on 2026-11-22 (engine `v1.147.286`, cards `v1.147.29`). No CR audit session starts until slice X is merged, with one exception: FX-expose, the fix-now visibility slice scheduled after the weekly usage reset on 2026-11-26, takes the engine first (decision 17), and so does FX-faceup, the leak FX-expose found (decision 18). E0 starts after both merge. Slices that do not touch engine code (D1, C1, R1, G1) can start any time.
 
-Safe point (filled in by E0): the last engine, cards and game releases before E1, which include FX-expose and FX-faceup. Until X lands, the game stays on them. If X causes a problem, the game's pins go back to the safe point in one PR.
+Safe point (from E0): engine `v1.147.288`, cards `v1.147.29`, CR data `v26.03`, the last releases before E1, which include FX-expose and FX-faceup. The game has no release tags; its pins on master hold those three values (game #337), so going back to the safe point means setting the game's three pins to them. Until X lands, the game stays on them. If X causes a problem, the game's pins go back to the safe point in one PR.
 
 ## Decisions for a human
 
@@ -96,6 +97,11 @@ Safe point (filled in by E0): the last engine, cards and game releases before E1
 | 17 | A fix-now finding takes the engine before the reorg's engine slices, not after slice X. FX-expose (the expose-choice title leak, CR 10.2.2a) runs first on 2026-11-26, then E0 | 2026-11-22 | A leak of hidden cards is what the fix-now rule exists for, and it is one small slice against many moves |
 | 18 | FX-faceup, a visibility leak FX-expose found (an accessed card stays faceup after the breach, CR 7.3.1a), also runs before E0 | 2026-11-27 | The same reason as 17; Nathaniel chose it on 2026-11-27 |
 | 19 | No third fix-now slice before E0: the Snare! HQ access leak is filed under the CR audit's area 4, and D1 starts | 2026-11-27 | Nathaniel's choice on 2026-11-27 |
+| 20 | Corp install (area 5) and Runner install (area 6) share one `install/` area folder | 2026-11-27 | Nathaniel's choice, as E0 recommended: CR 8.5 is one section, and `installCorp` and `installRunner` take the same options, so one folder keeps one procedure in one place. The mutation-test keys in `stryker/areas.mjs` stay `corp-install` and `runner-install`; they are config keys, not paths |
+
+## Not yet decided
+
+- **Where engine files that belong to no area go.** Blocks: E3 (and E4 for the generic `effects/` files). About 20 `src/state/` files came from the earlier programs, not an area: `continuousEffects.ts`, `lingeringEffects.ts`, `continuousSubs.ts`, `replacements.ts`, `storedTriggers.ts`, `pendingAbilities.ts`, `pendingChoice.ts`, `checkpointSnapshot.ts`, `ids.ts`, `rng.ts`, `zones.ts`, `active.ts`, `abilities.ts`; in `effects/`, `continuation.ts`, `chooseCard*.ts` and `abilityRecord.ts`. Nathaniel chose on 2026-11-27 to let E3 decide, from the files themselves, and report the rule before its first move. E0's suggestion to start from: a `continuous/` folder (CR 9.4, 9.10, 9.12, matching the stryker key `continuous`) and a `triggers/` folder for triggers, replacements and pending choices (CR 9.1–9.3, 9.6, 9.11; not `timing/`, which is already a top-level `src/` folder), with shared plumbing (`ids`, `rng`, `zones`, `types`) at the top of `state/`.
 
 ## Tests
 
