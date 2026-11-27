@@ -13,9 +13,15 @@
  *   node .claude/skills/play-check/play-check.mjs [--game <dir>] [--out <dir>]
  *     [--steps 400] [--seed 1] [--widths phone,desktop] [--seats corp,runner,spectator]
  *     [--turns 6] [--runs 3] [--accesses 3] [--policy weighted|default|random] [--build]
+ *     [--a11y on|off]
+ *
+ * At every screenshot it also runs axe-core (WCAG 2.2 A and AA rules) on each
+ * seat's page and reports each failing rule once, with where it was seen.
+ * Accessibility failures are reported, not fatal.
  *
  * Needs the game's dependencies and Playwright's Chromium (the game's
- * `test:browser` setup). Read-only for the repos; writes only under --out.
+ * `test:browser` setup), and `@axe-core/playwright` in the game for the
+ * accessibility pass. Read-only for the repos; writes only under --out.
  */
 import { spawn, spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -38,7 +44,7 @@ if (flag("help")) {
   console.log(
     "node .claude/skills/play-check/play-check.mjs [--game <dir>] [--out <dir>] [--steps N] [--seed N]\n" +
       "  [--widths phone,desktop] [--seats corp,runner,spectator] [--turns N] [--runs N] [--accesses N]\n" +
-      "  [--policy weighted|default|random] [--build]",
+      "  [--policy weighted|default|random] [--build] [--a11y on|off]",
   );
   process.exit(0);
 }
@@ -66,6 +72,71 @@ if (!existsSync(join(gameDir, "package.json"))) throw new Error(`No game checkou
 const requireFromGame = createRequire(join(gameDir, "package.json"));
 const { chromium } = requireFromGame("playwright");
 const WebSocket = requireFromGame("ws");
+
+// ---- accessibility (axe-core, open source; no account)
+
+const A11Y_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+const IMPACT_ORDER = ["critical", "serious", "moderate", "minor"];
+const a11yMode = arg("a11y", "on");
+if (!["on", "off"].includes(a11yMode)) throw new Error(`Unknown --a11y ${a11yMode}; use on or off`);
+let AxeBuilder = null;
+let axeVersion = null;
+let a11ySkipped = a11yMode === "off" ? "turned off with --a11y off" : null;
+if (!a11ySkipped) {
+  try {
+    const mod = requireFromGame("@axe-core/playwright");
+    AxeBuilder = mod.default ?? mod.AxeBuilder ?? mod;
+    try {
+      const axeRequire = createRequire(requireFromGame.resolve("@axe-core/playwright"));
+      axeVersion = axeRequire("axe-core/package.json").version;
+    } catch {}
+  } catch {
+    a11ySkipped = "@axe-core/playwright is not installed in the game (npm install in netrunner-game)";
+    console.log(`Accessibility pass skipped: ${a11ySkipped}.`);
+  }
+}
+/** Failing rules by id, merged across every seat, width, and checkpoint. */
+const a11yRules = new Map();
+const a11yErrors = [];
+let a11yRuns = 0;
+
+function recordA11y(violations, checkpoint, seatName, width) {
+  for (const v of violations) {
+    let rule = a11yRules.get(v.id);
+    if (!rule) {
+      rule = {
+        id: v.id,
+        impact: v.impact ?? "minor",
+        help: v.help,
+        helpUrl: v.helpUrl,
+        firstSeen: checkpoint,
+        where: new Set(),
+        targets: new Set(),
+        example: { target: v.nodes[0]?.target?.join(" ") ?? "", html: v.nodes[0]?.html ?? "", failure: v.nodes[0]?.failureSummary ?? "" },
+      };
+      a11yRules.set(v.id, rule);
+    }
+    rule.where.add(`${seatName} ${width}`);
+    for (const n of v.nodes) rule.targets.add(n.target.join(" "));
+  }
+}
+
+function a11ySummary() {
+  const violations = [...a11yRules.values()]
+    .sort((a, b) => IMPACT_ORDER.indexOf(a.impact) - IMPACT_ORDER.indexOf(b.impact) || b.targets.size - a.targets.size)
+    .map((r) => ({ ...r, where: [...r.where], elements: r.targets.size, targets: [...r.targets].slice(0, 10) }));
+  const byImpact = Object.fromEntries(IMPACT_ORDER.map((i) => [i, violations.filter((v) => v.impact === i).length]));
+  return {
+    engine: axeVersion ? `axe-core ${axeVersion}` : "axe-core",
+    tags: A11Y_TAGS,
+    ...(a11ySkipped ? { skipped: a11ySkipped } : {}),
+    pagesChecked: a11yRuns,
+    rulesFailing: violations.length,
+    byImpact,
+    errors: a11yErrors,
+    violations,
+  };
+}
 
 if (flag("build") || !existsSync(join(gameDir, "public", "play", "index.html"))) {
   if (!flag("build")) console.log("The product client is not built; building it (npm run build:client).");
@@ -281,6 +352,15 @@ try {
         const file = join(shotsDir, `${String(checkpoints.length).padStart(2, "0")}-${name}-${seatName}-${w}.png`);
         await page.screenshot({ path: file, fullPage: true });
         entry.images[seatName][w] = relative(outDir, file);
+        if (AxeBuilder) {
+          try {
+            const result = await new AxeBuilder({ page }).withTags(A11Y_TAGS).analyze();
+            a11yRuns += 1;
+            recordA11y(result.violations, name, seatName, w);
+          } catch (e) {
+            a11yErrors.push(`${name} ${seatName} ${w}: ${e instanceof Error ? e.message : String(e)}`);
+          }
+        }
       }
     }
     checkpoints.push(entry);
@@ -356,6 +436,7 @@ const summary = {
   seats,
   widths,
   pageErrors,
+  accessibility: a11ySummary(),
   checkpoints,
 };
 writeFileSync(join(outDir, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
@@ -373,6 +454,23 @@ const rows = checkpoints
       .join("")}</div></section>`,
   )
   .join("\n");
+const a11y = summary.accessibility;
+const a11ySection = a11y.skipped
+  ? `<h2>Accessibility</h2><p class="meta">Skipped: ${esc(a11y.skipped)}.</p>`
+  : `<h2>Accessibility <small>${esc(a11y.engine)}, WCAG 2.2 A and AA · ${a11y.pagesChecked} page checks</small></h2>
+${
+  a11y.violations.length
+    ? `<p class="meta">${a11y.rulesFailing} rules fail: ${IMPACT_ORDER.filter((i) => a11y.byImpact[i]).map((i) => `${a11y.byImpact[i]} ${i}`).join(", ")}.</p>
+<table><thead><tr><th>Impact</th><th>Rule</th><th>What it means</th><th>Elements</th><th>Seen at</th><th>Example</th></tr></thead><tbody>
+${a11y.violations
+  .map(
+    (v) =>
+      `<tr><td class="impact ${esc(v.impact)}">${esc(v.impact)}</td><td><a href="${esc(v.helpUrl)}">${esc(v.id)}</a></td><td>${esc(v.help)}</td><td>${v.elements}</td><td>${esc(v.where.join(", "))}<br><small>first at ${esc(v.firstSeen)}</small></td><td><code>${esc(v.example.target)}</code></td></tr>`,
+  )
+  .join("\n")}
+</tbody></table>`
+    : '<p class="meta">No failing rules.</p>'
+}${a11y.errors.length ? `<pre class="errors">${esc(a11y.errors.slice(0, 10).join("\n"))}</pre>` : ""}`;
 writeFileSync(
   join(outDir, "index.html"),
   `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -387,17 +485,26 @@ h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:24px 0 8px}small{color
 figure{margin:0;flex:none}figure img{display:block;border:1px solid var(--line);border-radius:4px;max-height:420px}
 figure.phone img{width:150px;object-fit:cover;object-position:top}figure.desktop img{width:420px;object-fit:cover;object-position:top}
 figcaption{color:var(--muted);font-size:13px;margin-top:4px}
+table{border-collapse:collapse;margin:4px 0 8px;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:6px 10px 6px 0;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500}a{color:inherit}code{font-size:12px;word-break:break-all}
+.impact.critical,.impact.serious{color:#c0392b;font-weight:600}
 </style>
 <h1>Play check</h1>
 <p class="meta">Match ${esc(matchId ?? "none")} · ended: ${esc(ended)} · ${steps} steps (${rejected} rejected) · policy ${esc(policy)}, seed ${seed} · ${summary.seconds} s</p>
 ${detail ? `<pre class="errors">${esc(detail)}</pre>` : ""}
 ${pageErrors.length ? `<p class="errors">Page errors (${pageErrors.length}):</p><pre class="errors">${esc(pageErrors.slice(0, 20).join("\n"))}</pre>` : '<p class="meta">No page errors.</p>'}
+${a11ySection}
 ${rows}
 `,
 );
 
 console.log(
   `${ended} after ${steps} steps (${rejected} rejected), ${checkpoints.length} checkpoints, ${pageErrors.length} page errors, ${summary.seconds} s`,
+);
+console.log(
+  a11y.skipped
+    ? `accessibility: skipped (${a11y.skipped})`
+    : `accessibility: ${a11y.rulesFailing} rules failing (${IMPACT_ORDER.map((i) => `${a11y.byImpact[i]} ${i}`).join(", ")}) over ${a11y.pagesChecked} page checks`,
 );
 console.log(`contact sheet: ${join(outDir, "index.html")}`);
 if (ended === "crash" || pageErrors.length) process.exitCode = 1;
