@@ -3,6 +3,8 @@
 # an email address, or something shaped like a secret.
 #
 # Usage: .github/scripts/check-public.sh <base-ref>   (checks <base-ref>...HEAD)
+#        .github/scripts/check-public.sh -            (checks a unified diff on stdin;
+#                                                      used by .claude/hooks/public-check.mjs)
 # Allowed: commit-trailer emails (noreply@anthropic.com, *@users.noreply.github.com)
 # and placeholder domains (example.com/org/net).
 set -euo pipefail
@@ -27,7 +29,12 @@ allow='noreply@anthropic\.com|@users\.noreply\.github\.com|@example\.(com|org|ne
 regex=$(IFS='|'; echo "${patterns[*]}")
 
 # Added lines only, as "file:line: text". This script is left out: it holds the patterns.
-hits=$(git diff --unified=0 --no-color "$base"...HEAD -- . ':(exclude).github/scripts/check-public.sh' |
+added_diff() {
+  if [[ "$base" == "-" ]]; then cat; else
+    git diff --unified=0 --no-color "$base"...HEAD -- . ':(exclude).github/scripts/check-public.sh'
+  fi
+}
+hits=$(added_diff |
   awk '/^\+\+\+ b\//{f=substr($0,7)} /^@@/{split($3,a,/[+,]/); n=a[2]} /^\+[^+]/{print f":"n": "substr($0,2); n++} /^\+$/{n++}' |
   grep -E -- "$regex" | grep -Ev -- "$allow" || true)
 
