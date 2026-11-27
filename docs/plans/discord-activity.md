@@ -6,9 +6,9 @@ The product is a Discord Activity on one Lightsail host (see Hosting below). Dis
 
 ## Where it stands
 
-**Status:** not started. Updated 2026-11-23.
+**Status:** not started. Updated 2026-11-27.
 
-This is a design, not yet split into slices. Building starts after the [product UI plan](product-ui.md) is done, which itself waits for the whole CR audit program ([Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate)). The slices are written then, starting with the `grill` skill.
+This is a design, not yet split into slices. Building starts after the [product UI plan](product-ui.md) is done, which itself waits for the whole CR audit program ([Phase 6 gate](cr-audit-standardization-program.md#phase-6-gate)). The slices are written then, starting with the `grill` skill. This plan is the first half of version 1, play against friends, and ships with the report button ([roadmap](../roadmap.md#version-1), 2026-11-27). The casual queue, the second half, gets its own plan after this one.
 
 ## Waiting on you
 
@@ -71,8 +71,14 @@ For Core Sets, Startup, Standard, and Eternal, the host checks both decks agains
 
 **A new ban list.** The catalog check, once it watches formats and restrictions, reports it. The cards repo takes that catalog commit, regenerates `data/formats/` and `data/restrictions/`, and cuts a cards tag. The game pin and the meta pin table move with it. The engine tag stays. The next challenge, queue entry, or deal uses the new list. The August 2026 Standard list and the May 2026 Startup list are already in `v1.147.19`, so they do not cause a release.
 
+**Bug reports.** A "Report a problem" button in the game saves the match up to that moment (the applied-intent list) with one line from the player, and ships with this plan. Reports are stored privately on the host, not posted anywhere public, because a saved match holds both seats' hidden cards (CR 10.2.2a). An agent replays each one and files it with the hidden details left out. There is no project Discord server for now (roadmap decisions, 2026-11-27).
+
 **Challenge** is how the first match starts. Both players have already chosen the format, the deck, and whether to allow spectators. One sends a request. The other accepts. The host deals when the decks are opposite sides and both pass. The two players talk in Discord.
+
+## Not yet decided
+
+- **Whether a player hears back when their report is fixed.** For example, a Discord message to the reporter. Blocks: slicing this plan.
 
 ## Done
 
-Two Discord users play a match in an Activity. Each sees only their seat. Talk is Discord. A restart returns the same Discord user to the same seat. Challenge deals a format-checked match. Then this plan moves to `docs/plans/done/`.
+Two Discord users play a match in an Activity. Each sees only their seat. Talk is Discord. A restart returns the same Discord user to the same seat. Challenge deals a format-checked match. A player can report a problem from the game. Then this plan moves to `docs/plans/done/`.

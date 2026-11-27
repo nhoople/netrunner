@@ -497,3 +497,131 @@ Synthetic `stubs/` / `wave1/` / `wave2/` dirs were removed in cards-data `v0.2.0
 **Current floor** (tag in the [pin table](https://github.com/nhoople/netrunner#readme)): Card files are grouped by side and type. Each title has `deckLimit` and a printed sentence. Printings, verified rulings, format pools, ban lists, and rotations are separate files. The title corpus is unchanged from `v1.147.6`: Magnum Opus complete (**8/8**; `mor` absorbed), FFG Core-forward through Kitara, RaR, SC19→VP all `supported`. Runner identities store base link (CR 2.9.1), identities store minimum deck size and influence limit (CR 2.11.1, CR 2.12.1), and other cards store influence cost when they have an influence bar (CR 2.14.1). Ice, assets, and upgrades keep `rezCost` and do not store `installCost` (CR 1.16.6b, CR 8.5.11a). `v1.147.13` restored the v2 facts the conversion dropped: uniqueness on 87 cards, double-sided identity faces with per-face title, subtypes, and link (CR 3.1.1a), designer `attribution`, and set/cycle reference records. `v1.147.18` declared Verbal Plasticity's first-basic-draw bonus and Jinteki: Restoring Humanity's facedown-Archives credit. `v1.147.19` wrote nine pay-or-penalty cards as nested costs (CR 1.16.11b) and had the Corp choose the HQ cards that Longevity Serum, Hansei Review, and Anemone trash (CR 1.15.2). `v1.147.20` had Interns, Drafter, and The Powers That Be ignore the install cost as printed (CR 8.5.14), made Interns' install required, let Graft and Hortum find fewer cards than their limit, revealed the cards Graft and Project Atlas find (CR 1.21.3), gave Key Performance Indicators its fourth mode, and had Keyhole replace the breach of R&D. `v1.147.21` had the Corp look at R&D for Insight (CR 1.21.2) and asked "you may install" once for Drafter, The Powers That Be, and Ablative Barrier. This tag makes leaving the game the cost of Moon Pool, Spin Doctor, and Buffer Drive, as printed (CR 1.16.1), and the validator requires `rfgSelf` for each such printed cost.
 
 **Current floor:** see the project [pin table](https://github.com/nhoople/netrunner#readme). Cards are stored by side and type, with deck limits, printings, verified rulings, and format lists. Double-sided identity faces, uniqueness, and designer attribution match the pinned v2 catalog, guarded by the catalog-facts builder. The title corpus is the `v1.147.6` corpus. Verbal Plasticity and Jinteki: Restoring Humanity declare their printed abilities. A "do X unless the Runner pays Y" card is written with the `unless` kind, and the validator rejects a `choose` option that only loses credits or clicks as a payment (CR 1.16.11b). An effect that installs a Corp card says whether it ignores the install cost and whether the install is required, and a search that reveals the card says so (CR 8.5.14, CR 1.21.3). An optional install from HQ or Archives is written once: the validator rejects a yes-or-no `choose` around it, because the install already lets the Corp stop. A look names its `looker` when that is not the card's controller (Insight, CR 1.21.2). A printed "Remove this card from the game:" cost is paid with `rfgSelf`, and the validator rejects one without the other (CR 1.16.1). Idle until next NSG pack after VP or a CR bump. Skip `napd`/draft/championship; defer `tdc`. CR pin in the engine is `v26.03`.
+
+## Notes moved from the roadmap
+
+On 2026-11-27 the roadmap became the one overall plan and dropped the detail of finished work. The sections below are that detail as it stood then, unedited. The phase tables and known gaps are a record; current status is in the plans.
+
+### Engine CR fidelity
+
+Adopted 2026-10-29. Full **executable** CR fidelity for the corpus, still without compiling CR prose or `nodes.json`. Card text wins (**CR 1.2.1**). Detail lives in the plans in `docs/plans/`; this section is the project-facing status.
+
+| Program phase | Goal | Status |
+|---------------|------|--------|
+| 1 | **9.3** records-only runtime (cut dual-path `on*` mark/fire surface) | **Done** |
+| 2 | Declarative trigger predicates over `CheckpointFacts` / `CheckpointDiff` | **Done** |
+| 3 | Universal **10.3.1a** mark path (note→checkpoint→mark / predicates); remove immediate hook fires | **Done** — engine **`v1.147.216`** (`fireStoredConditionals` removed; play marks at **8.6.7e**, resolves at **8.6.7f**) |
+| 4 | Replacement layer beyond Gebrselassie (**9.9.9**) | **Done** — duration class; general **9.9.9b/c** API (`v1.147.219`); System Seizure strength-increase interrupt (`v1.147.220`) |
+| 5 | Eternal **9.12** gained-subtype→further-grant chains | **Done** via standardization **S1** |
+
+Phase-3 leftovers closed at **`v1.147.221`** (Jeitinho bypass note path; `fireInlineConditional` removed).
+
+**Plans:** [`full-cr-fidelity-program.md`](plans/done/full-cr-fidelity-program.md) (fidelity); [`engine-standardization-program.md`](plans/done/engine-standardization-program.md) (standardization); [`cr-audit-standardization-program.md`](plans/cr-audit-standardization-program.md) (CR audit and procedure standardization, next engine track); [`stack-tracking-assessment.md`](plans/done/stack-tracking-assessment.md) (status). Product Phase 5 is met. Phase 6 is the Discord Activity.
+
+### Engine standardization
+
+Maximal program: grow the practical **9.12** blanking solver into a continuous-characteristics layer; finish **9.10** lingering single-write; standardize mid-hook choices and seat visibility. Inventory: [`engine-standardization-inventory.md`](plans/done/engine-standardization-inventory.md).
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| S0 | Charter + inventory | **Done** |
+| S1 | Continuous subtypes (MG / Egret / Fatuma gained→further) | **Done** |
+| S2 | Gained subs / strength / cost continuous mods | **Done** at **`v1.147.222`**. Strength is lingering-only; gained subs are declarations (`v1.147.239`) |
+| S3 | Lingering single-write | **Done** at **`v1.147.222`**. The mark, blanks, and end-of-turn subtype grants each have one reader (`v1.147.239`) |
+| S4 | Graph mid-hook may/choose helper | **Done** (`openPendingChoose`; Security Nexus) |
+| S5 | Seat visibility module | **Partly done.** `seatVisibility.ts` exists, but it cites CR 1.18 (Advancing Cards) where visibility is CR 1.21. `getPublicView` copies the run and pending state unfiltered, and the game builds spectator views separately. CR audit area 4 finishes it |
+| S6 | Static continuous declarations | **Done for subtype grants and gained subroutines** (`continuousSubtypeGrants`, `continuousGainedSubDecls`). Other card behavior is still 616 boolean card flags, and a flag can hide a procedure from a search of card JSON (Tāo Salonga) |
+
+### CR audit and procedure standardization
+
+Adopted 2026-11-11. The fidelity and standardization programs covered timing and continuous effects. They did not cover how cards move between zones. Many cards carry their own copy of install, trash, host, swap, rez, or run-position code, and those copies skip parts of the CR. This program builds tools that find those violations across the engine, routes each procedure through one shared helper, and adds guardrails against new copies. Plan: [`cr-audit-standardization-program.md`](plans/cr-audit-standardization-program.md). The Discord Activity starts at its [Phase 6 gate](plans/cr-audit-standardization-program.md#phase-6-gate).
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| 0 | Docs: cr-checker reads printed text, known gaps recorded | **Done** |
+| 1 | Verification tools (invariants, playouts, sweeps, visibility fuzz, mutation testing) | Next |
+| 2 | Guardrails on direct state writes and kind coverage | — |
+| 3 | Ten areas ordered by risk: nine procedures, then card flags and declarations | — |
+
+**Known gaps** at engine `v1.147.251` (each fixed by the area named):
+
+- **Off-Campus Apartment and other hosts (area 1).** Trashing a host moves its hosted Runner cards to the heap but leaves them in `runner.installed`. Their trash triggers don't run. The 10.3.1g checkpoint can't see them.
+- **Mandatory Seed Replacement (area 2).** It empties every server's ice list before the Corp rearranges. While the choices are open, the ice belongs to no server, so a checkpoint in that window could delete a remote that has only ice. Sunset and Mandatory Seed also have no run guard.
+- **Tāo Salonga: Telepresence Magician (area 3).** The swap after an agenda is scored or stolen does nothing. Every option of `swap_two_ice` gains 0 credits.
+
+### Product phase map
+
+Historical build arc for the stack and multiplayer host. Numbering here is **not** the fidelity program above.
+
+#### Phase 0 — Foundations (done)
+
+- Maintain CR ingest/validate/pin when Null Signal publishes new CR versions (checklist: [`cr-pin-bump-checklist.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-pin-bump-checklist.md)).
+- Keep engine `npm run fetch-cr` + cite/timing-id tests green (default CI `npm test`: `tests/cr-cite-map.test.ts`, timing `stepId` check in `tests/engine.test.ts`).
+
+**Exit:** CR pin story and engine harness remain the source of rules citations.
+
+#### Phase 1 — Engine library core (done)
+
+Headless engine with a **scripted two-player game** via the library API (CLI/tests as hosts).
+
+**Library API shape:** pure functions only—e.g. `createGame`, `queryLegality`, `applyIntent`, `getPublicView(side)`—no sockets, HTTP, or UI in the engine package.
+
+**Exit:** Integration tests for a full short game on Gateway/SU21 cards; public library API documented in engine README. *(met)*
+
+#### Phase 2 — Card data model + IR expansion (done)
+
+- Card JSON in [netrunner-cards-data](https://github.com/nhoople/netrunner-cards-data); engine pins via `data/cards-pin.json` + `npm run fetch-cards`.
+- Effect IR is the executable language; expand primitives when real cards require them. Fail closed on unknown IR nodes.
+
+**Exit:** Demos/tests pass from data-loaded cards; new simple ice/breaker is a data change. *(met)*
+
+#### Phase 3 — Card corpus (FFG Core-forward + Magnum Opus **COMPLETE**)
+
+Supported subset in release order, each wave gated by IR/engine support; unsupported clauses marked explicitly.
+
+**Floor today:** see the [pin table](../README.md). Cards are stored by side and type. Printed link, deck size, influence limit, and influence cost are stored. Ice install cost is 1 credit for each piece of ice already protecting the server (CR 1.16.6b). Assets, agendas, and upgrades install for free (CR 8.5.11a). Each printed ability is a Comprehensive Rules 9.3 record. Play, paid, and subroutine text is that record. CR pin **`v26.03`**. `netrunner-game` pins those three tags.
+
+**Supported:** all **68** waves in [`data/pool.json`](https://github.com/nhoople/netrunner-cards-data/blob/v1.147.22/data/pool.json) `corpusOrder` are `supported`. That is FFG Core through Kitara, Reign and Reverie, Magnum Opus (`mo` 8/8, `mor` absorbed), System Core 2019, Downfall, Uprising, and Gateway through Vantage Point. Per-wave milestone tags are on the cards and engine GitHub Releases.
+
+**Not in the corpus:**
+
+| Item | Policy |
+|------|--------|
+| NAPD (`napd`) | Skip. Absent from the NSG Eternal set list. One NRDB-only identity, Cyber Bureau. |
+| Draft | Skip. |
+| Championship | Skip. |
+| Terminal Directive campaign (`tdc`) | Deferred. The Terminal Directive card pack (`td`) is supported. |
+| Salvaged Memories (`sm`) | Outside the corpus. Every card is a reprint, so it adds no new titles. |
+
+**Formats:** NSG Netrunner Core Sets, Standard, Startup, Eternal, and Random Access Memories are covered for unique-title play. Ban lists are in cards `v1.147.19`. Phase 6 checks the list in force when a match starts. The verification table does not. Random Access Memories stays in this coverage and is not a play format. System Gateway is a set inside Core Sets, not a play format. Learn to play is the fixed Gateway teaching lists, offered beside the formats in Phase 6. The pack-by-pack check is [`format-coverage-audit.md`](format-coverage-audit.md).
+
+**Tooling:** Pack extracts in cards-data originate from pinned NSG [netrunner-cards-json](https://github.com/Null-Signal-Games/netrunner-cards-json) (`data/nsg-catalog-pin.json`). NSG is source of truth; NRDB is downstream. `python3 scripts/nsg_catalog.py check` in cards-data compares that pin with current `main` and reports a pack outside the corpus, or a change to faction, cost, strength, or printed text in a corpus pack. It does not edit card files. Today it does not look at `v2/formats/` or `v2/restrictions/`. It gains that report, so a balance update shows up the way a printed-text change does. The report can land before the Activity, and it does not by itself cut a release.
+
+Do not start a later set until the current release’s cards pass (fully supported or explicitly deferred with `unsupported` notes) **and** the CR adherence gate for cleared cards is satisfied (or residual debt is explicit).
+
+**Per-slice (every IR clear, not only set-complete):** follow [`cr-adherence-gate.md`](https://github.com/nhoople/netrunner-engine/blob/master/docs/cr-adherence-gate.md) — timing windows, defined terms/keywords, cannot/prevent, install/rez/run touches, cite recording against pin `v26.03`, fail-closed when CR is ambiguous or the engine window is missing. Slice work lands as PR merges. If the engine PR changes `src/` and the game should pick it up, cut an engine maintenance release and bump game + meta pins ([`git-hygiene.md`](git-hygiene.md)); test-only slices merge with no tag.
+
+**Exit:** Declared supported pool with engine tests and a CR gate summary on the set-complete PR. Refresh the floor in this roadmap.
+
+#### Set complete checklist (each pack wave)
+
+The checklist is in [`git-hygiene.md`](git-hygiene.md#set-complete-checklist), with the release policy.
+
+#### Phase 4 — Host polish (done)
+
+CLI/demos and docs that exercise the library API; keep pin/fetch story clear for consumers.
+
+**Landed (engine [#186](https://github.com/nhoople/netrunner-engine/pull/186), cards [#161](https://github.com/nhoople/netrunner-cards-data/pull/161)):** engine CLI hosts call `createGame` / `queryLegality` / `applyIntent` / `getPublicView` (`npm run demo:library`, `npm run cli:help`); README pin/fetch + API shape clarified; cards-data examples track current pairing tag. Those CLI hosts stay development tools.
+
+**Lint / typecheck (engine [#189](https://github.com/nhoople/netrunner-engine/pull/189)):** `npm run lint` (eslint recommended + typescript-eslint) and `npm run typecheck` (`tsc --noEmit`) are CI hard-fails alongside `npm test`. No Prettier; cards-data lint not in scope.
+
+**Exit:** Consumers can run the library from the documented CLI and pin story. *(met)* The multiplayer client is Phase 5.
+
+#### Phase 5 — Local table (done)
+
+[netrunner-game](https://github.com/nhoople/netrunner-game) verifies the pinned engine in the browser. Corp, Runner, and spectator each see what the Comprehensive Rules allow that seat to see. The plain table stays a direct view of the match snapshot. It remains the test harness. The product client uses the same match protocol and moves into the Discord Activity.
+
+**Exit:** met. The verification table and the product client at `/play/` speak the same match protocol.
+
+What Phase 5 built, in detail: [`plans/done/local-table.md`](plans/done/local-table.md).
+

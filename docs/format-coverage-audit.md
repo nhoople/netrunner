@@ -2,6 +2,8 @@
 
 Audited 2026-10-01 at cards `v1.147.6` and engine `v1.147.9`; the card corpus has not changed since, so the coverage verdicts still hold. Current versions are in the [pin table](../README.md).
 
+*2026-11-27: Random Access Memories is no longer a covered format ([roadmap decisions](roadmap.md#decisions)). Every card in its pool is in Eternal, so its section below is a record.*
+
 **Overall: Core Sets, Standard, Startup, Eternal, and RAM are fully covered for unique-title play** (NSG set lists). Magnum Opus (`mo`/`mor`) cleared at milestone **v1.142.0**. The printed corpus is unchanged from **v1.143.0**.
 
 | Field | Value |
