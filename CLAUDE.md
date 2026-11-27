@@ -1,6 +1,6 @@
 # Netrunner workspace
 
-This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/agents/`. It is public: keep secrets, local paths, and personal notes out of it. Its `Public check` workflow fails a PR that adds a local path, an email address, or a secret. `notes.md` stays local (gitignored).
+This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/agents/`. It is public: keep secrets, local paths, and personal notes out of it. Its `Public check` workflow fails a PR that adds a local path, an email address, or a secret. A `PreToolUse` hook (`.claude/hooks/public-check.mjs`) runs the same check before a `git commit` or `git push` in the meta repo and blocks it on a hit. `notes.md` stays local (gitignored).
 
 Inside it are four separate git repositories, gitignored by the meta repo (not submodules):
 
