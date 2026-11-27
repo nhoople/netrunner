@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { readPlan, readPlans } from './plan-status.mjs';
+import { readPlan, readPlans, readRoadmap } from './plan-status.mjs';
 
 const GOOD = `# A plan
 
@@ -133,4 +133,74 @@ test('headings and tables inside a code fence are text', () => {
 
 test('two sections with the same name fail', () => {
   assert.match(problems(GOOD.replace('## Done', '## Findings\n\nMore.\n\n## Done')), /two "## Findings"/);
+});
+
+const ROADMAP = `# Roadmap
+
+## Where it stands
+
+**Status:** active. Updated 2026-11-27.
+
+The layout plan runs.
+
+## Waiting on you
+
+Nothing.
+
+## Order of work
+
+1. [Old work](plans/done/old-work.md), finished.
+2. [The plan](plans/a-plan.md): the one running.
+3. The casual queue. Its plan is written later.
+
+## Decisions
+
+| Date | Decision | Reason |
+|---|---|---|
+| 2026-11-27 | Public | Built for it |
+
+## Not yet decided
+
+- **Queue formats.** Blocks: the queue.
+`;
+
+function roadmap(text, planText = GOOD) {
+  const dir = mkdtempSync(join(tmpdir(), 'plan-status-'));
+  mkdirSync(join(dir, 'plans'));
+  writeFileSync(join(dir, 'plans', 'a-plan.md'), planText);
+  writeFileSync(join(dir, 'roadmap.md'), text);
+  return readRoadmap(join(dir, 'roadmap.md'), readPlans(join(dir, 'plans')));
+}
+
+test('the roadmap reads its path to version 1 from "Order of work"', () => {
+  const r = roadmap(ROADMAP);
+  assert.deepEqual(r.problems, []);
+  assert.equal(r.status, 'active');
+  assert.deepEqual(r.path.map((s) => [s.step, s.label, s.plan, s.status, s.current]), [
+    [1, 'Old work', 'old-work', 'done', false],
+    [2, 'A plan', 'a-plan', 'active', true],
+    [3, 'The casual queue', null, 'not written', false],
+  ]);
+});
+
+test('a roadmap question waiting on Nathaniel reaches the page', () => {
+  const r = roadmap(ROADMAP.replace('## Waiting on you\n\nNothing.', '## Waiting on you\n\n- **Which formats?** For the queue. Recommended: all five.'));
+  assert.deepEqual(r.problems, []);
+  assert.deepEqual([r.waiting[0].plan, r.waiting[0].question, r.waiting[0].recommended], ['roadmap', 'Which formats?', 'all five']);
+});
+
+test('the roadmap keeps its sections, in order', () => {
+  assert.match(roadmap(ROADMAP.replace(/## Decisions[\s\S]*?## Not yet decided/, '## Not yet decided')).problems.join('\n'), /"## Decisions"/);
+  assert.match(roadmap(ROADMAP.replace(/## Order of work[\s\S]*?## Decisions/, '## Decisions')).problems.join('\n'), /"## Order of work"/);
+  assert.match(roadmap(ROADMAP.replace('**Status:** active. Updated 2026-11-27.', 'Going well.')).problems.join('\n'), /Status:\*\* <status>/);
+});
+
+test('a roadmap step that links a missing plan, or a misnumbered step, fails', () => {
+  assert.match(roadmap(ROADMAP.replace('plans/a-plan.md', 'plans/no-such-plan.md')).problems.join('\n'), /no-such-plan/);
+  assert.match(roadmap(ROADMAP.replace('3. The casual queue', '4. The casual queue')).problems.join('\n'), /out of order/);
+});
+
+test('an undated decision or a crossed-out open question fails', () => {
+  assert.match(roadmap(ROADMAP.replace('| 2026-11-27 | Public |', '| soon | Public |')).problems.join('\n'), /no YYYY-MM-DD date/);
+  assert.match(roadmap(ROADMAP.replace('- **Queue formats.**', '- ~~**Queue formats.**~~')).problems.join('\n'), /crossed-out/);
 });

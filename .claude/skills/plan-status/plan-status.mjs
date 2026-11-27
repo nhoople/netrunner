@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Reads the active plans in docs/plans/*.md and reports where each stands.
+// Reads the roadmap (docs/roadmap.md) and the active plans in docs/plans/*.md,
+// and reports where each stands.
 // The plan format is in docs/how-we-work.md (Plan). This script is the one
 // reader of it: the plan check in CI, the progress visual in chat, and the
 // pinned status page all come from here.
@@ -7,8 +8,8 @@
 //   node .claude/skills/plan-status/plan-status.mjs           JSON on stdout
 //   node .claude/skills/plan-status/plan-status.mjs --check   fail on format problems
 //   node .claude/skills/plan-status/plan-status.mjs --out DIR write DIR/plan-status.json
-//        (plans, slices, waiting, findings) for the status page
-//   --plans DIR reads another folder (the format test uses this)
+//        (plans, slices, waiting, findings, path) for the status page
+//   --plans DIR reads another folder, and the roadmap.md beside it
 
 import { readFileSync, readdirSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname, basename, resolve } from 'node:path';
@@ -98,28 +99,8 @@ function col(header, names) {
   return header.findIndex((h) => names.includes(h.toLowerCase()));
 }
 
-export function readPlan(file) {
-  const text = readFileSync(file, 'utf8');
-  const slug = basename(file, '.md');
-  const problems = [];
-  const title = plain((/^# (.+)$/m.exec(text) || [, slug])[1]);
-  const secs = sections(text);
-
-  for (const name of secs.duplicates) problems.push(`two "## ${name}" sections; give one another name`);
-  for (const name of REQUIRED) {
-    if (!secs.has(name)) problems.push(`no "## ${name}" section`);
-  }
-  const order = [...secs.keys()];
-  if (order[0] !== 'Where it stands') problems.push('"## Where it stands" must be the first section');
-  if (order[1] !== 'Waiting on you') problems.push('"## Waiting on you" must come right after "Where it stands"');
-
-  text.split('\n').forEach((line, n) => {
-    if (/^\*Revised \d{4}-\d{2}-\d{2}/.test(line)) {
-      problems.push(`line ${n + 1}: a "*Revised" history line. Rewrite "Where it stands" instead; history is in git and the PRs`);
-    }
-  });
-
-  // Where it stands
+// "Where it stands": the status line, then a short paragraph.
+function readWhere(secs, problems) {
   let status = null;
   let updated = null;
   let summary = '';
@@ -138,38 +119,75 @@ export function readPlan(file) {
     const words = summary.split(' ').filter(Boolean).length;
     if (words > 120) problems.push(`"Where it stands" is ${words} words; keep it to a short paragraph (120 at most)`);
   }
+  return { status, updated, summary };
+}
 
-  // Waiting on you
+// "Waiting on you": bullets with a bold question and a recommended answer, or "Nothing."
+function readWaiting(secs, slug, problems) {
   const waiting = [];
   const wait = secs.get('Waiting on you');
-  if (wait) {
-    const body = wait.join('\n').trim();
-    // A bullet runs on through its indented continuation lines.
-    const items = [];
-    for (const l of body.split('\n')) {
-      if (/^- /.test(l)) items.push(l);
-      else if (items.length && /^\s+\S/.test(l)) items[items.length - 1] += ' ' + l.trim();
-    }
-    if (!items.length && body !== 'Nothing.') problems.push('"Waiting on you" holds bullets, or the one word "Nothing."');
-    for (const item of items) {
-      if (/~~/.test(item)) problems.push('"Waiting on you" has a crossed-out item; move the answer to "Decisions for a human" and delete it here');
-      const q = /^- \*\*(.+?)\*\*\s*(.*)$/.exec(item);
-      if (!q) {
-        problems.push(`"Waiting on you" item does not start with a bold question: ${item.slice(0, 60)}`);
-        continue;
-      }
-      // The answer runs from "Recommended:" to the sentence end before "Blocks:", or to the end.
-      const rec = /Recommended: (.+?)[.!?]?(?=\s+Blocks:|\s*$)/.exec(q[2]);
-      if (!rec) problems.push(`"Waiting on you" item has no "Recommended: …." answer: ${plain(q[1]).slice(0, 60)}`);
-      waiting.push({ plan: slug, question: plain(q[1]), detail: plain(q[2]), recommended: rec ? plain(rec[1]) : '' });
-    }
+  if (!wait) return waiting;
+  const body = wait.join('\n').trim();
+  // A bullet runs on through its indented continuation lines.
+  const items = [];
+  for (const l of body.split('\n')) {
+    if (/^- /.test(l)) items.push(l);
+    else if (items.length && /^\s+\S/.test(l)) items[items.length - 1] += ' ' + l.trim();
   }
+  if (!items.length && body !== 'Nothing.') problems.push('"Waiting on you" holds bullets, or the one word "Nothing."');
+  for (const item of items) {
+    if (/~~/.test(item)) problems.push('"Waiting on you" has a crossed-out item; move the answer to "Decisions for a human" and delete it here');
+    const q = /^- \*\*(.+?)\*\*\s*(.*)$/.exec(item);
+    if (!q) {
+      problems.push(`"Waiting on you" item does not start with a bold question: ${item.slice(0, 60)}`);
+      continue;
+    }
+    // The answer runs from "Recommended:" to the sentence end before "Blocks:", or to the end.
+    const rec = /Recommended: (.+?)[.!?]?(?=\s+Blocks:|\s*$)/.exec(q[2]);
+    if (!rec) problems.push(`"Waiting on you" item has no "Recommended: …." answer: ${plain(q[1]).slice(0, 60)}`);
+    waiting.push({ plan: slug, question: plain(q[1]), detail: plain(q[2]), recommended: rec ? plain(rec[1]) : '' });
+  }
+  return waiting;
+}
 
-  // Not yet decided: open questions only.
+// Sections in the order a plan needs them first; also used by the roadmap.
+function checkOrderAndRequired(secs, required, problems) {
+  for (const name of secs.duplicates) problems.push(`two "## ${name}" sections; give one another name`);
+  for (const name of required) {
+    if (!secs.has(name)) problems.push(`no "## ${name}" section`);
+  }
+  const order = [...secs.keys()];
+  if (order[0] !== 'Where it stands') problems.push('"## Where it stands" must be the first section');
+  if (order[1] !== 'Waiting on you') problems.push('"## Waiting on you" must come right after "Where it stands"');
+}
+
+function checkNotYetDecided(secs, problems) {
   const nyd = secs.get('Not yet decided');
   if (nyd && nyd.some((l) => /^- .*~~/.test(l))) {
     problems.push('"Not yet decided" has crossed-out items; decided ones belong in "Decisions for a human" only');
   }
+}
+
+export function readPlan(file) {
+  const text = readFileSync(file, 'utf8');
+  const slug = basename(file, '.md');
+  const problems = [];
+  const title = plain((/^# (.+)$/m.exec(text) || [, slug])[1]);
+  const secs = sections(text);
+
+  checkOrderAndRequired(secs, REQUIRED, problems);
+
+  text.split('\n').forEach((line, n) => {
+    if (/^\*Revised \d{4}-\d{2}-\d{2}/.test(line)) {
+      problems.push(`line ${n + 1}: a "*Revised" history line. Rewrite "Where it stands" instead; history is in git and the PRs`);
+    }
+  });
+
+  const { status, updated, summary } = readWhere(secs, problems);
+  const waiting = readWaiting(secs, slug, problems);
+
+  // Not yet decided: open questions only.
+  checkNotYetDecided(secs, problems);
 
   // Slices
   const slices = [];
@@ -240,6 +258,71 @@ export function readPlans(dir) {
     .map((f) => readPlan(join(dir, f)));
 }
 
+// The roadmap (docs/roadmap.md) is the one overall plan. It has no slices: its
+// "Order of work" is a numbered list of plans, the path to version 1. Each step
+// links the plan it runs, or links none while that plan is not written yet.
+const ROADMAP_REQUIRED = ['Where it stands', 'Waiting on you', 'Order of work', 'Decisions', 'Not yet decided'];
+
+export function readRoadmap(file, plans = []) {
+  const problems = [];
+  if (!existsSync(file)) return { file, status: null, updated: null, summary: '', waiting: [], path: [], problems: ['no roadmap file'] };
+  const text = readFileSync(file, 'utf8');
+  const secs = sections(text);
+  checkOrderAndRequired(secs, ROADMAP_REQUIRED, problems);
+  const { status, updated, summary } = readWhere(secs, problems);
+  const waiting = readWaiting(secs, 'roadmap', problems);
+  checkNotYetDecided(secs, problems);
+
+  // Decisions: a table with a Date column, each row dated.
+  const dec = secs.get('Decisions');
+  if (dec) {
+    const t = tables(dec, 'Decisions').find((x) => col(x.header, ['date']) >= 0);
+    if (!t) problems.push('"## Decisions" needs a table with a Date column');
+    else {
+      const di = col(t.header, ['date']);
+      for (const r of t.rows) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(plain(r.cells[di] || ''))) {
+          problems.push(`decision "${plain(r.cells[di + 1] || '').slice(0, 40)}" has no YYYY-MM-DD date`);
+        }
+      }
+    }
+  }
+
+  // Order of work: "1. [Plan](plans/<slug>.md) ..." steps.
+  const byslug = Object.fromEntries(plans.map((p) => [p.slug, p]));
+  const path = [];
+  const order = secs.get('Order of work') || [];
+  for (const line of order) {
+    const m = /^(\d+)\. (.+)$/.exec(line);
+    if (!m) continue;
+    const link = /\[([^\]]+)\]\((?:\.\/)?plans\/(done\/)?([a-z0-9-]+)\.md(?:#[^)]*)?\)/.exec(m[2]);
+    const text = plain(m[2]);
+    let plan = null;
+    let state = 'not written';
+    let title = '';
+    if (link) {
+      plan = link[3];
+      if (link[2]) state = 'done';
+      else if (byslug[plan]) {
+        state = byslug[plan].status || 'not started';
+        title = byslug[plan].title;
+      } else problems.push(`"Order of work" step ${m[1]} links plans/${plan}.md, which is not a plan in docs/plans`);
+    }
+    // A linked plan goes by its own title; an unwritten step by its words up to the first stop.
+    const label = title || (link ? plain(link[1]) : text.split(/[.:]\s/)[0].replace(/[.:]$/, ''));
+    path.push({ step: Number(m[1]), label, detail: text, plan, title, status: state, current: false });
+  }
+  if (secs.has('Order of work') && !path.length) problems.push('"## Order of work" needs a numbered list of steps');
+  path.forEach((s, i) => {
+    if (s.step !== i + 1) problems.push(`"Order of work" step ${s.step} is out of order; number the steps 1, 2, 3`);
+  });
+  // The current step is the first one not done.
+  const cur = path.find((s) => s.status !== 'done');
+  if (cur) cur.current = true;
+
+  return { file, status, updated, summary, waiting, path, problems };
+}
+
 function main() {
   const args = process.argv.slice(2);
   for (const flag of ['--plans', '--out']) {
@@ -252,10 +335,13 @@ function main() {
   const pi = args.indexOf('--plans');
   const dir = pi >= 0 ? resolve(args[pi + 1]) : join(root, 'docs/plans');
   const plans = readPlans(dir);
+  const roadmapFile = join(dir, '..', 'roadmap.md');
+  const roadmap = readRoadmap(roadmapFile, plans);
+  roadmap.file = 'docs/roadmap.md';
 
   if (args.includes('--check')) {
     let bad = 0;
-    for (const p of plans) {
+    for (const p of [roadmap, ...plans]) {
       for (const msg of p.problems) {
         console.log(`${p.file}: ${msg}`);
         bad++;
@@ -265,7 +351,7 @@ function main() {
       console.log(`\n${bad} problem(s). The plan format is in docs/how-we-work.md, under Plan.`);
       process.exit(1);
     }
-    console.log(`${plans.length} plans follow the format.`);
+    console.log(`The roadmap and ${plans.length} plans follow the format.`);
     return;
   }
 
@@ -276,7 +362,7 @@ function main() {
     const source = readFileSync(fileURLToPath(import.meta.url), 'utf8');
     const meta = [
       { label: 'plan-status.mjs', value: source, type: 'code', lang: 'javascript' },
-      { label: 'Input', value: 'docs/plans/*.md in nhoople/netrunner' },
+      { label: 'Input', value: 'docs/roadmap.md and docs/plans/*.md in nhoople/netrunner' },
       { label: 'Generated', value: new Date().toISOString() },
     ];
     const rows = {
@@ -295,19 +381,21 @@ function main() {
         findingsDropped: p.findings.dropped,
       })),
       slices: plans.flatMap((p) => p.slices),
-      waiting: plans.flatMap((p) => p.waiting),
+      waiting: [...roadmap.waiting, ...plans.flatMap((p) => p.waiting)],
       findings: plans.flatMap((p) =>
         Object.entries(p.findings.byGroup).map(([group, c]) => ({ plan: p.slug, group, ...c })),
       ),
+      path: roadmap.path,
     };
-    // One file, so a refresh is one upload. The page splits it into four datasets.
+    // One file, so a refresh is one upload. The page splits it into five datasets.
     const file = join(out, 'plan-status.json');
     writeFileSync(file, JSON.stringify({ ...rows, meta }, null, 1));
     console.log(`Wrote ${file}: ${Object.entries(rows).map(([n, r]) => `${r.length} ${n}`).join(', ')}`);
     return;
   }
 
-  console.log(JSON.stringify(plans.map(({ problems, ...p }) => p), null, 1));
+  const { problems: _, ...road } = roadmap;
+  console.log(JSON.stringify({ roadmap: road, plans: plans.map(({ problems, ...p }) => p) }, null, 1));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

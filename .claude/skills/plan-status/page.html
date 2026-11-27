@@ -1,6 +1,6 @@
 <meta name="dash-one-writer">
 <style>
-  /* Layout: one column. What waits on Nathaniel first, then a card per plan with its slices as pills, then open findings. */
+  /* Layout: one column. The path to version 1, what waits on Nathaniel, then a card per plan with its slices as pills, then open findings. */
   .ps { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
   .ps-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
   .ps-takeaway { margin: var(--cds-gap-xs) 0 0; color: var(--color-fg-muted); max-width: 70ch; }
@@ -8,6 +8,18 @@
   .ps-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); min-width: 0; }
   .ps-section h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
   .ps-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); max-width: 70ch; }
+
+  .ps-path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: var(--cds-gap-sm); counter-reset: none; }
+  .ps-step { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; position: relative; }
+  .ps-step[data-current] { border-color: var(--color-warn); box-shadow: inset 0 3px 0 var(--color-warn); }
+  .ps-step[data-s="done"] { box-shadow: inset 0 3px 0 var(--color-ok); }
+  .ps-step-n { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; display: flex; justify-content: space-between; gap: var(--cds-gap-xs); }
+  .ps-step-now { color: var(--color-warn); font-weight: var(--cds-font-weight-medium); text-transform: uppercase; letter-spacing: 0.04em; }
+  .ps-step-name { font-weight: var(--cds-font-weight-medium); text-wrap: balance; color: var(--color-fg); text-decoration: none; }
+  a.ps-step-name:hover { text-decoration: underline; }
+  .ps-step-state { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ps-step[data-s="not written"] { border-style: dashed; }
+  @media (max-width: 480px) { .ps-path { grid-template-columns: 1fr; } }
 
   .ps-asks { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
   .ps-ask { background: var(--color-panel); border: 1px solid var(--color-border-line); border-left: 3px solid var(--color-warn); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
@@ -66,9 +78,15 @@
     <p class="ps-takeaway" data-draw="takeaway">—</p>
   </header>
 
+  <section id="path" class="ps-section">
+    <h2>Path to version 1</h2>
+    <p class="ps-note">The roadmap's order of work: one plan at a time. Version 1 is play against friends plus the casual queue.</p>
+    <ol class="ps-path" data-draw="path" data-source="path"></ol>
+  </section>
+
   <section id="waiting" class="ps-section">
     <h2>Waiting on you</h2>
-    <p class="ps-note">Questions from the plans that you can answer now, each with the answer the agents recommend.</p>
+    <p class="ps-note">Questions from the roadmap and the plans that you can answer now, each with the answer the agents recommend.</p>
     <div class="ps-asks" data-draw="waiting" data-source="waiting"></div>
   </section>
 
@@ -90,12 +108,12 @@
     <div class="ps-rows" data-draw="findings" data-source="findings findings-other"></div>
   </section>
 
-  <p class="ps-foot">Drawn from the plans in <code>docs/plans</code> on the meta repo's main branch by the plan-status script. Refreshed by /sync at the end of each working session.</p>
+  <p class="ps-foot">Drawn from <code>docs/roadmap.md</code> and the plans in <code>docs/plans</code> on the meta repo's main branch by the plan-status script. Refreshed by /sync at the end of each working session.</p>
 </div>
 
 <script>
   // Every dataset is one key of the same plan-status.json.
-  for (const key of ['plans', 'slices', 'waiting', 'findings']) {
+  for (const key of ['plans', 'slices', 'waiting', 'findings', 'path']) {
     dash.loader(key, {
       description: 'Takes the "' + key + '" list out of plan-status.json.',
       fn: ({ answer }) => {
@@ -136,11 +154,29 @@
   const label = (r) => (r.name ? r.id : r.id.split(' ')[0]);
   const name = (r) => r.name || r.id.split(' ').slice(1).join(' ');
 
+  const STEP_STATE = { done: 'done', active: 'active', paused: 'paused', 'not started': 'not started', 'not written': 'plan not written yet' };
+
+  dash.draw('path', (el) => {
+    const d = dash.data('path');
+    if (d.status !== 'ok') { el.replaceChildren(d.status === 'error' ? h('li', { class: 'ps-none' }, 'The roadmap did not load.') : '—'); return; }
+    el.replaceChildren(...d.data.map((r, i) => h('li', { class: 'ps-step', 'data-s': r.status, 'data-current': r.current || null,
+      'aria-current': r.current ? 'step' : null },
+      h('span', { class: 'ps-step-n' }, 'Step ' + r.step, r.current ? h('span', { class: 'ps-step-now' }, 'now') : null),
+      r.plan && r.status !== 'done'
+        ? h('a', { class: 'ps-step-name', href: '#plan-' + r.plan }, r.label)
+        : h('span', { class: 'ps-step-name' }, r.label),
+      h('span', { class: 'ps-step-state', 'data-source': 'path', 'data-field': 'status', 'data-row': i }, STEP_STATE[r.status] || r.status),
+    )));
+  });
+
   dash.draw('takeaway', (el) => {
     const p = dash.data('plans');
     if (p.status !== 'ok') { el.replaceChildren('—'); return; }
     const rows = p.data;
-    const asks = rows.reduce((a, r) => a + r.waiting, 0);
+    const w = dash.data('waiting');
+    const asks = w.status === 'ok' ? w.data.length : rows.reduce((a, r) => a + r.waiting, 0);
+    const path = dash.data('path');
+    const cur = path.status === 'ok' ? path.data.find((r) => r.current) : null;
     const slices = rows.reduce((a, r) => a + r.slices, 0);
     const done = rows.reduce((a, r) => a + r.done, 0);
     const running = rows.reduce((a, r) => a + r.running, 0);
@@ -148,6 +184,7 @@
     for (const r of rows) by[r.status] = (by[r.status] || 0) + 1;
     const states = Object.keys(ORDER).filter((s) => by[s]).map((s) => by[s] + ' ' + s).join(', ');
     el.replaceChildren(
+      cur ? ['Step ', h('b', {}, String(cur.step)), ' of ', h('b', {}, String(path.data.length)), ' toward version 1: ' + cur.label + '. '] : '',
       asks ? h('b', {}, String(asks)) : 'No',
       ' ' + plural(asks, 'question waits', 'questions wait') + ' on you. ',
       h('b', {}, String(rows.length)), ' plans (' + states + '); ',
@@ -161,7 +198,7 @@
     const p = dash.data('plans');
     if (w.status !== 'ok') { el.replaceChildren(w.status === 'error' ? h('p', { class: 'ps-none' }, 'The questions did not load.') : '—'); return; }
     if (!w.data.length) { el.replaceChildren(h('p', { class: 'ps-none' }, 'Nothing is waiting on you.')); return; }
-    const titles = Object.fromEntries((p.status === 'ok' ? p.data : []).map((r) => [r.plan, r.title]));
+    const titles = { roadmap: 'Roadmap', ...Object.fromEntries((p.status === 'ok' ? p.data : []).map((r) => [r.plan, r.title])) };
     el.replaceChildren(...w.data.map((r, i) => h('article', { class: 'ps-ask' },
       h('span', { class: 'ps-ask-plan' }, titles[r.plan] || r.plan),
       h('span', { class: 'ps-ask-q', 'data-source': 'waiting', 'data-field': 'question', 'data-row': i }, r.question),

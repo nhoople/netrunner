@@ -44,7 +44,7 @@ A plan in `docs/plans/` has these sections, in this order. Leave out a section t
 | Out of scope | What this plan will not do, so a session does not drift into it |
 | Done | What is true when the plan is finished. Then the plan, and its folder if it has one, moves to `docs/plans/done/` |
 
-The [`plan-status` script](../.claude/skills/plan-status/plan-status.mjs) reads these sections. The meta repo's `Plan check` fails a PR whose plan breaks the format, so a plan can't drift back into a diary. The same script draws the maintainer's view of where every plan stands: the progress visual in chat, and the pinned status page that `/sync` refreshes. A plan that gets too long for one read can move finished slices' results to `docs/plans/<plan>/results.md`.
+The [`plan-status` script](../.claude/skills/plan-status/plan-status.mjs) reads these sections. It also reads the [roadmap](roadmap.md), the one overall plan, whose "Order of work" lists these plans as the path to version 1. The meta repo's `Plan check` fails a PR whose plan breaks the format, so a plan can't drift back into a diary. The same script draws the maintainer's view of where every plan stands: the progress visual in chat, and the pinned status page that `/sync` refreshes. A plan that gets too long for one read can move finished slices' results to `docs/plans/<plan>/results.md`.
 
 ### 3. Build
 
