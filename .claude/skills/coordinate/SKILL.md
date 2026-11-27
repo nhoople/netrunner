@@ -57,6 +57,13 @@ rebase on origin/master first, then re-run tests/cr-cited-text.test.ts and
 tests/cr-subrule-coverage.test.ts: their baselines change when other PRs
 land.
 
+Waiting: end a turn that promises a next step only when something will
+bring you back to it: a run_in_background job (a test suite, `gh run watch
+<id> --exit-status`, `gh pr checks <n> --watch`) or a subagent. Auto-fix
+wakes you on a failure, not on a pass. Nothing else wakes you, so a turn
+that ends with "I'll do X once Y finishes" and nothing running stalls the
+slice.
+
 Proof: <the proof from the plan's "Tests" for this slice: a played match or
 part of one, a before-and-after screenshot or recording, or a test named for
 the behavior in plain words>. Name it in the PR.
@@ -82,6 +89,13 @@ with Nathaniel before building past it.
 Running alongside: <other slice sessions now running and the repos they
 write, or none>. Do not write those repos.
 ```
+
+## While a slice runs
+
+A slice session ends many turns before it is done, and each one sends the coordinator a note. A note that says "waiting on X" or "I'll do Y next" is not proof the session will carry on: it resumes only when a background job or subagent it started finishes, or when someone messages it.
+
+- On each note that promises a next step, check that something will bring the session back. Ask the session what will wake it if unsure. `get_session`'s `isRunning` can read false while a background job is still running, so don't treat it as proof either way. If nothing will, message it to continue at once.
+- On a status question, compare each slice's PRs with the time since its last step (for example, an engine release with no game PR half an hour later). Don't explain a gap with the session's last claim.
 
 ## When a slice reports back
 
