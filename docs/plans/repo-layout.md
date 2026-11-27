@@ -6,7 +6,7 @@
 
 **Status:** not started. Updated 2026-11-27.
 
-No slice has started. D1, the doc fixes, is next and can start any time. The engine slices start with E0, after the CR audit's FX-faceup merges and releases (FX-expose is done, engine `v1.147.287`). D1 waits for them too, because it writes the engine and game repos. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
+No slice has started. D1, the doc fixes, is next and can start any time. The engine slices start with E0, after the CR audit's fix-now slices: FX-expose and FX-faceup are done (engine `v1.147.288`); whether a third one, FX-hq-access, runs first is waiting on Nathaniel in the CR audit plan. D1 waits for them too, because it writes the engine and game repos. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
 
 ## Waiting on you
 
