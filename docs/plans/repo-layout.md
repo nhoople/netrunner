@@ -6,7 +6,7 @@
 
 **Status:** active. Updated 2026-11-27.
 
-D1, the doc fixes, is running: it writes all five repos, so no other slice starts until it merges. Then C1, R1 and G1 can run beside each other and beside the engine slices, which start with E0. The CR audit's fix-now slices that come first are done (FX-expose, FX-faceup, engine `v1.147.288`); Nathaniel chose on 2026-11-27 to file the Snare! HQ access leak under the audit's area 4 rather than fix it before E0. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
+D1 is done: each repo's `AGENTS.md` now holds its setup and test commands, a one-line `CLAUDE.md` in each repo loads it, and the meta `CLAUDE.md` points there, which fixed the engine setup line. C1, R1, G1 and E0 are next and can run beside each other, since each writes a different repo. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)); the Snare! HQ access leak is filed under its area 4 (decision 19).
 
 ## Waiting on you
 
@@ -43,11 +43,11 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 
 | Slice | Status | PR | Repo | Runs | What it does |
 |---|---|---|---|---|---|
-| D1 docs | running |  | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
-| C1 cards tools | to do |  | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
-| R1 rules data tools | to do |  | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
-| G1 game | to do |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
-| E0 engine checks and names | to do |  | engine (tests only) | after D1 (FX-expose and FX-faceup are merged) | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
+| D1 docs | done | meta #384, engine #1011, cards #312, CR data #13, game #339 | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
+| C1 cards tools | next |  | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
+| R1 rules data tools | next |  | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
+| G1 game | next |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
+| E0 engine checks and names | next |  | engine (tests only) | after D1, beside C1, R1 and G1 | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
 | E1 `effects/ir.ts` | to do |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
 | E2 `state/types.ts` | to do |  | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
 | E3 `state/` by procedure | to do |  | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
@@ -56,6 +56,13 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | E-tests | to do |  | engine (tests only) | after E5, when no other session writes engine tests | Move all engine tests into folders that mirror the new code folders, in one go. Regenerate the baselines that record test file paths (about ten in `tests/baselines/`), update the mutation-test globs in `stryker/`, and add the test placement check. Write `tests/README.md` |
 | C2 card data | to do |  | cards | after C1 and E-tests | Regroup `data/` into the card data groups. Move the bookkeeping out. Update the schema's `$id`, the validators, the generators and the README's "Consume the data" table. Not tagged until X |
 | X paired cut | to do |  | engine, cards, game, meta | after C2 and G1 | Engine, game and the `lookup` skill read the new card data paths. Tag cards and engine `v1.148.0` together. The game moves to both pins, its tests pass and a `play-check` match is attached. Update the pin table, the [health log](../health.md) and the path references in meta docs, including the CR audit plan's Shared pieces table. Lift the pause |
+
+## Findings
+
+| Finding | Source | Goes to | Status |
+|---|---|---|---|
+| The engine, game and CR data READMEs repeat setup commands for people. They agree with `AGENTS.md` today, except that the CR data README installs only `requirements.txt`, not `requirements-dev.txt` (`ruff`) | D1 (meta #384) | Each repo's README rewrite: R1 (CR data), G1 (game), E0 (engine) | open |
+| The cards and CR data PR templates list test commands without the `ruff` format check CI runs | D1 (meta #384) | C1 (cards), R1 (CR data) | open |
 
 ## Pause and resume
 
