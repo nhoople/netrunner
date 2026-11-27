@@ -4,9 +4,9 @@
 
 ## Where it stands
 
-**Status:** paused. Updated 2026-11-22.
+**Status:** paused. Updated 2026-11-27.
 
-Paused for the [repository layout plan](repo-layout.md) until its slice X merges. That plan moves `src/state/procedures/` into one folder per area and updates the paths here. One exception: FX-expose, a visibility fix, runs first after the weekly usage reset on 2026-11-26. PF-S3d is the last slice done. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card in the catalog has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
+Paused for the [repository layout plan](repo-layout.md) until its slice X merges. That plan moves `src/state/procedures/` into one folder per area and updates the paths here. One exception: FX-expose, a visibility fix, is running now (started 2026-11-27) and takes the engine before the layout plan's E0. PF-S3d is the last slice done. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card in the catalog has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
 
 ## Waiting on you
 
@@ -463,7 +463,7 @@ Fix-now sessions (`docs/how-we-work.md`, Findings) and the fixes for what the re
 | FX-access | Access limits, Boomerang, Adrian Seis | done | engine #996, game #329, meta #342 | engine (+ game, meta pins) | after RF-1b, before PF-S3a | R&D's random access limit ignores root upgrades (7.3.5), and the Archives breach cap (7.4.6d) if it is the same fix; the run closes after Boomerang's shuffle (6.9.6d); Adrian Seis's Psi Game resolves once (9.6.4b). Added 2026-11-21: The Foundry's search may fail to find and R&D is always shuffled (8.7.2e, 8.7.3); an unrezzed Architect can be trashed (10.2.2b). The second-reader tests un-skipped, their entries removed. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | FX-window | Stuck run after a paid interrupt | done | engine #1001, game #331, meta #350 | engine (+ game, meta pins) | after PF-S3a, before PF-S3b | Fix-now from the second reader (engine #998, #999): clear the priority frame left after a paid interrupt on a subroutine's damage (9.2.4d), so the run goes on; ask a "choose one" encounter ability once, not again after an interrupt window inside it (9.12.3d; Data Raven, Funhouse with Decoy); The Cleaners' interrupt waits for the active player (9.2.9c) if it is the same window code. Un-skip the second-reader tests and remove their entries. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | FX-view | Pending abilities in seat views | done | engine #1004, game #333, meta #356 | engine (+ game, meta pins) | after PF-S3b, before PF-S3c | Fix-now (visibility): filter `pendingAbilities` and `pendingEffectContinuation` in each seat's view (10.2.2a); keep Subliminal Messaging's turn-begin offer from a facedown copy private to the Corp (10.2.3a); Record Reconstructor shows only faceup Archives cards, the Runner chooses, declining breaches. A test per seat; seat-view-checker on the game side. CR first, cr-checker, one maintenance release, pins. |
-| FX-expose | Expose choices show no titles | next | | engine (+ game, meta pins) | first after the weekly usage reset (2026-11-26), before PF-S3e | Fix-now (visibility): when the Runner chooses among facedown Corp cards (expose, Forged Activation Orders, Tinkering, the generic `expose` kind), the choice shows no titles to the Runner (10.2.2a). A test per seat; seat-view-checker. One maintenance release, pins. |
+| FX-expose | Expose choices show no titles | running | | engine (+ game, meta pins) | first after the weekly usage reset (2026-11-26), before PF-S3e | Fix-now (visibility): when the Runner chooses among facedown Corp cards (expose, Forged Activation Orders, Tinkering, the generic `expose` kind), the choice shows no titles to the Runner (10.2.2a). A test per seat; seat-view-checker. One maintenance release, pins. |
 
 ### Areas, in run order
 
