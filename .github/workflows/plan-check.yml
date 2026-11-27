@@ -3,6 +3,8 @@ name: Plan check
 # Plans in docs/plans follow the format in docs/how-we-work.md (Plan):
 # "Where it stands" and "Waiting on you" first, a Status column on every
 # slice and finding, no crossed-out questions, no "*Revised" history lines.
+# docs/roadmap.md keeps its sections and a dated Decisions table, and each
+# "Order of work" step links a plan that exists.
 # See .claude/skills/plan-status/.
 
 on:
