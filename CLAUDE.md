@@ -1,6 +1,6 @@
 # Netrunner workspace
 
-This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/agents/`. It is public: keep secrets, local paths, and personal notes out of it. Its `Public check` workflow fails a PR that adds a local path, an email address, or a secret. A `PreToolUse` hook (`.claude/hooks/public-check.mjs`) runs the same check before a `git commit` or `git push` in the meta repo and blocks it on a hit. `notes.md` stays local (gitignored).
+This folder is the checkout of `nhoople/netrunner` (branch `main`), the meta repo. It tracks the pin table in `README.md` (which engine, cards, and Comprehensive Rules versions go together), this file, `docs/`, and `.claude/` (the skills, hooks, agents, and shared settings). It is public: keep secrets, local paths, and personal notes out of it. Its `Public check` workflow fails a PR that adds a local path, an email address, or a secret. A `PreToolUse` hook (`.claude/hooks/public-check.mjs`) runs the same check before a `git commit` or `git push` in the meta repo and blocks it on a hit. `notes.md` stays local (gitignored).
 
 Inside it are four separate git repositories, gitignored by the meta repo (not submodules):
 
@@ -8,6 +8,8 @@ Inside it are four separate git repositories, gitignored by the meta repo (not s
 - `netrunner-cards-data`: card definitions (dataset with its own versions and CI)
 - `netrunner-comprehensive-rules-data`: the Comprehensive Rules (CR) dataset
 - `netrunner-game`: the match host
+
+Each repo's setup and test commands are in its own `AGENTS.md`, which its one-line `CLAUDE.md` loads. This file does not repeat them.
 
 Run git for one of the four inside its folder (`git -C netrunner-engine ...`). Git run from this folder acts on the meta repo.
 
@@ -31,8 +33,6 @@ Use the `lookup` skill (`node .claude/skills/lookup/lookup.mjs`) for CR text by 
 Do not wait with `sleep` in a foreground command. For a PR's CI, use the `ccd_pr` tools. For other CI runs, run `gh run watch <id> --exit-status` with `run_in_background`. For long tests or scripts, use `run_in_background`, or the `Monitor` tool (deferred) to wait for a condition. A `PreToolUse` hook (`.claude/hooks/wait-nudge.mjs`) reminds a session of this.
 
 The repos stay separate. The game and the engine consume the others by release tag, not by `master` and not as workspace packages. Do not recommend merging the repositories, an npm workspace, or Turborepo unless asked to change that release model.
-
-Engine setup: `npm install && npm run fetch-cr` in `netrunner-engine`.
 
 Project docs live in `docs/` (roadmap, git hygiene, audits). Current versions live only in the pin files and the README pin table: link the table instead of restating a version.
 
@@ -66,7 +66,7 @@ Rules belong in `netrunner-engine`, card definitions in `netrunner-cards-data`, 
 Before committing in any of those repos:
 
 - Add or update a test there for the behavior. A game test does not cover an engine rules change.
-- Run that repo's tests and leave them passing. Engine: `npm test` in `netrunner-engine` (the affected file first, then the suite for a rules change). Cards: the cards CI validate script. Game: `npm test`.
+- Run the checks that repo's `AGENTS.md` lists and leave them passing.
 - If a change needs card data the engine pin does not have yet, the engine suite still has to pass against the pinned catalog.
 
 A `PreToolUse` hook (`.claude/hooks/commit-nudge.mjs`) reminds a session of this, and of `cr-checker`, when it commits engine or game source with no test file, or engine source before running `cr-checker`.
