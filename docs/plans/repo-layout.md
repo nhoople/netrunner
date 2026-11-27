@@ -67,6 +67,7 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | The engine's `docs/cr-adherence-gate.md` (line 84) still names the cards script `validate-cards.py`, now `validate_cards.py` | C1 (cards #315) | The next engine slice after E0 (E1), a one-line doc fix | open |
 | `data/nsg-catalog-pin.json`'s notes still say "generate-*.py" | C1 (cards #314) | C2 | open |
 | The cards README's Layout rows for `data/<side>/<type>/` accept any new folder under a side | C1 (cards #316) | C2, which regroups `data/` | open |
+| The engine typechecks only `src/`: `tsconfig.json` excludes `tests/`, so about 360 test files (the top `tests/` folder and `tests/jnet`, `second-reader`, `playout`, `ability-fire`, `setup`, `fixtures`, `game-export`), `scripts/playouts.ts`, `scripts/update-ability-fire.ts`, `vitest.config.ts` and `vitest.jnet.config.ts` are never typechecked. The error count is not measured yet. `.mjs` scripts and `stryker/*.mjs` are plain JavaScript and not a gap | Typecheck coverage comparison (2026-11-27) | E-tests, which moves every engine test anyway: measure the errors first, then typecheck tests and scripts in CI; if there are many errors, a slice of its own after E-tests | open |
 
 ## Pause and resume
 
