@@ -6,11 +6,11 @@
 
 **Status:** paused. Updated 2026-11-27.
 
-Paused for the [repository layout plan](repo-layout.md) until its slice X merges, which moves `src/state/procedures/` into area folders. Fix-now slices take the engine first: FX-expose (engine `v1.147.287`) and FX-faceup (`v1.147.288`) are done, so no seat sees the titles of facedown cards the Runner chooses among or accesses in a server. A third leak, in HQ access (Snare!), waits on you. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
+Paused for the [repository layout plan](repo-layout.md) until its slice X merges, which moves `src/state/procedures/` into area folders. Fix-now slices take the engine first: FX-expose (engine `v1.147.287`) and FX-faceup (`v1.147.288`) are done, so no seat sees the titles of facedown cards the Runner chooses among or accesses in a server. A third leak, in HQ access (Snare!), is filed under area 4: Nathaniel chose on 2026-11-27 not to fix it early, so the layout plan's D1 started. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
 
 ## Waiting on you
 
-- **Fix the Snare! leak now, or file it under area 4?** When the Runner accesses a card in HQ and a choice opens at once (Snare!'s pay-or-decline), the card is faceup while that choice is open, and the spectator's log line names it (CR 7.1.2, 10.2.2a). FX-faceup left HQ and R&D on their existing path on purpose. Recommended: one short fix-now slice, FX-hq-access, before the layout plan's D1 and E0: access stops turning HQ and R&D cards faceup too, with the Runner seeing them through `runnerSeesAccessedCard`, as FX-faceup did for installed cards. It would also close the two related area 4 gaps FX-faceup filed (HQ and R&D cards open to the Runner only while each is accessed, 7.3.1a; and a card being accessed counted as secret in a Corp choice label).
+Nothing.
 
 ## Why
 
@@ -555,6 +555,7 @@ Each area follows the [per-area recipe](#the-per-area-recipe-applies-to-every-ar
 | 2026-11-22 | Disposable HQ: the Corp orders the cards it adds to the bottom of R&D (the engine already does) | "You" is the Corp, and the player carrying out an effect makes its choices (1.14.5); the CR does not say otherwise |
 | 2026-11-22 | FX-expose: the expose-choice title leak is fixed first after the weekly usage reset, before PF-S3e; the second reader's next part starts beside PF-S3e | A leak to a seat meets the narrowed fix-now rule; the weekly limit was at 88% |
 | 2026-11-27 | FX-faceup: the accessed-card faceup leak FX-expose found is fixed next, right after FX-expose, before the layout plan's E0 | A leak to the spectator and the log in a playable build meets the fix-now rule, and the fix is one small slice |
+| 2026-11-27 | The Snare! HQ access leak (a card accessed in HQ is faceup while a choice it opens is open, and the spectator's log names it) is filed under area 4, not fixed in a fix-now slice. The layout plan's D1 starts instead | Nathaniel's choice on 2026-11-27, over the recommended FX-hq-access slice |
 
 ## Not yet decided
 
