@@ -6,7 +6,7 @@
 
 **Status:** active. Updated 2026-11-27.
 
-D1, C1, R1 and E0 are done. Every repo's README now lists its folders, with a check that fails on one it leaves out, and the engine has a check that fails when a `src/` file passes 2,000 lines, with its 11 oversized files on a shrink-only baseline. E0 named the area folders (see Shared pieces); Nathaniel chose one `install/` folder for Corp and Runner install. G1 is running in the game (two of its moves merged). E1 is next for the engine and waits for Nathaniel's go. C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
+D1, C1, R1 and E0 are done. Every repo's README now lists its folders, with a check that fails on one it leaves out, and the engine has a check that fails when a `src/` file passes 2,000 lines, with its 11 oversized files on a shrink-only baseline. E0 named the area folders (see Shared pieces); Nathaniel chose one `install/` folder for Corp and Runner install. G1 is running in the game (two of its moves merged). E1 is running in the engine. C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
 
 ## Waiting on you
 
@@ -48,7 +48,7 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | R1 rules data tools | done | CR data #14, #15 | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
 | G1 game | running |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
 | E0 engine checks and names | done | engine #1012 | engine (tests only) | after D1, beside C1, R1 and G1 | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
-| E1 `effects/ir.ts` | next |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
+| E1 `effects/ir.ts` | running |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
 | E2 `state/types.ts` | to do |  | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
 | E3 `state/` by procedure | to do |  | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
 | E4 `effects/` by procedure | to do |  | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
