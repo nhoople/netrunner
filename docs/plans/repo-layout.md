@@ -6,7 +6,7 @@
 
 **Status:** active. Updated 2026-11-27.
 
-D1 is done: each repo's `AGENTS.md` now holds its setup and test commands, a one-line `CLAUDE.md` in each repo loads it, and the meta `CLAUDE.md` points there, which fixed the engine setup line. C1, R1, G1 and E0 are running beside each other, one session each, since each writes a different repo. E1 follows E0. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)); the Snare! HQ access leak is filed under its area 4 (decision 19).
+D1 is done: each repo's `AGENTS.md` now holds its setup and test commands, a one-line `CLAUDE.md` in each repo loads it, and the meta `CLAUDE.md` points there, which fixed the engine setup line. C1 and R1 are done: the cards repo has its tools in `scripts/` (pack generators in `scripts/generate/`) and tests in `tests/`, the rules data repo's `source/` is now `upstream/`, and both READMEs list every folder with a check that fails on one they leave out. G1 and E0 are running. E1 follows E0; C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)); the Snare! HQ access leak is filed under its area 4 (decision 19).
 
 ## Waiting on you
 
@@ -44,8 +44,8 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | Slice | Status | PR | Repo | Runs | What it does |
 |---|---|---|---|---|---|
 | D1 docs | done | meta #384, engine #1011, cards #312, CR data #13, game #339 | meta + all four | first, now | Make each repo's `AGENTS.md` the one home of its setup and test commands, and point `CLAUDE.md` to them instead of repeating them (fixes the engine setup mismatch). Add a one-line `CLAUDE.md` to each repo that loads its `AGENTS.md`. Fix `CLAUDE.md` and `git-hygiene.md` to say the meta repo tracks `.claude/` skills, hooks and agents, not only agents |
-| C1 cards tools | running |  | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
-| R1 rules data tools | running |  | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
+| C1 cards tools | done | cards #313, #314, #315, #316 | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
+| R1 rules data tools | done | CR data #14, #15 | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
 | G1 game | running |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
 | E0 engine checks and names | running |  | engine (tests only) | after D1, beside C1, R1 and G1 | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
 | E1 `effects/ir.ts` | to do |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
@@ -61,8 +61,11 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 
 | Finding | Source | Goes to | Status |
 |---|---|---|---|
-| The engine, game and CR data READMEs repeat setup commands for people. They agree with `AGENTS.md` today, except that the CR data README installs only `requirements.txt`, not `requirements-dev.txt` (`ruff`) | D1 (meta #384) | Each repo's README rewrite: R1 (CR data), G1 (game), E0 (engine) | open |
-| The cards and CR data PR templates list test commands without the `ruff` format check CI runs | D1 (meta #384) | C1 (cards), R1 (CR data) | open |
+| The engine, game and CR data READMEs repeat setup commands for people. They agree with `AGENTS.md` today, except that the CR data README installs only `requirements.txt`, not `requirements-dev.txt` (`ruff`). R1 fixed the CR data README (CR data #15); the engine and game READMEs wait on E0 and G1 | D1 (meta #384) | Each repo's README rewrite: R1 (CR data), G1 (game), E0 (engine) | open |
+| ~~The cards and CR data PR templates list test commands without the `ruff` format check CI runs~~ Fixed in cards #313 and CR data #15 | D1 (meta #384) | C1 (cards), R1 (CR data) | fixed |
+| The engine's `docs/cr-adherence-gate.md` (line 84) still names the cards script `validate-cards.py`, now `validate_cards.py` | C1 (cards #315) | The next engine slice after E0 (E1), a one-line doc fix | open |
+| `data/nsg-catalog-pin.json`'s notes still say "generate-*.py" | C1 (cards #314) | C2 | open |
+| The cards README's Layout rows for `data/<side>/<type>/` accept any new folder under a side | C1 (cards #316) | C2, which regroups `data/` | open |
 
 ## Pause and resume
 

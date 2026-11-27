@@ -87,7 +87,7 @@ The 19 dead kinds: `add_pending_damage`, `brain_damage`, `give_bad_publicity_unl
 | Play | 0 | 314 |
 | Static (declarations; no label expected) | — | 2,123 |
 
-So 1,187 non-static abilities on 1,078 cards have no label. Midori and Mitra Aman are two of them. Nothing in either repo compares labels with `data/printed/<id>.json`, and `scripts/validate-cards.py` `check_printed` cross-checks only a few phrases.
+So 1,187 non-static abilities on 1,078 cards have no label. Midori and Mitra Aman are two of them. Nothing in either repo compares labels with `data/printed/<id>.json`, and `scripts/validate_cards.py` `check_printed` cross-checks only a few phrases.
 
 ### Procedure paths
 
