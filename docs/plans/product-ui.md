@@ -132,7 +132,8 @@ Order: U0 → AP → U1 → U2 → U3 → U4 → U5 → U6 → U7. U1 starts aft
 | Finding | Source | Status |
 |---|---|---|
 | axe-core reports `scrollable-region-focusable` (serious) on `.servers` at phone width: the server row scrolls but cannot take keyboard focus. It was there before the layout move, which changed no client code | layout G1 (game #343, `play-check`) | open |
-| `tests/client/board.test.ts` was never typechecked (the client tsconfig excluded it and the root one covered only `src/`). It has 3 type errors; the root tsconfig still excludes `tests/client`, with a comment | layout G1 (game #341) | open |
+| ~~`tests/client/board.test.ts` was never typechecked (the client tsconfig excluded it and the root one covered only `src/`). It has 3 type errors; the root tsconfig still excludes `tests/client`, with a comment~~ Fixed in game #344: `tests/client/` has its own tsconfig on the client's settings, `npm run typecheck:client` checks it in CI, and the 3 errors are fixed | layout G1 (game #341) | fixed |
+| Two game files are still never typechecked: `scripts/visibility-fuzz.ts` (no tsconfig includes `scripts/`) and `client/vite.config.ts` (the client tsconfig includes only `client/src`). Game #344 covered the rest of `tests/client/`, including `lint.test.ts` | Typecheck coverage comparison (2026-11-27) | open |
 
 ## Decisions for a human
 
