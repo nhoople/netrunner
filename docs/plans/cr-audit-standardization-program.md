@@ -6,7 +6,7 @@
 
 **Status:** paused. Updated 2026-11-27.
 
-Paused for the [repository layout plan](repo-layout.md) until its slice X merges. That plan moves `src/state/procedures/` into one folder per area and updates the paths here. One exception: FX-expose, a visibility fix, is running now (started 2026-11-27) and takes the engine before the layout plan's E0. PF-S3d is the last slice done. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card in the catalog has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
+Paused for the [repository layout plan](repo-layout.md) until its slice X merges. That plan moves `src/state/procedures/` into one folder per area and updates the paths here. Two exceptions take the engine before the layout plan's E0: FX-expose, a visibility fix (running, started 2026-11-27), then FX-faceup, a leak FX-expose found (decided 2026-11-27). PF-S3d is the last slice done. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card in the catalog has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
 
 ## Waiting on you
 
@@ -464,6 +464,7 @@ Fix-now sessions (`docs/how-we-work.md`, Findings) and the fixes for what the re
 | FX-window | Stuck run after a paid interrupt | done | engine #1001, game #331, meta #350 | engine (+ game, meta pins) | after PF-S3a, before PF-S3b | Fix-now from the second reader (engine #998, #999): clear the priority frame left after a paid interrupt on a subroutine's damage (9.2.4d), so the run goes on; ask a "choose one" encounter ability once, not again after an interrupt window inside it (9.12.3d; Data Raven, Funhouse with Decoy); The Cleaners' interrupt waits for the active player (9.2.9c) if it is the same window code. Un-skip the second-reader tests and remove their entries. CR first, cr-checker, tests citing the rule, one maintenance release, pins. |
 | FX-view | Pending abilities in seat views | done | engine #1004, game #333, meta #356 | engine (+ game, meta pins) | after PF-S3b, before PF-S3c | Fix-now (visibility): filter `pendingAbilities` and `pendingEffectContinuation` in each seat's view (10.2.2a); keep Subliminal Messaging's turn-begin offer from a facedown copy private to the Corp (10.2.3a); Record Reconstructor shows only faceup Archives cards, the Runner chooses, declining breaches. A test per seat; seat-view-checker on the game side. CR first, cr-checker, one maintenance release, pins. |
 | FX-expose | Expose choices show no titles | running | | engine (+ game, meta pins) | first after the weekly usage reset (2026-11-26), before PF-S3e | Fix-now (visibility): when the Runner chooses among facedown Corp cards (expose, Forged Activation Orders, Tinkering, the generic `expose` kind), the choice shows no titles to the Runner (10.2.2a). A test per seat; seat-view-checker. One maintenance release, pins. |
+| FX-faceup | Accessed cards turn facedown again | next | | engine (+ game, meta pins) | after FX-expose's engine release, before the layout plan's E0 and PF-S3e | Fix-now (visibility), found by FX-expose: an unrezzed installed card the Runner accesses stays faceup after the breach (`access_card` in `src/actions/apply.ts` sets `faceup` and never clears it), so the spectator's log and board and the Runner's own view name it for the rest of the game. Turn it facedown when its breach ends unless it was rezzed, exposed or revealed (7.1.2, 7.3.1a, 10.2.2a). A test per seat; seat-view-checker on the game side. CR first, cr-checker, one maintenance release, pins. |
 
 ### Areas, in run order
 
@@ -553,6 +554,7 @@ Each area follows the [per-area recipe](#the-per-area-recipe-applies-to-every-ar
 | 2026-11-22 | Accept the invariant baseline entry PF-S3c's Architect fix exposed (second-reader 9.11.4e.ex1, `NO_ZONE`) | The same R&D-look bug as the accepted Accelerated Beta Test entry; area 13 removes both with the fix |
 | 2026-11-22 | Disposable HQ: the Corp orders the cards it adds to the bottom of R&D (the engine already does) | "You" is the Corp, and the player carrying out an effect makes its choices (1.14.5); the CR does not say otherwise |
 | 2026-11-22 | FX-expose: the expose-choice title leak is fixed first after the weekly usage reset, before PF-S3e; the second reader's next part starts beside PF-S3e | A leak to a seat meets the narrowed fix-now rule; the weekly limit was at 88% |
+| 2026-11-27 | FX-faceup: the accessed-card faceup leak FX-expose found is fixed next, right after FX-expose, before the layout plan's E0 | A leak to the spectator and the log in a playable build meets the fix-now rule, and the fix is one small slice |
 
 ## Not yet decided
 
