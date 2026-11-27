@@ -31,7 +31,7 @@ Challenge offers Learn to play, Core Sets, Startup, Standard, and Eternal, all a
 
 **New card sets.** Once people play, each new Null Signal Games set is supported before new features, so Standard stays current. See [New card sets](#new-card-sets).
 
-**Free.** No ads, no payments, a fan project. Nathaniel runs the one public host and pays for it. The engine and the game use the MIT license. The two data repos say where their data comes from and that its rights stay with its owners.
+**Free.** No ads, no payments, a fan project. Nathaniel runs the one public host and pays for it. The code in every repo is MIT licensed. The game and the two data repos carry a `NOTICE` saying card and rules text stays Null Signal Games reference material.
 
 ## Order of work
 
@@ -143,7 +143,7 @@ Phase 8: the queue plus a rating, in Core Sets, Startup, Standard, and Eternal. 
 | 2026-11-27 | Play against friends ships first; the casual queue completes version 1 and is the public announcement | Friends' matches find the rough edges while the audience is small |
 | 2026-11-27 | Once players play, each new NSG set is supported before new features | A public Standard that is out of date is not Standard |
 | 2026-11-27 | Free, as free as can be: no ads or payments. Nathaniel runs and pays for the one public host | A fan project; NSG's community favors non-commercial ones |
-| 2026-11-27 | MIT license for the engine and the game. The data repos get a notice that their data's rights stay with its owners | All five repos are public with no license, which lets no one reuse the code. Card and rules text is not Nathaniel's to license |
+| 2026-11-27 | Keep the MIT license on the code in all five repos, and the `NOTICE` in the game and both data repos saying card and rules text stays Null Signal Games reference material | Already in place; this confirms it. Card and rules text is not Nathaniel's to license |
 | 2026-11-27 | Random Access Memories is dropped as a covered format. The widest pool is Eternal | Every card in its pool is already in Eternal, so no card is lost |
 | 2026-11-27 | Tournaments, AI opponents, a phone app, and a second board layout wait until after version 1 | None is needed for two people to play |
 | 2026-11-27 | One plan at a time: layout, the whole CR audit, the board, play against friends, the casual queue | Nathaniel's 2026-11-23 order, confirmed |
