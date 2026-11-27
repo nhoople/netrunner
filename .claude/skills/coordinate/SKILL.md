@@ -20,6 +20,7 @@ A slice session starts with only `CLAUDE.md` and your brief. No persona, memory,
 
 - One fresh session per slice: `start_session` with `context: "fresh"`. Never fork for a slice, and never send a new slice to a session that ran an earlier one.
 - Always pass `model` and `effort` from the "Model and effort" table under Build in `docs/how-we-work.md`. Do not rely on the session inheriting yours.
+- Check the model took: `get_session` right after the start. `start_session` has ignored `model` for Fable 5.2. When it does, start the session with a prompt that only asks it to reply with its model and stop, switch it with `set_session_model`, then send the brief with `SendMessage`, and check `get_session` again.
 - The brief follows the template below, every heading filled. Write "none" rather than leaving a heading out, so a missing item is visible.
 
 ## Brief template
@@ -37,9 +38,24 @@ the one function, module, screen, or model that owns it, and its CR rule for
 engine work>. Call these. Do not copy them. If one is missing or does not
 fit, stop and say so rather than writing a local version.
 
+Setup: you start in this session's meta worktree. For each inner repo you
+write, add a worktree of it here on a claude/* branch, so the main
+checkouts stay on their default branch for other sessions. From this
+worktree's root:
+  git -C "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/<repo>" \
+    worktree add "$PWD/<repo>" -b claude/<name> origin/master
+
 Done: the claude/* PR is merged with CI green. <If engine src/ changes: the
 maintenance release, the game pin, and the meta pin table, per
-docs/git-hygiene.md.> The slice is marked done in its plan.
+docs/git-hygiene.md.> Do not edit the plan; the coordinator records the
+slice there from your report.
+
+Merging: bind each PR with the ccd_pr tools and turn on Auto-fix
+(set_monitor auto_fix), then squash-merge once its required checks pass. Do
+not turn on auto-merge. Engine master refuses a PR that is behind it, so
+rebase on origin/master first, then re-run tests/cr-cited-text.test.ts and
+tests/cr-subrule-coverage.test.ts: their baselines change when other PRs
+land.
 
 Proof: <the proof from the plan's "Tests" for this slice: a played match or
 part of one, a before-and-after screenshot or recording, or a test named for
