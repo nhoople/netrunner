@@ -6,7 +6,7 @@
 
 **Status:** active. Updated 2026-11-27.
 
-D1, C1, R1, E0, G1, E1, E2 and E3 are done. E3 moved the engine's `state/` into its area folders in 16 PRs: `state/` went from 100 files to 4 files and 17 folders, `procedures/` is gone, and the one final proof matched every test, the 300 seeded playouts and the golden transcripts (decision 21). The size baseline lists 9 files for E5 to empty. E4, which sorts `effects/` the same way, is next and waits for Nathaniel's go. C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges.
+D1, C1, R1, E0, G1, E1, E2 and E3 are done. E3 moved the engine's `state/` into its area folders in 16 PRs: `state/` went from 100 files to 4 files and 17 folders, `procedures/` is gone, and the one final proof matched every test, the 300 seeded playouts and the golden transcripts (decision 21). The size baseline lists 9 files for E5 to empty. E4, which sorts `effects/` the same way, is running (started 2026-11-27): one move PR per area folder, then the one final no-change proof. C2 waits for E-tests. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges.
 
 ## Waiting on you
 
@@ -51,7 +51,7 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | E1 `effects/ir.ts` | done | engine #1013, #1014 | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
 | E2 `state/types.ts` | done | engine #1015 | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
 | E3 `state/` by procedure | done | engine #1016–#1031 | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
-| E4 `effects/` by procedure | next |  | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
+| E4 `effects/` by procedure | running |  | engine | after E3 | Sort the three-verb `primitives/` files, the `*Primitives.ts` files and the `kinds/` files into the area folders. Split `otherKinds.ts`, `installKinds.ts` and `trashKinds.ts` along the way |
 | E5 the rest | to do |  | engine | after E4 | Split every file still on the size baseline below the limit: `timing/graph.ts`, `legality/checkpoints.ts`, `cards/load.ts`, `actions/apply.ts`, `state/costs.ts`, `effects/eval.ts`, and any other E0 lists. Give the two `breachReplacement.ts` files distinct names. Remove the pointer files left by E1 and E2 by updating their importers. The size baseline should then be empty |
 | E-tests | to do |  | engine (tests only) | after E5, when no other session writes engine tests | Move all engine tests into folders that mirror the new code folders, in one go. Regenerate the baselines that record test file paths (about ten in `tests/baselines/`), update the mutation-test globs in `stryker/`, and add the test placement check. Write `tests/README.md` |
 | C2 card data | to do |  | cards | after C1 and E-tests | Regroup `data/` into the card data groups. Move the bookkeeping out. Update the schema's `$id`, the validators, the generators and the README's "Consume the data" table. Not tagged until X |
