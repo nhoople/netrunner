@@ -1,0 +1,20 @@
+name: Hook check
+
+# Tests for the session hooks in .claude/hooks.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hook-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+      - name: Test the hooks
+        run: node --test .claude/hooks/

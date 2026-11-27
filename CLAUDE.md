@@ -88,4 +88,4 @@ Cards `v1.145.0` writes the procedure names. A new kind that skips the verb rule
 
 ## End-of-session sync
 
-When Nathaniel ends the session or the day's work, run `/sync` (`.claude/skills/sync/`) before stopping. It follows the end-of-session steps and release policy in `docs/git-hygiene.md`, which is the one source for them. If a later session finds a repo off that state, finish the sync before new work.
+When Nathaniel ends the session or the day's work, run `/sync` (`.claude/skills/sync/`) before stopping. It follows the end-of-session steps and release policy in `docs/git-hygiene.md`, which is the one source for them. If a later session finds a repo off that state, finish the sync before new work. A `SessionStart` hook (`.claude/hooks/sync-check.mjs`) checks the five checkouts when a session opens and reports what is off, kept apart from branches and worktrees a running slice session may own.
