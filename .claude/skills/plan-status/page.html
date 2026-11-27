@@ -184,12 +184,12 @@
     for (const r of rows) by[r.status] = (by[r.status] || 0) + 1;
     const states = Object.keys(ORDER).filter((s) => by[s]).map((s) => by[s] + ' ' + s).join(', ');
     el.replaceChildren(
-      cur ? ['Step ', h('b', {}, String(cur.step)), ' of ', h('b', {}, String(path.data.length)), ' toward version 1: ' + cur.label + '. '] : '',
+      ...(cur ? ['Step ', h('b', {}, String(cur.step)), ' of ', h('b', {}, String(path.data.length)), ' toward version 1: ' + cur.label + '. '] : []),
       asks ? h('b', {}, String(asks)) : 'No',
       ' ' + plural(asks, 'question waits', 'questions wait') + ' on you. ',
       h('b', {}, String(rows.length)), ' plans (' + states + '); ',
       h('b', {}, String(done)), ' of ', h('b', {}, String(slices)), ' slices done',
-      running ? [', ', h('b', {}, String(running)), ' running now.'] : ', none running now.',
+      ...(running ? [', ', h('b', {}, String(running)), ' running now.'] : [', none running now.']),
     );
   });
 
