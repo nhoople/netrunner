@@ -4,9 +4,9 @@
 
 ## Where it stands
 
-**Status:** not started. Updated 2026-11-22.
+**Status:** not started. Updated 2026-11-27.
 
-No slice has started. D1, the doc fixes, is next and can start any time. The engine slices start with E0, after the CR audit's FX-expose merges (no sooner than 2026-11-26). The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
+No slice has started. D1, the doc fixes, is next and can start any time. The engine slices start with E0, after the CR audit's FX-expose (running) and FX-faceup (next) merge and release. D1 waits for them too, because it writes the engine and game repos. The [CR audit](cr-audit-standardization-program.md) is paused until slice X merges (see [Pause and resume](#pause-and-resume)).
 
 ## Waiting on you
 
@@ -47,7 +47,7 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 | C1 cards tools | to do |  | cards | after D1, beside R1, G1 and E | `scripts/` for commands, `tests/` for tests. Per-pack generators move to `scripts/generate/`. One naming style for script files. CI and README follow. Layout map check. No release |
 | R1 rules data tools | to do |  | CR data | after D1, beside C1, G1 and E | Rename `source/` to a name that can't be confused with `src/`. Same `scripts/` and `tests/` shape as cards. The published data (`data/`, `nodes/`) stays where it is. Layout map check. No release |
 | G1 game | to do |  | game | after D1, when no other session writes `netrunner-game` (product UI slices wait) | Group the 32 files in `src/` into folders (server, match, seat views, export, …). Tests into `tests/` mirroring them, browser tests into `tests/browser/`. `public/` stays, because its paths are the verification table's web addresses. Layout map and test placement checks. Rewrite the README layout |
-| E0 engine checks and names | to do |  | engine (tests only) | after FX-expose merges | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
+| E0 engine checks and names | to do |  | engine (tests only) | after FX-expose and FX-faceup merge | The size check and the layout map check. Fix the area folder names and record them in Shared pieces above. Record the safe point (the last engine, cards and game versions before E1) in [Pause and resume](#pause-and-resume) |
 | E1 `effects/ir.ts` | to do |  | engine | after E0 | Split by kind family to match `effects/kinds/`. The old file stays as a pointer to the new files, so its 136 importers need not change in the same PR |
 | E2 `state/types.ts` | to do |  | engine | after E1 | Split by what the types describe (cards, servers, players, runs, pending choices, …). The old file stays as a pointer for its 357 importers |
 | E3 `state/` by procedure | to do |  | engine | after E2 | Move the 100 `state/` files and `state/procedures/` into the area folders. Rename the card-named files for what they do. One PR per area folder |
@@ -59,9 +59,9 @@ One PR per move, each merged as a single commit, so GitHub's Revert button undoe
 
 ## Pause and resume
 
-PF-S3d finished on 2026-11-22 (engine `v1.147.286`, cards `v1.147.29`). No CR audit session starts until slice X is merged, with one exception: FX-expose, the fix-now visibility slice scheduled after the weekly usage reset on 2026-11-26, takes the engine first (decision 17). E0 starts after FX-expose merges. Slices that do not touch engine code (D1, C1, R1, G1) can start any time.
+PF-S3d finished on 2026-11-22 (engine `v1.147.286`, cards `v1.147.29`). No CR audit session starts until slice X is merged, with one exception: FX-expose, the fix-now visibility slice scheduled after the weekly usage reset on 2026-11-26, takes the engine first (decision 17), and so does FX-faceup, the leak FX-expose found (decision 18). E0 starts after both merge. Slices that do not touch engine code (D1, C1, R1, G1) can start any time.
 
-Safe point (filled in by E0): the last engine, cards and game releases before E1, which include FX-expose. Until X lands, the game stays on them. If X causes a problem, the game's pins go back to the safe point in one PR.
+Safe point (filled in by E0): the last engine, cards and game releases before E1, which include FX-expose and FX-faceup. Until X lands, the game stays on them. If X causes a problem, the game's pins go back to the safe point in one PR.
 
 ## Decisions for a human
 
@@ -84,6 +84,7 @@ Safe point (filled in by E0): the last engine, cards and game releases before E1
 | 15 | The new layout ships as an explicit manual cut: cards and engine both at `v1.148.0`, the same release as decision 3's | 2026-11-22 | One version number then means "new layout". Old tags keep the old layout, so anything pinned to them keeps working |
 | 16 | Keep each repo's `AGENTS.md` as the one home of that repo's setup and test commands. `CLAUDE.md` points to it, and a one-line `CLAUDE.md` in each repo loads it | 2026-11-22 | They are the only guidance an outside agent or a single-repo cloud session gets. One copy can't drift |
 | 17 | A fix-now finding takes the engine before the reorg's engine slices, not after slice X. FX-expose (the expose-choice title leak, CR 10.2.2a) runs first on 2026-11-26, then E0 | 2026-11-22 | A leak of hidden cards is what the fix-now rule exists for, and it is one small slice against many moves |
+| 18 | FX-faceup, a visibility leak FX-expose found (an accessed card stays faceup after the breach, CR 7.3.1a), also runs before E0 | 2026-11-27 | The same reason as 17; Nathaniel chose it on 2026-11-27 |
 
 ## Tests
 
