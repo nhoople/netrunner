@@ -97,7 +97,7 @@ Why so few findings get fixed right away: fixing one copy of a procedure turns u
 A rule written in [`CLAUDE.md`](../CLAUDE.md) works only if the agent reads it and obeys. A check works every time. When the same correction happens twice, the agent fixes the mistake and then makes it fail automatically, in this order of preference:
 
 1. Change the structure so the mistake cannot be written. For example, one shared function, with the old copies deleted.
-2. A type, lint, or test that fails and names the right thing to use. [`tests/effect-ir-names.test.ts`](https://github.com/nhoople/netrunner-engine/blob/master/tests/effect-ir-names.test.ts) in the engine is the model.
+2. A type, lint, or test that fails and names the right thing to use. [`tests/effects/effect-ir-names.test.ts`](https://github.com/nhoople/netrunner-engine/blob/master/tests/effects/effect-ir-names.test.ts) in the engine is the model.
 3. A hook in `.claude/hooks/` that reminds a session at the moment it goes wrong, like `lsp-nudge` and `wait-nudge`.
 4. Text in `CLAUDE.md`, only for judgment calls nothing can check.
 

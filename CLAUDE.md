@@ -84,7 +84,7 @@ Kinds are snake_case. A kind names the procedure: verb, then object (`trash_prog
 - `_resolve`, `_pick`, and `_continue` are follow-ups the engine builds during an open choice. They are not the name of the printed ability.
 - Fields are camelCase. `choose_card` fills `$chosen` into `then`.
 
-Cards `v1.145.0` writes the procedure names. A new kind that skips the verb rule fails `tests/effect-ir-names.test.ts`. Do not bump the cards pin unless a release is intended.
+Cards `v1.145.0` writes the procedure names. A new kind that skips the verb rule fails `tests/effects/effect-ir-names.test.ts`. Do not bump the cards pin unless a release is intended.
 
 ## End-of-session sync
 

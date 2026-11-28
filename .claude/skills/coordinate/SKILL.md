@@ -53,8 +53,8 @@ slice there from your report.
 Merging: bind each PR with the ccd_pr tools and turn on Auto-fix
 (set_monitor auto_fix), then squash-merge once its required checks pass. Do
 not turn on auto-merge. Engine master refuses a PR that is behind it, so
-rebase on origin/master first, then re-run tests/cr-cited-text.test.ts and
-tests/cr-subrule-coverage.test.ts: their baselines change when other PRs
+rebase on origin/master first, then re-run tests/cr-citations/cr-cited-text.test.ts and
+tests/cr-citations/cr-subrule-coverage.test.ts: their baselines change when other PRs
 land.
 
 Waiting: end a turn that promises a next step only when something will

@@ -15,7 +15,7 @@ const REPOS = {
   "netrunner-engine": {
     isSource: (f) => f.startsWith("src/"),
     isTest: (f) => f.startsWith("tests/"),
-    testHint: "Engine: a test under tests/, then `npm test` (the affected file first, then the suite for a rules change).",
+    testHint: "Engine: a test under tests/, in the folder that mirrors the src/ folder or names its kind of check (tests/README.md), then `npm test` (the affected file first, then the suite for a rules change).",
     crChecker: true,
   },
   "netrunner-game": {
