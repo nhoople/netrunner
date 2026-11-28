@@ -6,7 +6,7 @@
 
 **Status:** paused. Updated 2026-11-27.
 
-Paused for the [repository layout plan](repo-layout.md) until its slice X merges, which moves `src/state/procedures/` into area folders. Fix-now slices take the engine first: FX-expose (engine `v1.147.287`) and FX-faceup (`v1.147.288`) are done, so no seat sees the titles of facedown cards the Runner chooses among or accesses in a server. A third leak, in HQ access (Snare!), is filed under area 4: Nathaniel chose on 2026-11-27 not to fix it early, so the layout plan's D1 started. After the pause: PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
+Paused for the [repository layout plan](repo-layout.md) until its slice X merges, which moves `src/state/procedures/` into area folders. Fix-now slices take the engine first: FX-expose (engine `v1.147.287`) and FX-faceup (`v1.147.288`) are done, so no seat sees the titles of facedown cards the Runner chooses among or accesses in a server. A third leak, in HQ access (Snare!), is filed under area 4: Nathaniel chose on 2026-11-27 not to fix it early, so the layout plan's D1 started. After the pause: first regenerate the stale tables of tools 1.13, 1.17 and 1.18, then PF-S3e and PF-S3f, the second reader's last part beside them, then area 3. Every card has a sweep result: 1,348 match, 359 wrong, 259 filed, 50 fixed.
 
 ## Waiting on you
 
