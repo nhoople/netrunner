@@ -52,7 +52,11 @@ def capped(items: list[str], indent: str = "  ") -> None:
 
 def our_cards(root: Path) -> tuple[set[str], dict[str, str]]:
     """Our card ids, and printed title (lowercase) -> id."""
-    printed = root / "netrunner-cards-data" / "data" / "printed"
+    cards = root / "netrunner-cards-data"
+    # Cards C2 moved printed text to data/print/printed; older checkouts keep data/printed.
+    printed = cards / "data" / "print" / "printed"
+    if not printed.is_dir():
+        printed = cards / "data" / "printed"
     ids: set[str] = set()
     titles: dict[str, str] = {}
     for path in printed.glob("*.json"):
@@ -67,7 +71,11 @@ def our_cards(root: Path) -> tuple[set[str], dict[str, str]]:
 
 
 def cards_json(root: Path, repo: Path, ids: set[str]) -> None:
-    pin_path = root / "netrunner-cards-data" / "data" / "nsg-catalog-pin.json"
+    cards = root / "netrunner-cards-data"
+    # Cards C2 moved the catalog pin to bookkeeping/; older checkouts keep it in data/.
+    pin_path = cards / "bookkeeping" / "nsg-catalog-pin.json"
+    if not pin_path.is_file():
+        pin_path = cards / "data" / "nsg-catalog-pin.json"
     try:
         pin = json.loads(pin_path.read_text(encoding="utf-8"))["ref"]
     except (OSError, ValueError, KeyError):
