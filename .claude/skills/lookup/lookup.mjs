@@ -112,21 +112,38 @@ function cmdCr() {
 
 // ---------- Cards ----------
 
+// Cards v1.148.0 and later group data/ into rules/, print/, formats/ and
+// rulings/; earlier tags keep the flat layout. vendor/cards-data mirrors data/.
+function cardPaths(dir, tag) {
+  if (existsSync(join(dir, "rules", "pool.json"))) {
+    return { rules: join(dir, "rules"), printed: join(dir, "print", "printed"), rulings: join(dir, "rulings", "rulings") };
+  }
+  if (existsSync(join(dir, "pool.json"))) {
+    return { rules: dir, printed: join(dir, "printed"), rulings: join(dir, "rulings") };
+  }
+  die(`No pool.json in ${dir} (cards ${tag}): neither rules/pool.json nor the flat layout. Run \`npm run fetch-cards\` in ${engine}.`);
+}
+
 function loadCards() {
   const { dir, tag } = checkPin("cards");
+  const paths = cardPaths(dir, tag);
+  for (const p of [paths.printed, paths.rulings]) if (!existsSync(p)) die(`No ${p} (cards ${tag}). Run \`npm run fetch-cards\` in ${engine}.`);
   const cards = [];
   for (const side of ["corp", "runner"]) {
-    for (const type of readdirSync(join(dir, side))) {
-      const tdir = join(dir, side, type);
+    for (const type of readdirSync(join(paths.rules, side))) {
+      const tdir = join(paths.rules, side, type);
       for (const f of readdirSync(tdir)) if (f.endsWith(".json")) cards.push(readJson(join(tdir, f)));
     }
   }
+  // Every card has a printed file, so a missing one is an error.
   const printed = (id) => {
-    const p = join(dir, "printed", `${id}.json`);
-    return existsSync(p) ? readJson(p) : null;
+    const p = join(paths.printed, `${id}.json`);
+    if (!existsSync(p)) die(`No printed text for "${id}" at ${p} (cards ${tag}).`);
+    return readJson(p);
   };
+  // Only cards with rulings have a file; the folder itself is checked above.
   const rulings = (id) => {
-    const p = join(dir, "rulings", `${id}.json`);
+    const p = join(paths.rulings, `${id}.json`);
     return existsSync(p) ? readJson(p).rulings ?? [] : [];
   };
   return { cards, printed, rulings, tag };

@@ -82,7 +82,7 @@ print(f"   engine src/ commits on master since latest tag: {n}")
 import re
 skip = re.compile(r"^(README\.md|docs/history\.md|docs/plans/|tests/)")
 pinword = re.compile(r"(Pins today|\| \*\*Current\*\* \||pinned to tag|pins this tag|[Ff]loor today|Shipped floor|Current floor:\*\* \*\*`v|Floor:\*\* `?v1|Floor `v1)")
-ver = re.compile(r"`?v1\.147\.\d+`?")
+ver = re.compile(r"`?v1\.\d+\.\d+`?")
 hits = []
 for repo in ["", "netrunner-engine", "netrunner-cards-data", "netrunner-comprehensive-rules-data", "netrunner-game"]:
     path = f"{root}/{repo}" if repo else root
