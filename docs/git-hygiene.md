@@ -31,7 +31,7 @@ Set-complete milestones (or an explicit manual cut) share one semver on cards-da
 
 Run when a pack reaches **100% clear** (or explicit deferrals documented) and `pool.json` marks the wave **`supported`**. Do **not** run after every IR slice or semver tag.
 
-1. **Pool** — Set the wave to `supported` in `netrunner-cards-data` `data/pool.json`. Every listed card must have empty `unsupported` (or an explicit reason in `data/supported-unsupported-allowlist.json`); CI enforces this.
+1. **Pool** — Set the wave to `supported` in `netrunner-cards-data` `data/rules/pool.json`. Every listed card must have empty `unsupported`. The cards CI accepts an explicit reason in `bookkeeping/supported-unsupported-allowlist.json`; the engine's pool test accepts none, because that file is not vendored.
 2. **Pin pair** — Final cards annotated tag `vX.Y.0` and matching engine `data/cards-pin.json` bump + annotated engine tag on the pin merge commit (same semver on both repos at set-complete). An engine-only maintenance release may advance the engine tag alone when the card corpus does not change.
 3. **Milestone Releases** — Official GitHub Releases on **both** cards-data and engine at that set-complete tag (or an explicit manual release). Engine-only maintenance releases (patch tags when `src/` changes and consumers should pick them up) are separate — see [`git-hygiene.md`](git-hygiene.md).
 4. **README pairing** — Update Cards ↔ engine pairing sections in both repo READMEs.

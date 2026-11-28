@@ -33,6 +33,6 @@ The default card view shows printed text, stats, and per ability its class, trig
 
 ## Versions
 
-Data comes from `netrunner-engine/vendor/cr-data` and `vendor/cards-data`. Each output names the tag it read. If `vendor/` is behind `data/cr-pin.json` or `data/cards-pin.json`, the script warns; run `npm run fetch-cr` or `npm run fetch-cards` in the engine. To read another engine checkout (a worktree), pass `--engine <dir>`.
+Data comes from `netrunner-engine/vendor/cr-data` and `vendor/cards-data`. Each output names the tag it read. If `vendor/` is behind `data/cr-pin.json` or `data/cards-pin.json`, the script warns; run `npm run fetch-cr` or `npm run fetch-cards` in the engine. To read another engine checkout (a worktree), pass `--engine <dir>`. It reads cards `v1.148.0` and later in their grouped layout (`rules/`, `print/printed/`, `rulings/rulings/`) and older tags in the flat one. A missing printed or rulings folder, or a card with no printed file, is an error, not an empty result; a card with no rulings file has no rulings.
 
 This reads the pinned datasets, not the working tree of `netrunner-cards-data` or `netrunner-comprehensive-rules-data`. For an unreleased card change, read that repo's files directly.

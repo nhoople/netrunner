@@ -18,9 +18,9 @@ Fall back to the files below when the script cannot answer (timing structures, c
 
 ## Sources, in order of authority
 
-1. **Card text wins on a direct contradiction (CR 1.2.1).** The printed text is in `netrunner-cards-data/data/printed/<slug>.json` (`text`, with `strippedText` as plain text). Read it at the engine's cards pin, not the working tree:
-   `git -C netrunner-cards-data show <tag>:data/printed/<slug>.json`
-   where `<tag>` is `tag` in `netrunner-engine/data/cards-pin.json`. The engine's model of the card is `data/<side>/<type>/<slug>.json` at the same tag. Its abilities are the engine's version, not the printed text. A paid ability's `label` and a subroutine's `text` paraphrase the printing. Conditional, play, and static abilities have no label. Each ability's `rule` names the CR node it was modelled on. Where the model and the printed text differ, the printed text decides, and the difference is a finding.
+1. **Card text wins on a direct contradiction (CR 1.2.1).** The printed text is in `netrunner-cards-data/data/print/printed/<slug>.json` (`text`, with `strippedText` as plain text). Read it at the engine's cards pin, not the working tree:
+   `git -C netrunner-cards-data show <tag>:data/print/printed/<slug>.json`
+   where `<tag>` is `tag` in `netrunner-engine/data/cards-pin.json`. The engine's model of the card is `data/rules/<side>/<type>/<slug>.json` at the same tag. Tags before `v1.148.0` have the flat layout: `data/printed/<slug>.json` and `data/<side>/<type>/<slug>.json`. Its abilities are the engine's version, not the printed text. A paid ability's `label` and a subroutine's `text` paraphrase the printing. Conditional, play, and static abilities have no label. Each ability's `rule` names the CR node it was modelled on. Where the model and the printed text differ, the printed text decides, and the difference is a finding.
 2. **The CR at the engine's pin.** The pin is `tag` in `netrunner-engine/data/cr-pin.json` (currently `v26.03`). Prefer the vendored copy, which is exactly that tag:
    - `netrunner-engine/vendor/cr-data/index.json`: `numbers` maps printed number → node id, `ids` maps id → number.
    - `netrunner-engine/vendor/cr-data/nodes.json`: flat node list with `number`, `title`, `text_plain`, `parent_id`, `child_ids`, `examples`.

@@ -60,7 +60,7 @@ One Learn to play match, both seats, through the Corp's first turn and a Runner 
 | 8 | An access leaves no trace | The accessed card was shown and gone in the same update. Only the log recorded that an access happened |
 | 9 | Hidden cards are blank boxes | Unrezzed ice reads "Ice" and a facedown card reads "Card". No card back, no rezzed or unrezzed state beyond a border |
 | 10 | Zones are missing | The board model carries score areas, set-aside cards, and removed-from-game cards. The table component draws none of them. Counters and advancement are not on the board |
-| 11 | Card text is the host's paraphrase | The glossary builds text from engine fields. The printed text is in `data/printed/` in the cards data and is not sent |
+| 11 | Card text is the host's paraphrase | The glossary builds text from engine fields. The printed text is in `data/print/printed/` in the cards data and is not sent |
 | 12 | Narrow screens overflow | At 375 px wide the stat rows and server row run off the right edge |
 | 13 | Rule step ids are shown raw | The header reads "Rules 11.3_1_f_ii — If yes, the Runner takes an action." That suits the test table, not a player |
 
